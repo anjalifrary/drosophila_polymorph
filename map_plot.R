@@ -62,4 +62,4 @@ png(
 
 print(a)
 dev.off()
-message(paste0("Saved map to ", png_file))
+message(paste0("Saved map to ", image_file))
