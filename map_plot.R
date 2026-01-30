@@ -16,10 +16,17 @@ if (!dir.exists(out_dir)) {
 
 #### samples file
 # melanogaster
-samps <- fread(file.path(in_dir,"dest_v2.samps_24Aug2024.xa.csv"))
+mel <- fread(file.path(in_dir,"dest_v2.samps_24Aug2024.xa.csv"))
+mel[, set:="mel"]
 
 # simulans
-# samps <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
+sim <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
+sim[, set:="sim"]
+
+mel$source <- "mel"
+sim$source <- "sim"
+
+samps <- bind_rows(mel,sim)
 
 # samps[, set := "Other"]
 # samps[grepl(":", oldName),set:="Prev. Published"]
@@ -41,7 +48,8 @@ a <- ggplot() +
     aes(x=long,
         y=lat), 
         size = 2.5, 
-        shape = 21
+        shape = 21,
+        fill = "#cccccc", color = "#cccccc"
   ) +
   theme_classic(base_size = 14) +
   coord_quickmap() +
@@ -70,5 +78,3 @@ print(a)
 dev.off()
 message(paste0("Saved map to ", image_file))
 
-# ,
-#         fill = "#cccccc", color = "#cccccc"
