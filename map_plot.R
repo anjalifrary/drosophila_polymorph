@@ -5,8 +5,17 @@ library(ggplot2)
 
 
 ##### A) Map
+
+## set directories
+in_dir <- "/project/berglandlab/anjali/drosophila_polymorphism/metadata"
+out_dir <- "/project/berglandlab/anjali/drosophila_polymorphism/figures"
+
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+}
+
 #### samples file
-samps <- fread("/project/berglandlab/anjali/drosophila_polymorphism/metadata/simulans_pooled.meta.use.csv")
+samps <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
 samps[grepl(":", oldName),set:="Prev. Published"]
 samps[!grepl(":", oldName),set:="Contaminated DEST"]
 
@@ -15,7 +24,7 @@ world <- map_data("world")
 a <- ggplot() +
   geom_polygon(
     data = world,
-    aes(x = long, y = lat, map_id = region),
+    aes(x = long, y = lat, group=group),
     fill = "#cccccc", 
     color = "darkgray", 
     linewidth = 0.1
@@ -40,3 +49,17 @@ a <- ggplot() +
   axis.text = element_text(color = "black")
   ) 
 a
+
+## save file
+image_file <- file.path(out_dir, "simulans_map.png")
+
+png(
+  filename = png_file,
+  width = 2400,
+  height = 1300,
+  res = 300
+)
+
+print(a)
+dev.off()
+message(paste0("Saved map to ", png_file))
