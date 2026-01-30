@@ -21,7 +21,7 @@ samps <- fread(file.path(in_dir,"dest_v2.samps_24Aug2024.xa.csv"))
 # simulans
 # samps <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
 
-samps[, set := "All"]
+# samps[, set := "All"]
 # samps[grepl(":", oldName),set:="Prev. Published"]
 # samps[!grepl(":", oldName),set:="Other"]
 # formerly Other was named Contaminated DEST - why?
@@ -39,8 +39,7 @@ a <- ggplot() +
   geom_point(
     data = samps,
     aes(x=long,
-        y=lat,
-        fill = set, color = set), 
+        y=lat), 
         size = 2.5, 
         shape = 21
   ) +
