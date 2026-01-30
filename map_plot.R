@@ -39,8 +39,7 @@ a <- ggplot() +
   geom_point(
     data = samps,
     aes(x=long,
-        y=lat,
-        fill = "#cccccc", color = "#cccccc"), 
+        y=lat), 
         size = 2.5, 
         shape = 21
   ) +
@@ -70,3 +69,6 @@ png(
 print(a)
 dev.off()
 message(paste0("Saved map to ", image_file))
+
+# ,
+#         fill = "#cccccc", color = "#cccccc"
