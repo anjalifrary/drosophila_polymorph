@@ -57,7 +57,7 @@ a <- ggplot() +
 a
 
 ## save file
-image_file <- file.path(out_dir, "simulans_map.png")
+image_file <- file.path(out_dir, "melanogaster_map.png")
 
 png(
   filename = image_file,
