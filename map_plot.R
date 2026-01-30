@@ -57,8 +57,8 @@ image_file <- file.path(out_dir, "simulans_map.png")
 
 png(
   filename = image_file,
-  width = 1000,
-  height = 500,
+  width = 2000,
+  height = 1000,
   res = 300
 )
 
