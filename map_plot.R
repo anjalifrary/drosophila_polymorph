@@ -16,8 +16,10 @@ if (!dir.exists(out_dir)) {
 
 #### samples file
 samps <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
+
 samps[grepl(":", oldName),set:="Prev. Published"]
-samps[!grepl(":", oldName),set:="Contaminated DEST"]
+samps[!grepl(":", oldName),set:="Other"]
+# formerly Other was named Contaminated DEST - why?
 
 world <- map_data("world")
 
@@ -55,8 +57,8 @@ image_file <- file.path(out_dir, "simulans_map.png")
 
 png(
   filename = image_file,
-  width = 2400,
-  height = 1300,
+  width = 1000,
+  height = 500,
   res = 300
 )
 
