@@ -15,7 +15,11 @@ if (!dir.exists(out_dir)) {
 }
 
 #### samples file
-samps <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
+# melanogaster
+samps <- fread(file.path(in_dir,"dest_v2.samps_24Aug2024.xa.csv"))
+
+# simulans
+# samps <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
 
 samps[grepl(":", oldName),set:="Prev. Published"]
 samps[!grepl(":", oldName),set:="Other"]
