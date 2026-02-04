@@ -49,19 +49,16 @@ a <- ggplot() +
   ) + 
   geom_point(
     data = samps,
-    aes(x=long, y=lat, fill = species, color = species), 
+    aes(x=long, y=lat, fill = species), 
+    color = "black",
         size = 2.5, 
         shape = 21
         # fill = "#cccccc", color = "#cccccc"
   ) +
   theme_classic(base_size = 12) +
   coord_quickmap() +
-  scale_fill_manual(values = c(
-    "D. mel"="#f27f65",
-  "D. sim"="#8c89c1")) +
-  scale_color_manual(values = c(
-    "D.mel"="#D05438",
-  "D. sim"="#615E93")) +
+  scale_fill_manual(values = c("D. mel"="#f27f65", "D. sim"="#8c89c1")) +
+  # scale_color_manual(values = c("D. mel"="#D05438", "D. sim"="#615E93")) +
   theme(legend.position = "bottom",
   panel.grid = element_blank(), 
   # panel.background = element_blank(), 
