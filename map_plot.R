@@ -24,7 +24,9 @@ sim <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
 sim[, species :="D. sim"]
 
 #combine data sets
-samps <- bind_rows(mel,sim)
+samps <- rbindlist(list(mel, sim), fill = TRUE)
+
+# samps <- bind_rows(mel,sim)
 
 # mel$source <- "mel"
 # sim$source <- "sim"
