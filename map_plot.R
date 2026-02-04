@@ -17,25 +17,14 @@ if (!dir.exists(out_dir)) {
 #### samples file
 # melanogaster
 mel <- fread(file.path(in_dir,"dest_v2.samps_24Aug2024.xa.csv"))
-mel[, species :="D. mel"]
+mel[, species :="D. melanogaster"]
 
 # simulans
 sim <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
-sim[, species :="D. sim"]
+sim[, species :="D. simulans"]
 
 #combine data sets
 samps <- rbindlist(list(mel, sim), fill = TRUE)
-
-# samps <- bind_rows(mel,sim)
-
-# mel$source <- "mel"
-# sim$source <- "sim"
-
-
-# samps[, set := "Other"]
-# samps[grepl(":", oldName),set:="Prev. Published"]
-# samps[!grepl(":", oldName),set:="Other"]
-# formerly Other was named Contaminated DEST - why?
 
 world <- map_data("world")
 
@@ -57,7 +46,7 @@ a <- ggplot() +
   ) +
   theme_classic(base_size = 12) +
   coord_quickmap() +
-  scale_fill_manual(values = c("D. mel"="#f27f65", "D. sim"="#8c89c1")) +
+  scale_fill_manual(values = c("D. melanogaster"="#f27f65", "D. simulans"="#8c89c1")) +
   # scale_color_manual(values = c("D. mel"="#D05438", "D. sim"="#615E93")) +
   theme(legend.position = "bottom",
   panel.grid = element_blank(), 
@@ -67,7 +56,7 @@ a <- ggplot() +
   ) 
 a
 
-## save file
+### Save file
 image_file <- file.path(out_dir, "sample_map.png")
 
 png(
