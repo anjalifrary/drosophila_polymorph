@@ -17,16 +17,18 @@ if (!dir.exists(out_dir)) {
 #### samples file
 # melanogaster
 mel <- fread(file.path(in_dir,"dest_v2.samps_24Aug2024.xa.csv"))
-mel[, set:="mel"]
+mel[, species :="D. mel"]
 
 # simulans
 sim <- fread(file.path(in_dir,"simulans_pooled.meta.use.csv"))
-sim[, set:="sim"]
+sim[, species :="D. sim"]
 
-mel$source <- "mel"
-sim$source <- "sim"
-
+#combine data sets
 samps <- bind_rows(mel,sim)
+
+# mel$source <- "mel"
+# sim$source <- "sim"
+
 
 # samps[, set := "Other"]
 # samps[grepl(":", oldName),set:="Prev. Published"]
@@ -45,27 +47,29 @@ a <- ggplot() +
   ) + 
   geom_point(
     data = samps,
-    aes(x=long,
-        y=lat), 
+    aes(x=long, y=lat, fill = species, color = species), 
         size = 2.5, 
-        shape = 21,
-        fill = "#cccccc", color = "#cccccc"
+        shape = 21
+        # fill = "#cccccc", color = "#cccccc"
   ) +
-  theme_classic(base_size = 14) +
+  theme_classic(base_size = 12) +
   coord_quickmap() +
-  scale_fill_manual(values = c("#f27f65","#8c89c1","#a5c9cc")) +
-  scale_color_manual(values = c("#D05438","#615E93","#6F9FA3")) +
+  scale_fill_manual(values = c(
+    "D. mel"="#f27f65",
+  "D. sim"="#8c89c1")) +
+  scale_color_manual(values = c(
+    "D.mel"="#D05438",
+  "D. sim"="#615E93")) +
   theme(legend.position = "bottom",
-  panel.grid.major = element_blank(), 
-  panel.grid.minor = element_blank(), 
-  panel.background = element_blank(), 
+  panel.grid = element_blank(), 
+  # panel.background = element_blank(), 
   axis.line = element_blank(), 
   axis.text = element_text(color = "black", size=8)
   ) 
 a
 
 ## save file
-image_file <- file.path(out_dir, "melanogaster_map.png")
+image_file <- file.path(out_dir, "sample_map.png")
 
 png(
   filename = image_file,
