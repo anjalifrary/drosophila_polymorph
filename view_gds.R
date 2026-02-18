@@ -20,9 +20,18 @@ mel_freq <- seqAlleleFreq(mel_gds)
 sim_freq <- seqAlleleFreq(sim_gds)
 head(mel_freq)
 summary(mel_freq)
-hist(mel_freq, breaks=50)
+# hist(mel_freq, breaks=50)
+mel_df <- data.frame(freq = mel_freq)
 
-
+## histogram
+library(ggplot2)
+p <- ggplot(mel_df, aes(x=freq) + 
+    geom_histograph(binwidth=0.05) +
+    labs(title = "Distribution of Mel Allele Frequencies",
+    x = "Allele Frequency",
+    y = "Count")
+)
+ggsave("/scratch/ejy4bu/drosophila/gds_analysis/mel_freq_histogram.jpg", plot = p, width-8,height=6)
 
 ### to run:
 # ijob -A berglandlab -c2 -p standard --mem=40G
