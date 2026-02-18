@@ -22,16 +22,32 @@ head(mel_freq)
 summary(mel_freq)
 # hist(mel_freq, breaks=50)
 mel_df <- data.frame(freq = mel_freq)
+sim_df <- data.frame(freq = sim_freq)
 
-## histogram
+### histogram of allele frequency
+
+## allele freq = (# alt alleles observed)/(# total alleles observed)
+# near 1 => fixed alleles
+# near 0.5 => SNP
+# near 0 => rare allele
+
 library(ggplot2)
-p <- ggplot(mel_df, aes(x=freq) + 
-    geom_histograph(binwidth=0.05) +
+
+# mel:
+p <- ggplot(mel_df, aes(x=freq)) + 
+    geom_histogram(binwidth=0.05) +
     labs(title = "Distribution of Mel Allele Frequencies",
     x = "Allele Frequency",
     y = "Count")
-)
-ggsave("/scratch/ejy4bu/drosophila/gds_analysis/mel_freq_histogram.jpg", plot = p, width-8,height=6)
+ggsave("/scratch/ejy4bu/drosophila/gds_analysis/mel_freq_histogram.jpg", plot = p, width=8,height=6)
+
+# sim
+p <- ggplot(sim_df, aes(x=freq)) + 
+    geom_histogram(binwidth=0.05) +
+    labs(title = "Distribution of Sim Allele Frequencies",
+    x = "Allele Frequency",
+    y = "Count")
+ggsave("/scratch/ejy4bu/drosophila/gds_analysis/sim_freq_histogram.jpg", plot = p, width=8,height=6)
 
 ### to run:
 # ijob -A berglandlab -c2 -p standard --mem=40G
