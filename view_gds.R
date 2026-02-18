@@ -1,17 +1,40 @@
+# .libPaths(c("~/Rlibs", .libPaths()))
 library(SeqArray)
+library(SeqVarTools)
+
+out_file <- "/scratch/ejy4bu/drosophila/gds_analysis/view_gds.txt"
+if(!file.exists(out_file)) file.create(out_file)
+
+mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
+sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
+
+mel_gds <- seqOpen(mel_file)
+sim_gds <- seqOpen(sim_file)
+
+# view stats
+mel_gds
+sim_gds 
+
+# reference allele freq of each variant
+mel_freq <- seqAlleleFreq(mel_gds)
+sim_freq <- seqAlleleFreq(sim_gds)
+head(mel_freq)
+summary(mel_freq)
+hist(mel_freq, breaks=50)
+
 
 
 ### to run:
-# module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
-# Rscript explore_gds.R > /scratch/ejy4bu/drosophila/gds_analysis/view_gds.txt 2>&1
+# ijob -A berglandlab -c2 -p standard --mem=40G
+# export R_LIBS_USER="/sfs/gpfs/tardis/home/ejy4bu/R/goolf/4.5/"
+# Rscript view_gds.R > /scratch/ejy4bu/drosophila/gds_analysis/view_gds.txt 2>&1
 
 # out file
 # output_file <- "/scratch/ejy4bu/drosophila/gds_analysis/view_gds.txt"
 
 # output <- c(
 # open files
-mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds")
-sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds")
+
 
 cat("\n\n--------Melanogaster------\n\n")
 print(seqSummary(mel_gds))
