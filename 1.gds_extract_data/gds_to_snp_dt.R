@@ -1,8 +1,12 @@
 library(SeqArray)
 library(data.table)
 
-out_file <- "/scratch/ejy4bu/drosophila/gds_analysis/shared_snp_dt_table.csv"
-if(!file.exists(out_file)) file.create(out_file)
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/"
+out_csv <- paste0(out_dir, "/shared_snp_dt_table.csv")
+out_rds <- paste0(out_dir, "/shared_snp_dt_table.rds")
+if(!file.exists(out_csv)) file.create(out_csv)
+if(!file.exists(out_rds)) file.create(out_rds)
+
 
 # load melanogaster gds file
 mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
@@ -38,7 +42,7 @@ build_snp_dt <- function(gds) {
 
 ### extract annotations for each variant
 get_gds_data <- function(gds, shared, species){
-    snp_id <- shared[[paste0("id", species)]]
+    snp_id <- shared[[paste0("id_", species)]]
     seqSetFilter(gds, variant.id = snp_id)
 
     message("getting alleles")
@@ -87,12 +91,17 @@ sim_snp_dt <- build_snp_dt(sim_gds)
 shared <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"))
 message(nrow(shared), " shared variants")
 
-shared_test <- shared[1:1000]
-shared_table <- get_gds_data(mel_gds, shared, "mel")
+shared_test <- shared[1:10]
+shared_table <- get_gds_data(mel_gds, shared_test, "mel")
 # shared_table <- get_gds_data(sim_gds, shared, "sim")
-message("saving to ", out_file)
-fwrite(shared_table, out_file)
+message("saving csv to ", out_csv)
+fwrite(shared_table, out_csv)
+message("saving rds to ", out_rds)
+saveRDS(shared_table, out_rds)
+
 message("complete. ", nrow(shared_table), " variants written.")
+
+
 
 
 # snp.dt <- data.table(
