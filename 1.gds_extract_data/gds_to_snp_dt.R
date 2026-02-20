@@ -69,10 +69,15 @@ get_gds_data <- function(gds, shared, species, bin_size=10000){
 
         message("getting annotations")
         ann_all <- seqGetData(gds, "annotation/info/ANN")
-        # handle edge case where ann_all is not a list
+        message("ann_all class: ", class(ann_all))
+        message("ann_all length field: ", length(ann_all$length))
+        message("bin_id length: ", length(bin_id))
+
+
         if(!inherits(ann_all, "SeqVarDataList")) {
             ann_all <- list(length = rep(1, length(bin_id)), data = ann_all)
         }
+
         ann_dt <- data.table( variant.id = rep(bin_id, times=ann_all$length), ann = ann_all$data)
         ann_split <- tstrsplit(ann_dt$ann, "\\|")
 
