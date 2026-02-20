@@ -1,5 +1,7 @@
 library(SeqArray)
 library(data.table)
+library(foreach)
+library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/"
 out_csv <- paste0(out_dir, "/shared_snp_dt_table_test100.csv")
@@ -41,47 +43,65 @@ build_snp_dt <- function(gds) {
 }
 
 ### extract annotations for each variant
-get_gds_data <- function(gds, shared, species){
+get_gds_data <- function(gds, shared, species, bin_size=10000){
     snp_id <- shared[[paste0("id_", species)]]
-    seqSetFilter(gds, variant.id = snp_id)
+    bins <- split(seq_along(snp_id), ceiling(seq_along(snp_id) / bin_size))
+    n_bins <- length(bins)
 
-    message("getting alleles")
-    alleles_all <- seqGetData(gds, "allele")
-    allele_split <- tstrsplit(alleles_all, ",")
+    result <- foreach(i = seq_along(bins), .combine = rbind) %do% {
+        message("Bin ", i , "/", n_bins)
+        idx <- bins[[i]]
+        bin_id <- snp_id[idx]
+        seqSetFilter(gds, variant.id = bin_id)
 
-    snp.dt1 <- data.table(
-    variant.id = snp_id,
-    chr        = shared$chr,
-    pos        = shared$pos,
-    ref        = allele_split[[1]],
-    alt        = allele_split[[2]])
+        message("getting alleles")
+        alleles_all <- seqGetData(gds, "allele")
+        allele_split <- tstrsplit(alleles_all, ",")
 
-    message("getting annotations")
-    ann_all <- seqGetData(gds, "annotation/info/ANN")
-    ann_dt <- data.table( variant.id = rep(snp_id, times=ann_all$length), ann = ann_all$data)
-    ann_split <- tstrsplit(ann_dt$ann, "\\|")
+        snp.dt1 <- data.table(
+            variant.id = bin_id,
+            chr        = shared$chr[idx],
+            pos        = shared$pos[idx],
+            ref        = allele_split[[1]],
+            alt        = allele_split[[2]],
+            af_mel     = shared$af_mel[idx],
+            af_sim     = shared$af_sim[idx])
+
+        message("getting annotations")
+        ann_all <- seqGetData(gds, "annotation/info/ANN")
+        ann_dt <- data.table( variant.id = rep(bin_id, times=ann_all$length), ann = ann_all$data)
+        ann_split <- tstrsplit(ann_dt$ann, "\\|")
+
+        ann_dt[,effect := ann_split[[2]]]           #class of annotation (e.g. upstream_gene_variant)
+        ann_dt[, impact := ann_split[[3]]]          # high/moderate/low/modifier
+        ann_dt[, gene := ann_split[[4]]]            # gene name
+        ann_dt[, gene_id := ann_split[[5]]]         # flybase gene id
+        ann_dt[, feature_type := ann_split[[6]]]    # e.g. transcript
+        ann_dt[, transcript_id := ann_split[[7]]]   #
+        ann_dt[, biotype := ann_split[[8]]]         #e.g. protein-coding
+        ann_dt[, in_exon := ann_split[[9]]]         # intron or exon
+        ann_dt[, nt_change := ann_split[[10]]]      # nucleotide change & position (c.-1427T>A)
+        ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
+        ann_dt[, aa_pos := ann_split[[13]]]         # amino acid position within the protein
+
+        ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
+
+        # should i be collapsing to one annotation? if so what should i keep?
+        # ann_canonical <- ann_dt[, .SD[1], by = variant.id]
+
+        ## merge binned table
+        bin_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect, impact, gene, gene_id, 
+        feature_type, transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos)], by = "variant.id")
+
+        rm(ann_all, ann_dt, ann_split, snp.dt1)
+        gc()
+        bin_table
+    }
+    return(result)
+    # shared_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect, impact, gene, gene_id, feature_type, 
+    #     transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos)], by = "variant.id")
     
-    ann_dt[,effect := ann_split[[2]]]           #class of annotation (e.g. upstream_gene_variant)
-    ann_dt[, impact := ann_split[[3]]]          # high/moderate/low/modifier
-    ann_dt[, gene := ann_split[[4]]]            # gene name
-    ann_dt[, gene_id := ann_split[[5]]]         # flybase gene id
-    ann_dt[, feature_type := ann_split[[6]]]    # e.g. transcript
-    ann_dt[, transcript_id := ann_split[[7]]]   #
-    ann_dt[, biotype := ann_split[[8]]]         #e.g. protein-coding
-    ann_dt[, in_exon := ann_split[[9]]]         # intron or exon
-    ann_dt[, nt_change := ann_split[[10]]]      # nucleotide change & position (c.-1427T>A)
-    ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
-    ann_dt[, aa_pos := ann_split[[13]]]         # amino acid position within the protein
-
-    ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
-
-    # should i be collapsing to one annotation? if so what should i keep?
-    # ann_canonical <- ann_dt[, .SD[1], by = variant.id]
-
-    shared_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect, impact, gene, gene_id, feature_type, 
-        transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos)], by = "variant.id")
-    
-    return(shared_table)
+    # return(shared_table)
 }
 
 mel_snp_dt <- build_snp_dt(mel_gds)
