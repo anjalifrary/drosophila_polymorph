@@ -87,6 +87,7 @@ sim_snp_dt <- build_snp_dt(sim_gds)
 shared <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"))
 message(nrow(shared), " shared variants")
 
+shared_test <- shared[1:1000]
 shared_table <- get_gds_data(mel_gds, shared, "mel")
 # shared_table <- get_gds_data(sim_gds, shared, "sim")
 message("saving to ", out_file)
