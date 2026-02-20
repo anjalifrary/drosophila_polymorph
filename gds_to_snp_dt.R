@@ -1,7 +1,7 @@
 library(SeqArray)
 library(data.table)
 
-out_file <- "/scratch/ejy4bu/drosophila/gds_analysis/mel_snp_dt_table.csv"
+out_file <- "/scratch/ejy4bu/drosophila/gds_analysis/sim_snp_dt_table.csv"
 if(!file.exists(out_file)) file.create(out_file)
 
 # load melanogaster gds file
@@ -24,7 +24,7 @@ snp.dt <- data.table(
     nAlleles=seqGetData(genofile, "$num_allele"),
     id=seqGetData(genofile,"variant.id"))
 
-# snp.dt <- snp.dt[nAlleles==2] ##subset to sites with 2 alleles
+snp.dt <- snp.dt[nAlleles==2] ##subset to sites with 2 alleles
 seqResetFilter(genofile)
 seqSetFilter(genofile, variant.id = snp.dt$id)  # biallelic only
 
