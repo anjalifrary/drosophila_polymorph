@@ -5,16 +5,18 @@ out_file <- "/scratch/ejy4bu/drosophila/gds_analysis/mel_snp_dt_table.csv"
 if(!file.exists(out_file)) file.create(out_file)
 
 # load melanogaster gds file
-mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
-mel_gds <- seqOpen(mel_file)
-mel_gds
+# mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
+sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
+genofile <- sim_file
+
+genofile <- seqOpen(genofile)
+genofile
 
 # # load simulans gds file
 # sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
 # sim_gds <- seqOpen(sim_file)
 # sim_gds 
 
-genofile <- mel_gds
 
 snp.dt <- data.table(
     chr=seqGetData(genofile, "chromosome"),
