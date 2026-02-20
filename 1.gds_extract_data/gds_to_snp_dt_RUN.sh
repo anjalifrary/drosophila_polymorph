@@ -10,4 +10,5 @@
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
 
-Rscript 1.gds_extract_data/gds_to_snp_dt.R
+cd 1./gds_extract_data
+Rscript gds_to_snp_dt.R
