@@ -4,8 +4,8 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/"
-# out_csv <- paste0(out_dir, "/shared_snp_dt_table.csv")
-out_rds <- paste0(out_dir, "/shared_snp_dt_table.rds")
+# out_csv <- paste0(out_dir, "shared_snp_dt_table.csv")
+out_rds <- paste0(out_dir, "shared_snp_dt_table.rds")
 # if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
@@ -69,16 +69,10 @@ get_gds_data <- function(gds, shared, species, bin_size=10000){
 
         message("getting annotations")
         ann_all <- seqGetData(gds, "annotation/info/ANN")
-        message("ann_all class: ", class(ann_all))
         message("ann_all length field: ", length(ann_all$length))
         message("bin_id length: ", length(bin_id))
 
         annotated_ids <- seqGetData(gds, "variant.id")  # filter out if no annotation
-
-
-        # if(!inherits(ann_all, "SeqVarDataList")) {
-        #     ann_all <- list(length = rep(1, length(bin_id)), data = ann_all)
-        # }
 
         ann_dt <- data.table( variant.id = rep(annotated_ids, times=ann_all$length), ann = ann_all$data)
         ann_split <- tstrsplit(ann_dt$ann, "\\|")
@@ -109,10 +103,6 @@ get_gds_data <- function(gds, shared, species, bin_size=10000){
         bin_table
     }
     return(result)
-    # shared_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect, impact, gene, gene_id, feature_type, 
-    #     transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos)], by = "variant.id")
-    
-    # return(shared_table)
 }
 warnings()
 mel_snp_dt <- build_snp_dt(mel_gds)
@@ -124,7 +114,6 @@ message(nrow(shared), " shared variants")
 
 # shared_test <- shared[1:100]
 shared_table <- get_gds_data(mel_gds, shared, "mel")
-# # shared_table <- get_gds_data(sim_gds, shared, "sim")
 # message("saving csv to ", out_csv)
 # fwrite(shared_table, out_csv)
 message("saving rds to ", out_rds)
@@ -133,7 +122,7 @@ saveRDS(shared_table, out_rds)
 message("complete. ", nrow(shared_table), " variants written.")
 
 
-
+### ---------- uncompressed code -----------
 
 # snp.dt <- data.table(
 #     chr=seqGetData(genofile, "chromosome"),
