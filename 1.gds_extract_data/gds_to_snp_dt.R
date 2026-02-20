@@ -4,9 +4,9 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/"
-out_csv <- paste0(out_dir, "/shared_snp_dt_table_test100.csv")
-out_rds <- paste0(out_dir, "/shared_snp_dt_table_test100.rds")
-if(!file.exists(out_csv)) file.create(out_csv)
+# out_csv <- paste0(out_dir, "/shared_snp_dt_table.csv")
+out_rds <- paste0(out_dir, "/shared_snp_dt_table.rds")
+# if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
 
@@ -111,11 +111,11 @@ sim_snp_dt <- build_snp_dt(sim_gds)
 shared <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"))
 message(nrow(shared), " shared variants")
 
-shared_test <- shared[1:100]
-shared_table <- get_gds_data(mel_gds, shared_test, "mel")
-# shared_table <- get_gds_data(sim_gds, shared, "sim")
-message("saving csv to ", out_csv)
-fwrite(shared_table, out_csv)
+# shared_test <- shared[1:100]
+shared_table <- get_gds_data(mel_gds, shared, "mel")
+# # shared_table <- get_gds_data(sim_gds, shared, "sim")
+# message("saving csv to ", out_csv)
+# fwrite(shared_table, out_csv)
 message("saving rds to ", out_rds)
 saveRDS(shared_table, out_rds)
 
