@@ -114,7 +114,7 @@ mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
 
 mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
 
-mel_table <- mel_table[order(variant.id, biotype = "protein_coding"), .SD[1], by = variant.id] # compress to first variant 
+# mel_table <- mel_table[order(variant.id, biotype = "protein_coding"), .SD[1], by = variant.id] # compress to first variant 
 message("variants: ", nrow(mel_table))
 saveRDS(mel_table, out_rds)
 fwrite(mel_table, out_csv)
