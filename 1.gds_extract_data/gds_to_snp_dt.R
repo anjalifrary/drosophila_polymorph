@@ -4,17 +4,17 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/"
-# out_csv <- paste0(out_dir, "shared_snp_dt_table.csv")
-out_rds <- paste0(out_dir, "shared_snp_dt_table.rds")
-# if(!file.exists(out_csv)) file.create(out_csv)
+out_csv <- paste0(out_dir, "mel_snp_dt.csv")
+out_rds <- paste0(out_dir, "mel_snp_dt.rds")
+if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
 
 # load melanogaster gds file
 mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
-sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
-mel_gds <- seqOpen(mel_file)
-sim_gds <- seqOpen(sim_file)
+# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
+gds_file <- seqOpen(mel_file)
+# gds_file <- seqOpen(sim_file)
 
 # genofile <- sim_file
 
@@ -25,6 +25,8 @@ sim_gds <- seqOpen(sim_file)
 # sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
 # sim_gds <- seqOpen(sim_file)
 # sim_gds 
+
+filter_effects <- c("synonymous_variant", "missense_variant")
 
 ### loading both dt tables
 build_snp_dt <- function(gds) {
@@ -42,9 +44,10 @@ build_snp_dt <- function(gds) {
     dt
 }
 
+
 ### extract annotations for each variant
-get_gds_data <- function(gds, shared, species, bin_size=10000){
-    snp_id <- shared[[paste0("id_", species)]]
+build_species_dt <- function(gds, snp_dt, bin_size=2000){
+    snp_id <- snp_dt$id
     bins <- split(seq_along(snp_id), ceiling(seq_along(snp_id) / bin_size))
     n_bins <- length(bins)
 
@@ -60,12 +63,11 @@ get_gds_data <- function(gds, shared, species, bin_size=10000){
 
         snp.dt1 <- data.table(
             variant.id = bin_id,
-            chr        = shared$chr[idx],
-            pos        = shared$pos[idx],
+            chr        = snp_dt$chr[idx],
+            pos        = snp_dt$pos[idx],
             ref        = allele_split[[1]],
             alt        = allele_split[[2]],
-            af_mel     = shared$af_mel[idx],
-            af_sim     = shared$af_sim[idx])
+            af         = snp_dt$af[idx])
 
         message("getting annotations")
         ann_all <- seqGetData(gds, "annotation/info/ANN")
@@ -104,25 +106,48 @@ get_gds_data <- function(gds, shared, species, bin_size=10000){
     }
     return(result)
 }
-warnings()
-mel_snp_dt <- build_snp_dt(mel_gds)
-sim_snp_dt <- build_snp_dt(sim_gds)
 
-# build shared datatable
-shared <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"))
-message(nrow(shared), " shared variants")
+#### test
+mel_snp_dt <- build_snp_dt(gds_file)
+mel_snp_dt_test <- mel_snp_dt[1:100]
+mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
 
-# shared_test <- shared[1:100]
-shared_table <- get_gds_data(mel_gds, shared, "mel")
-# message("saving csv to ", out_csv)
-# fwrite(shared_table, out_csv)
-message("saving rds to ", out_rds)
-saveRDS(shared_table, out_rds)
+mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
 
-message("complete. ", nrow(shared_table), " variants written.")
+mel_table <- mel_table[order(variant.id, biotype = "protein_coding"), .SD[1], by = variant.id] # compress to first variant 
+message("variants: ", nrow(mel_table))
+saveRDS(mel_table, out_rds)
+fwrite(mel_table, out_csv)
 
+# #### build table  ( commented out for tested subset )
+# message("----building table-----")
+# species_dt <- build_snp_dt(gds_file)
+# species_table <- build_species_dt(gds_file, species_dt)
+# message("coding variants: ", nrow(species_table))
+# saveRDS(species_table, paste0(out_rds))
 
-### ---------- uncompressed code -----------
+#### shared table code --- OLD --- ########################################################
+
+# # warnings()
+# # mel_snp_dt <- build_snp_dt(mel_gds)
+# # sim_snp_dt <- build_snp_dt(sim_gds)
+
+# # build shared datatable
+# shared <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
+# message(nrow(shared), " total variants")
+
+# # shared_test <- shared[1:100]
+# shared_table <- get_gds_data(mel_gds, shared, "mel")
+# # message("saving csv to ", out_csv)
+# # fwrite(shared_table, out_csv)
+# message("saving rds to ", out_rds)
+# saveRDS(shared_table, out_rds)
+
+# message("complete. ", nrow(shared_table), " variants written.")
+
+#### end of shared table code --- OLD --- #######################################################
+
+### ---------- uncompressed code ----------- ####################################################
 
 # snp.dt <- data.table(
 #     chr=seqGetData(genofile, "chromosome"),
