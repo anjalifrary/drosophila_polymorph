@@ -10,7 +10,7 @@
 #SBATCH -p standard        # Partition
 #SBATCH --account=berglandlab
 
-cd 1./gds_extract_data
+cd 1.gds_extract_data/
 export R_LIBS_USER="/sfs/gpfs/tardis/home/ejy4bu/R/goolf/4.5/"
 module load gcc/11.4.0  openmpi/4.1.4 icu R/4.5.0
 Rscript gds_to_snp_dt.R
