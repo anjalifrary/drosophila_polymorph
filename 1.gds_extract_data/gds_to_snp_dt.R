@@ -109,7 +109,7 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
 
 #### test
 mel_snp_dt <- build_snp_dt(gds_file)
-mel_snp_dt_test <- mel_snp_dt[1:100]
+mel_snp_dt_test <- mel_snp_dt[1:1000]
 mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
 
 mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
