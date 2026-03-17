@@ -103,7 +103,7 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
         feature_type, transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos, aa_sub)], by = "variant.id")
 
         ## keep only first variant (by effect_order column)
-        bin_table <- bin_table[, effect_order==1]
+        bin_table <- bin_table[effect_order==1]
         # ann_canonical <- ann_dt[, effect_order==1]
 
         rm(ann_all, ann_dt, ann_split, snp.dt1)
