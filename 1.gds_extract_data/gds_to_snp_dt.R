@@ -93,13 +93,13 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
         ann_dt[, nt_change := ann_split[[10]]]      # nucleotide change & position (c.-1427T>A)
         ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
         ann_dt[, aa_pos := ann_split[[13]]]         # amino acid position within the protein
-        ann_dt[, aa_sub := gsub("[0-9]+", "", aa_change)] # strip aa_change of digits to compare aa polymorphsim across diff transcripts
+        ann_dt[, aa_sub := gsub("[0-9]+", "->", aa_change)] # strip aa_change of digits to compare aa polymorphsim across diff transcripts
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
 
         ## merge binned table
         bin_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect, impact, gene, gene_id, 
-        feature_type, transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos)], by = "variant.id")
+        feature_type, transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos, aa_sub)], by = "variant.id")
 
         ## keep only first variant (by effect_order column)
 
