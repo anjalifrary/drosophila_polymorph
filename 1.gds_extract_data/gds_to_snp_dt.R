@@ -118,6 +118,10 @@ mel_snp_dt <- build_snp_dt(gds_file)
 mel_snp_dt_test <- mel_snp_dt[1:1000]
 mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
 
+# filter for synonymous or missense 
+mel_table <- mel_table[effect %in% filter_effects] 
+message("filtered variants: kept", filter_effects)
+
 # check that all amino acid polymorphisms are the same even with different transcripts:
 aa_consistent <- mel_table[aa_sub != "", .(
     num_transcripts = .N,
@@ -127,9 +131,6 @@ aa_consistent <- mel_table[aa_sub != "", .(
 message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
 aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
-
-# filter for synonymous or missense 
-mel_table <- mel_table[effect %in% filter_effects] 
 
 # mel_table <- mel_table[order(variant.id, biotype = "protein_coding"), .SD[1], by = variant.id] # compress to first variant 
 message("variants: ", nrow(mel_table), "\nsaved to: ", out_csv)
