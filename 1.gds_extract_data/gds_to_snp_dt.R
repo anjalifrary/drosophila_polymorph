@@ -123,7 +123,7 @@ aa_consistent <- mel_table[aa_change != "", .(
 ), by = variant.id]
 message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
-aa_consistency[consistent == FALSE][1:10] # view first 10 inconsistent variants
+aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
 mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
 
