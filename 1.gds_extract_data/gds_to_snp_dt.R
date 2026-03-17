@@ -125,10 +125,11 @@ message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
 aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
-mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
+# filter for synonymous or missense 
+mel_table <- mel_table[effect %in% filter_effects] 
 
 # mel_table <- mel_table[order(variant.id, biotype = "protein_coding"), .SD[1], by = variant.id] # compress to first variant 
-message("variants: ", nrow(mel_table))
+message("variants: ", nrow(mel_table), "\nsaved to: ", out_csv)
 saveRDS(mel_table, out_rds)
 fwrite(mel_table, out_csv)
 
