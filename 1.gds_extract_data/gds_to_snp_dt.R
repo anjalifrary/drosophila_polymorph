@@ -114,15 +114,16 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
 mel_snp_dt <- build_snp_dt(gds_file)
 mel_snp_dt_test <- mel_snp_dt[1:1000]
 mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
+
 # check that all amino acid polymorphisms are the same even with different transcripts:
-        aa_consistent <- ann_dt[aa_change != "", .(
-            num_transcripts = .N,
-            num_unique_aa = uniqueN(aa_change),
-            consistent = uniqueN(aa_change)==1
-        ), by = variant.id]
-        message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
-        message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
-        aa_consistency[consistent == FALSE][1:10] # view first 10 inconsistent variants
+aa_consistent <- mel_table[aa_change != "", .(
+    num_transcripts = .N,
+    num_unique_aa = uniqueN(aa_change),
+    consistent = uniqueN(aa_change)==1
+), by = variant.id]
+message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
+message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
+aa_consistency[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
 mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
 
