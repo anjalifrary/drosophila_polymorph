@@ -93,6 +93,7 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
         ann_dt[, nt_change := ann_split[[10]]]      # nucleotide change & position (c.-1427T>A)
         ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
         ann_dt[, aa_pos := ann_split[[13]]]         # amino acid position within the protein
+        ann_dt[, aa_sub := gsub("[0-9]+", "", aa_change)] # strip aa_change of digits to compare aa polymorphsim across diff transcripts
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
 
@@ -116,10 +117,10 @@ mel_snp_dt_test <- mel_snp_dt[1:1000]
 mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
 
 # check that all amino acid polymorphisms are the same even with different transcripts:
-aa_consistent <- mel_table[aa_change != "", .(
+aa_consistent <- mel_table[aa_sub != "", .(
     num_transcripts = .N,
-    num_unique_aa = uniqueN(aa_change),
-    consistent = uniqueN(aa_change)==1
+    num_unique_aa = uniqueN(aa_sub),
+    consistent = uniqueN(aa_sub)==1
 ), by = variant.id]
 message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
