@@ -77,6 +77,9 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
         annotated_ids <- seqGetData(gds, "variant.id")  # filter out if no annotation
 
         ann_dt <- data.table( variant.id = rep(annotated_ids, times=ann_all$length), ann = ann_all$data)
+        # add effect order 
+        ann_dt[, effect_order := seq_len(.N), by = variant.id]
+
         ann_split <- tstrsplit(ann_dt$ann, "\\|")
 
         ann_dt[,effect := ann_split[[2]]]           #class of annotation (e.g. upstream_gene_variant)
@@ -93,6 +96,16 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
 
+        # check that all amino acid polymorphisms are the same even with different transcripts:
+        aa_consistent <- ann_dt[aa_change != "", .(
+            num_transcripts = .N,
+            num_unique_aa = uniqueN(aa_change),
+            consistent = uniqueN(aa_change)==1
+        ), by = variant.id]
+        message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
+        message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
+        aa_consistency[consistent == FALSE][1:10] # view first 10 inconsistent variants
+        
         # should i be collapsing to one annotation? if so what should i keep?
         # ann_canonical <- ann_dt[, .SD[1], by = variant.id]
 
