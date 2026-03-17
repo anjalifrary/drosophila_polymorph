@@ -96,22 +96,12 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
 
-        # check that all amino acid polymorphisms are the same even with different transcripts:
-        aa_consistent <- ann_dt[aa_change != "", .(
-            num_transcripts = .N,
-            num_unique_aa = uniqueN(aa_change),
-            consistent = uniqueN(aa_change)==1
-        ), by = variant.id]
-        message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
-        message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
-        aa_consistency[consistent == FALSE][1:10] # view first 10 inconsistent variants
-        
-        # should i be collapsing to one annotation? if so what should i keep?
-        # ann_canonical <- ann_dt[, .SD[1], by = variant.id]
-
         ## merge binned table
         bin_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect, impact, gene, gene_id, 
         feature_type, transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos)], by = "variant.id")
+
+        ## keep only first variant (by effect_order column)
+
 
         rm(ann_all, ann_dt, ann_split, snp.dt1)
         gc()
@@ -124,6 +114,15 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
 mel_snp_dt <- build_snp_dt(gds_file)
 mel_snp_dt_test <- mel_snp_dt[1:1000]
 mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
+# check that all amino acid polymorphisms are the same even with different transcripts:
+        aa_consistent <- ann_dt[aa_change != "", .(
+            num_transcripts = .N,
+            num_unique_aa = uniqueN(aa_change),
+            consistent = uniqueN(aa_change)==1
+        ), by = variant.id]
+        message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
+        message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
+        aa_consistency[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
 mel_table <- mel_table[effect %in% filter_effects] # filter for synonymous or missense 
 
