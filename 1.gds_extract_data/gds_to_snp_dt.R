@@ -3,28 +3,18 @@ library(data.table)
 library(foreach)
 library(doMC)
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/test_files"
 # out_csv <- paste0(out_dir, "mel_snp_dt.csv")
 out_rds <- paste0(out_dir, "mel_snp_dt.rds")
 # if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
 
-# load melanogaster gds file
-mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
-# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
-gds_file <- seqOpen(mel_file)
-# gds_file <- seqOpen(sim_file)
-
-# genofile <- sim_file
-
-# genofile <- seqOpen(genofile)
-# genofile
-
-# # load simulans gds file
-# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
-# sim_gds <- seqOpen(sim_file)
-# sim_gds 
+# load gds file
+# mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
+sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
+# gds_file <- seqOpen(mel_file)
+gds_file <- seqOpen(sim_file)
 
 filter_effects <- c("synonymous_variant", "missense_variant")
 
@@ -113,16 +103,16 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
     return(result)
 }
 
-mel_snp_dt <- build_snp_dt(gds_file)
-# mel_snp_dt_test <- mel_snp_dt[1:1000] #change the next line to the test dt 
-mel_table <- build_species_dt(gds_file, mel_snp_dt)
+snp_dt <- build_snp_dt(gds_file)
+snp_dt_test <- snp_dt[1:1000] #change the next line to the test dt 
+species_table <- build_species_dt(gds_file, snp_dt_test)
 
 # filter for synonymous or missense 
-mel_table <- mel_table[effect %in% filter_effects] 
+species_table <- species_table[effect %in% filter_effects] 
 message("filtered variants: kept", filter_effects)
 
 # check that all amino acid polymorphisms are the same even with different transcripts:
-aa_consistent <- mel_table[aa_sub != "", .(
+aa_consistent <- species_table[aa_sub != "", .(
     num_transcripts = .N,
     num_unique_aa = uniqueN(aa_sub),
     consistent = uniqueN(aa_sub)==1
@@ -131,9 +121,9 @@ message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
 aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
-message("variants: ", nrow(mel_table), "\nsaved to: ", out_rds)
-saveRDS(mel_table, out_rds)
-# fwrite(mel_table, out_csv)
+message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
+saveRDS(species_table, out_rds)
+fwrite(species_table, out_csv)
 
 # #### build table  ( commented out for tested subset )
 # message("----building table-----")
