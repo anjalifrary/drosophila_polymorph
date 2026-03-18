@@ -13,7 +13,7 @@
 cd 1.gds_extract_data/
 export R_LIBS_USER="/sfs/gpfs/tardis/home/ejy4bu/R/goolf/4.5/"
 module load gcc/11.4.0  openmpi/4.1.4 icu R/4.5.0
-Rscript snp_dt_union_merge.R
+Rscript snp_dt_merge.R
 
 ### to run
 # sbatch --dependency=afterok:10330292 1.gds_extract_data/snp_dt_merge_RUN.sh
