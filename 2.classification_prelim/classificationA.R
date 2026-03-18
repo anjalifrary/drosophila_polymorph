@@ -1,13 +1,12 @@
-
 library(data.table)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/classification/"
-out_csv <- paste0(out_dir, "shared_classA.csv")
-out_rds <- paste0(out_dir, "shared_classA.rds")
+out_csv <- paste0(out_dir, "shared_classA_chr2L.csv")
+out_rds <- paste0(out_dir, "shared_classA_chr2L.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
-rds_file <- paste0(out_dir, "shared_dt_test.rds")
+rds_file <- paste0(out_dir, "shared_dt_chr2L.rds")
 
 shared_dt <- readRDS(rds_file)
 message(nrow(shared_dt), " total variants in shared table")
@@ -20,7 +19,7 @@ message(nrow(shared_dt), " total variants in shared table")
 ### get columns
 af_mel <- "af_mel"
 af_sim <- "af_sim"
-aa_mel <- "aa_sub_mel"
+aa_mel <- "aa_sub_mel" # stripped of digits (amino acid position)
 aa_sim <- "aa_sub_sim"
 
 ### MAKE A COPY of shared dt where 
