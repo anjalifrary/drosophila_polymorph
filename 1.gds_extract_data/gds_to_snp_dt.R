@@ -108,7 +108,7 @@ species_table <- build_species_dt(gds_file, snp_dt)
 
 # filter for synonymous or missense 
 species_table <- species_table[effect %in% filter_effects] 
-message("filtered variants: kept", filter_effects)
+message("filtered variants: kept ", filter_effects)
 
 # check that all amino acid polymorphisms are the same even with different transcripts:
 aa_consistent <- species_table[aa_sub != "", .(

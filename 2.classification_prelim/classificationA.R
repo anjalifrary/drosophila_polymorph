@@ -38,5 +38,3 @@ if(nrow(shared_classA) < 600){
     fwrite(shared_classA, out_csv)
     message("CSV saved to ", out_csv)
 }
-
-
