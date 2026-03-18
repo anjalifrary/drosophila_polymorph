@@ -5,7 +5,7 @@ module load R/4.5.0
 R
 
 
-/// 
+
 #!/usr/bin/env bash
 #SBATCH -J jobname         # Job name
 #SBATCH --ntasks=1         # Single task per job
