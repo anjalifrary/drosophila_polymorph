@@ -46,6 +46,8 @@ setcolorder(
     "classification"
   )
 )
+# check column names
+names(filtered_dt) 
 
 saveRDS(filtered_dt, out_rds)
 subset_table <- filtered_dt[1:500, ]
