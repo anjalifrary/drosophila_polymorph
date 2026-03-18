@@ -27,6 +27,9 @@ shared_dt[
     aa_alt_mel != aa_alt_sim,
     classification := "B"
 ]
+shared_classB <- shared_dt[classification == "B"]
+message(nrow(shared_classB), " shared variants with same pos, nt, and diff aa")
+
 
 # outputs summary of classification stats 
 table(shared_dt$classification, useNA = "ifany")
