@@ -24,8 +24,15 @@ message(nrow(sim_snp_dt), " sim 2L variants")
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos", "ref", "alt"), suffixes = c("_mel", "_sim"), all=T)
 message(nrow(shared_table), " total variants")
 
-message("saving csv to ", out_csv)
-fwrite(shared_table, out_csv)
+if(nrow(shared_table)<600){
+    message("saving csv to ", out_csv)
+    fwrite(shared_table, out_csv)
+} else {
+    subset_table <- shared_table[1:500, ]
+    fwrite(subset_table, out_csv)
+    message("saved first 500 rows to csv at ", out_csv)
+}
+
 message("saving rds to ", out_rds)
 saveRDS(shared_table, out_rds)
 
