@@ -5,7 +5,7 @@ library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
 out_csv <- paste0(out_dir, "all_variants_500test.csv")
-out_rds <- paste0(out_dir, "all_variants_chr2L.rds")
+out_rds <- paste0(out_dir, "all_variants.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
