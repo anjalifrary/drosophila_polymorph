@@ -21,6 +21,7 @@ sim_snp_dt <- readRDS(sim_snp_rds)
 # sim_snp_dt <- sim_snp_dt[chr == "2L"]
 # message(nrow(sim_snp_dt), " sim 2L variants")
 
+# NOTE: this is a union merge... keep ALL variants. no filtering yet
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos", "ref", "alt"), suffixes = c("_mel", "_sim"), all=T)
 message(nrow(shared_table), " total variants")
 
