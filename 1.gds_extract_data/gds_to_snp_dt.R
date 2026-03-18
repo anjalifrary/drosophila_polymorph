@@ -3,12 +3,11 @@ library(data.table)
 library(foreach)
 library(doMC)
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/test_files"
-out_csv <- paste0(out_dir, "mel_snp_dt.csv")
-out_rds <- paste0(out_dir, "mel_snp_dt.rds")
-if(!file.exists(out_csv)) file.create(out_csv)
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
+out_rds <- paste0(out_dir, "sim_snp_dt.rds")
 if(!file.exists(out_rds)) file.create(out_rds)
-
+# out_csv <- paste0(out_dir, "mel_snp_dt.csv")
+# if(!file.exists(out_csv)) file.create(out_csv)
 
 # load gds file
 # mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
@@ -104,8 +103,8 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
 }
 
 snp_dt <- build_snp_dt(gds_file)
-snp_dt_test <- snp_dt[1:1000] #change the next line to the test dt 
-species_table <- build_species_dt(gds_file, snp_dt_test)
+# snp_dt_test <- snp_dt[1:1000] #change the next line to the test dt 
+species_table <- build_species_dt(gds_file, snp_dt)
 
 # filter for synonymous or missense 
 species_table <- species_table[effect %in% filter_effects] 
