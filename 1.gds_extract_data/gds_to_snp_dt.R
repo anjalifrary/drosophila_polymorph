@@ -122,7 +122,7 @@ aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
 message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
 saveRDS(species_table, out_rds)
-fwrite(species_table, out_csv)
+# fwrite(species_table, out_csv)
 
 # #### build table  ( commented out for tested subset )
 # message("----building table-----")
