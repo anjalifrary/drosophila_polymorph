@@ -3,10 +3,10 @@ library(data.table)
 library(foreach)
 library(doMC)
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/test_files/"
-out_csv <- paste0(out_dir, "mel_snp_dt.csv")
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
+# out_csv <- paste0(out_dir, "mel_snp_dt.csv")
 out_rds <- paste0(out_dir, "mel_snp_dt.rds")
-if(!file.exists(out_csv)) file.create(out_csv)
+# if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
 
@@ -115,8 +115,8 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
 
 #### test
 mel_snp_dt <- build_snp_dt(gds_file)
-mel_snp_dt_test <- mel_snp_dt[1:1000]
-mel_table <- build_species_dt(gds_file, mel_snp_dt_test)
+# mel_snp_dt_test <- mel_snp_dt[1:1000]
+mel_table <- build_species_dt(gds_file, mel_snp_dt)
 
 # filter for synonymous or missense 
 mel_table <- mel_table[effect %in% filter_effects] 
@@ -132,10 +132,9 @@ message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
 aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
-# mel_table <- mel_table[order(variant.id, biotype = "protein_coding"), .SD[1], by = variant.id] # compress to first variant 
-message("variants: ", nrow(mel_table), "\nsaved to: ", out_csv)
+message("variants: ", nrow(mel_table), "\nsaved to: ", out_rds)
 saveRDS(mel_table, out_rds)
-fwrite(mel_table, out_csv)
+# fwrite(mel_table, out_csv)
 
 # #### build table  ( commented out for tested subset )
 # message("----building table-----")
