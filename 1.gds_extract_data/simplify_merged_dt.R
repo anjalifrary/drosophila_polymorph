@@ -7,6 +7,7 @@ in_rds <- paste0(out_dir, "all_variants_unfiltered.rds")
 out_rds <- paste0(out_dir, "all_variants_filtered.rds")
 out_csv <- paste0(out_dir, "all_variants_filtered_500test.csv")
 if(!file.exists(out_rds)) file.create(out_rds)
+if(!file.exists(out_csv)) file.create(out_csv)
 
 unfiltered_dt <- readRDS(in_rds)
 
@@ -39,11 +40,11 @@ setcolorder(
     "chr", "pos",
     "ref_mel", "alt_mel", "ref_sim", "alt_sim",
     "aa_ref_mel", "aa_alt_mel", "aa_ref_sim", "aa_alt_sim",
+    "classification",
     "af_mel", "af_sim",
     "effect_mel", "effect_sim",
     "gene_mel", "gene_sim",
-    "gene_id_mel", "gene_id_sim",
-    "classification"
+    "gene_id_mel", "gene_id_sim"
   )
 )
 # check column names

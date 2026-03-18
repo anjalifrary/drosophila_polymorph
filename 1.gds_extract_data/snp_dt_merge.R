@@ -4,8 +4,8 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
-out_csv <- paste0(out_dir, "all_variants_500test.csv")
-out_rds <- paste0(out_dir, "all_variants.rds")
+out_csv <- paste0(out_dir, "all_variants_filtered_500test.csv")
+out_rds <- paste0(out_dir, "all_variants_filtered.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
