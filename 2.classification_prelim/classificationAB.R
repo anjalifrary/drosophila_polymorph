@@ -1,3 +1,7 @@
+################################################################################################
+# for the classification of same site, same nt, same AND different amino acids 
+################################################################################################
+
 library(data.table)
 
 rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/all_variants_clean.rds")
