@@ -46,7 +46,7 @@ build_snp_dt <- function(gds) {
 
 
 ### extract annotations for each variant
-build_species_dt <- function(gds, snp_dt, bin_size=2000){
+build_species_dt <- function(gds, snp_dt, bin_size=10000){
     snp_id <- snp_dt$id
     bins <- split(seq_along(snp_id), ceiling(seq_along(snp_id) / bin_size))
     n_bins <- length(bins)
@@ -113,9 +113,8 @@ build_species_dt <- function(gds, snp_dt, bin_size=2000){
     return(result)
 }
 
-#### test
 mel_snp_dt <- build_snp_dt(gds_file)
-# mel_snp_dt_test <- mel_snp_dt[1:1000]
+# mel_snp_dt_test <- mel_snp_dt[1:1000] #change the next line to the test dt 
 mel_table <- build_species_dt(gds_file, mel_snp_dt)
 
 # filter for synonymous or missense 
