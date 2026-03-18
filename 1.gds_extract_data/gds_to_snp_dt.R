@@ -46,7 +46,7 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
         bin_id <- snp_id[idx]
         seqSetFilter(gds, variant.id = bin_id)
 
-        message("getting alleles")
+        # message("getting alleles")
         alleles_all <- seqGetData(gds, "allele")
         allele_split <- tstrsplit(alleles_all, ",")
 
@@ -58,10 +58,10 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
             alt        = allele_split[[2]],
             af         = snp_dt$af[idx])
 
-        message("getting annotations")
+        # message("getting annotations")
         ann_all <- seqGetData(gds, "annotation/info/ANN")
-        message("ann_all length field: ", length(ann_all$length))
-        message("bin_id length: ", length(bin_id))
+        # message("ann_all length field: ", length(ann_all$length))
+        # message("bin_id length: ", length(bin_id))
 
         annotated_ids <- seqGetData(gds, "variant.id")  # filter out if no annotation
 
