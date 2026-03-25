@@ -40,3 +40,30 @@ saveRDS(shared_dt, rds_file)
 subset_table <- shared_dt[1:500, ]
 table(subset_table$classification, useNA = "ifany")
 fwrite(subset_table, "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/all_variants_clean_500test.csv")
+
+
+
+# ### distinction: checking for the PAIR of nt and PAIR of aa (which is ref/alt does not matter)
+# # there were zero hits for the following case:
+
+# ## CLASS A: same position, same nt but swapped ref/alt, same amino acid ############################################
+# shared_dt[
+#     ref_mel == alt_sim &
+#     alt_mel == ref_sim & 
+#     aa_ref_mel == aa_ref_sim & 
+#     aa_alt_mel == aa_alt_sim,
+#     classification := "E"
+# ]
+# shared_classE <- shared_dt[classification == "E"]
+# message(nrow(shared_classE), " shared variants in class E")
+
+# ### CLASS F: same position, same nt but swapped ref/alt, diff amino acid ###########################################
+# shared_dt[
+#     ref_mel == alt_sim &
+#     alt_mel == ref_sim & 
+#     aa_ref_mel == aa_ref_sim & 
+#     aa_alt_mel != aa_alt_sim,
+#     classification := "F"
+# ]
+# shared_classF <- shared_dt[classification == "F"]
+# message(nrow(shared_classF), " shared variants in class F")

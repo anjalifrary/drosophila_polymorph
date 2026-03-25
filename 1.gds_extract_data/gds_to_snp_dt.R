@@ -81,6 +81,7 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
         ann_dt[, in_exon := ann_split[[9]]]         # intron or exon
         ann_dt[, nt_change := ann_split[[10]]]      # nucleotide change & position (c.-1427T>A)
         ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
+        ann_dt[, aa_codon := ann_split[[12]]]       # codon that codes for amino acid 
         ann_dt[, aa_pos := ann_split[[13]]]         # amino acid position within the protein
         ann_dt[, aa_sub := gsub("[0-9]+", "->", aa_change)] # strip aa_change of digits to compare aa polymorphsim across diff transcripts
 
