@@ -45,15 +45,41 @@ bcftools +liftover \
 --drop-tags FORMAT/FREQ,FORMAT/AD \
 --write-src
 
-# Lines   total/swapped/reference added/rejected: 5209147/874371/238430/871051
+# Output: Lines   total/swapped/reference added/rejected: 5209147/874371/238430/871051
+
+cp /project/berglandlab/anjali/drosophila_polymorphism/dest/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz \
+/scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz
+
+gunzip -c /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz \
+> /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf
 
 
 
-# module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+### create sorted and zipped files for conversion to gds 
+module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 
-# bcftools sort /scratch/aob2x/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf |
-# sed 's/Number=A/Number=\./g' |
-# bgzip -c - > /scratch/aob2x/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz
+bcftools view -h /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf \
+| sed 's/Number=A/Number=./g' > /scratch/ejy4bu/drosophila/liftover/header.txt
+
+bcftools view -H /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf \
+> /scratch/ejy4bu/drosophila/liftover/body.txt
+
+cat /scratch/ejy4bu/drosophila/liftover/header.txt /scratch/ejy4bu/drosophila/liftover/body.txt \
+| bcftools sort -Oz \
+-o /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.fixed.vcf.gz
+
+bcftools index /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.fixed.vcf.gz
+
+
+### ALan's version: create sorted and zipped files for conversion to gds 
+module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+bcftools sort /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf |
+sed 's/Number=A/Number=\./g' |
+bgzip -c - > /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz
+
+
+# gzip -c /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf \
+# > /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz
 
 
 # Rscript --vanilla ~/DESTv3/snpCalling_dev/scatter_gather_annotate/vcf2gds.R \
