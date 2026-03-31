@@ -86,4 +86,3 @@ bcftools index /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.
 # mv /scratch/aob2x/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds.gz \
 # /scratch/aob2x/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds
 
-# # /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz
