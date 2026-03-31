@@ -53,8 +53,6 @@ cp /project/berglandlab/anjali/drosophila_polymorphism/dest/20Nov2025_sim_dest3/
 gunzip -c /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz \
 > /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf
 
-
-
 ### create sorted and zipped files for conversion to gds 
 module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 
@@ -71,11 +69,11 @@ cat /scratch/ejy4bu/drosophila/liftover/header.txt /scratch/ejy4bu/drosophila/li
 bcftools index /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.fixed.vcf.gz
 
 
-### ALan's version: create sorted and zipped files for conversion to gds 
-module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.3.1
-bcftools sort /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf |
-sed 's/Number=A/Number=\./g' |
-bgzip -c - > /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz
+# ### ALan's version: create sorted and zipped files for conversion to gds 
+# module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+# bcftools sort /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf |
+# sed 's/Number=A/Number=\./g' |
+# bgzip -c - > /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf.gz
 
 
 # gzip -c /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.vcf \
