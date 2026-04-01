@@ -3,7 +3,7 @@ library(data.table)
 library(foreach)
 library(doMC)
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
 out_rds <- paste0(out_dir, "mel_snp_dt.rds")
 if(!file.exists(out_rds)) file.create(out_rds)
 out_csv <- paste0(out_dir, "mel_snp_dt.csv")
