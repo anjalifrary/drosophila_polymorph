@@ -59,8 +59,6 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
             alt        = allele_split[[2]],
             af         = snp_dt$af[idx])
 
-        # eff at "annotation/info/EFF" [3]
-
         # message("getting annotations")
         ann_all <- seqGetData(gds, "annotation/info/ANN")
         # message("ann_all length field: ", length(ann_all$length))
@@ -95,8 +93,11 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
         eff_split <- tstrsplit(eff_dt$eff, "\\|")
         eff_dt[, codon_change := eff_split[[3]]]    # codon change. format : aAt/aCt
 
+        # keep first eff per variant
+        eff_dt_first <- eff_dt[, .SD[1], by = variant.id]
+
         # merge EFF with ANN
-        ann_dt <- merge(ann_dt, eff_dt[, .(variant.id, codon_change)], by="variant.id", all.x=TRUE)
+        ann_dt <- merge(ann_dt, eff_dt_first[, .(variant.id, codon_change)], by="variant.id", all.x=TRUE)
 
         ## merge binned table
         bin_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect_order, effect, impact, gene, gene_id, 
