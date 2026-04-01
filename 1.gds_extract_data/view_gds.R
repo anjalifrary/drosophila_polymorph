@@ -25,6 +25,8 @@ sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20No
 sim_gds <- seqOpen(sim_file)
 sim_gds 
 
+#[50] "missense_variant(MODERATE|MISSENSE|Tcg/Ccg|p.Ser576Pro/c.1726T>C|1650|LOC6724756|protein_coding|CODING|XM_016173236.3|3|C)"
+
 genofile <- mel_gds
 
 # # reference allele freq of each variant

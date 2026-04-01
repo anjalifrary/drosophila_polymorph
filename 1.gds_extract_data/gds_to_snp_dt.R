@@ -4,9 +4,9 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-out_rds <- paste0(out_dir, "sim_snp_dt.rds")
+out_rds <- paste0(out_dir, "sim_eff_snp_dt.rds")
 if(!file.exists(out_rds)) file.create(out_rds)
-out_csv <- paste0(out_dir, "sim_snp_dt.csv")
+out_csv <- paste0(out_dir, "sim_eff_snp_dt.csv")
 if(!file.exists(out_csv)) file.create(out_csv)
 
 # load gds file
@@ -59,6 +59,8 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
             alt        = allele_split[[2]],
             af         = snp_dt$af[idx])
 
+        # eff at "annotation/info/EFF" [3]
+
         # message("getting annotations")
         ann_all <- seqGetData(gds, "annotation/info/ANN")
         # message("ann_all length field: ", length(ann_all$length))
@@ -84,10 +86,17 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
         ann_dt[, nt_pos := ann_split[[13]]]         # amino acid position within the protein
 
         ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
-        ann_dt[, codon_change := ann_split[[12]]]   # codon that codes for amino acid 
+        # ann_dt[, codon_change := ann_split[[12]]]   # codon that codes for amino acid 
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
-        
+
+        eff_all <- seqGetData(gds, "annotation/info/EFF")
+        eff_dt <- data.table( variant.id = rep(annotated_ids, times=eff_all$length), eff = eff_all$data)
+        eff_split <- tstrsplit(eff_dt$eff, "\\|")
+        eff_dt[, codon_change := eff_split[[3]]]    # codon change. format : aAt/aCt
+
+        # merge EFF with ANN
+        ann_dt <- merge(ann_dt, eff_dt[, .(variant.id, codon_change)], by="variant.id", all.x=TRUE)
 
         ## merge binned table
         bin_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect_order, effect, impact, gene, gene_id, 
@@ -124,6 +133,6 @@ message("filtered variants: kept ", filter_effects)
 saveRDS(species_table, out_rds)
 message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
 
-subset_table <- species_dt[1:500, ]
+subset_table <- species_table[1:500, ]
 fwrite(subset_table, out_csv)
 message("saved first 500 rows to csv at ", out_csv)
