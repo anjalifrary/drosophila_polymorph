@@ -117,9 +117,9 @@ message("filtered variants: kept ", filter_effects)
 #     num_unique_aa = uniqueN(aa_sub),
 #     consistent = uniqueN(aa_sub)==1
 # ), by = variant.id]
-message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
-message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
-aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
+# message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
+# message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
+# aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
 saveRDS(species_table, out_rds)
 message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
