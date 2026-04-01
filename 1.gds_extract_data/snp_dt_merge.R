@@ -9,9 +9,9 @@ out_rds <- paste0(out_dir, "all_variants_merge_unfilt.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
-mel_snp_rds <- paste0(out_dir, "mel_snp_dt.rds")
+mel_snp_rds <- paste0(out_dir, "mel_eff_snp_dt.rds")
 mel_snp_dt <- readRDS(mel_snp_rds)
-sim_snp_rds <- paste0(out_dir, "sim_snp_dt.rds")
+sim_snp_rds <- paste0(out_dir, "sim_eff_snp_dt.rds")
 sim_snp_dt <- readRDS(sim_snp_rds)
 
 # ### test on chromosome 2L
@@ -24,7 +24,6 @@ sim_snp_dt <- readRDS(sim_snp_rds)
 # NOTE: this is a union merge... keep ALL variants. no filtering yet
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
 message(nrow(shared_table), " total variants")
-
 
 message("saving rds to ", out_rds)
 saveRDS(shared_table, out_rds)
