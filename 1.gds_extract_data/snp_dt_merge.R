@@ -3,9 +3,9 @@ library(data.table)
 library(foreach)
 library(doMC)
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
-out_csv <- paste0(out_dir, "all_variants_filtered_500test.csv")
-out_rds <- paste0(out_dir, "all_variants_filtered.rds")
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
+out_csv <- paste0(out_dir, "all_variants_merge_unfilt_500test.csv")
+out_rds <- paste0(out_dir, "all_variants_merge_unfilt.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
@@ -25,16 +25,12 @@ sim_snp_dt <- readRDS(sim_snp_rds)
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
 message(nrow(shared_table), " total variants")
 
-if(nrow(shared_table)<600){
-    message("saving csv to ", out_csv)
-    fwrite(shared_table, out_csv)
-} else {
-    subset_table <- shared_table[1:500, ]
-    fwrite(subset_table, out_csv)
-    message("saved first 500 rows to csv at ", out_csv)
-}
 
 message("saving rds to ", out_rds)
 saveRDS(shared_table, out_rds)
 
 message("complete. ", nrow(shared_table), " variants written.")
+
+subset_table <- shared_table[1:500, ]
+fwrite(subset_table, out_csv)
+message("saved first 500 rows to csv at ", out_csv)
