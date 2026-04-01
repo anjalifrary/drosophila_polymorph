@@ -4,16 +4,16 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-out_rds <- paste0(out_dir, "sim_snp_dt.rds")
+out_rds <- paste0(out_dir, "mel_snp_dt.rds")
 if(!file.exists(out_rds)) file.create(out_rds)
-out_csv <- paste0(out_dir, "sim_snp_dt.csv")
+out_csv <- paste0(out_dir, "mel_snp_dt.csv")
 if(!file.exists(out_csv)) file.create(out_csv)
 
 # load gds file
-# mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
-# gds_file <- seqOpen(mel_file)
-sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
-gds_file <- seqOpen(sim_file)
+mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
+gds_file <- seqOpen(mel_file)
+# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
+# gds_file <- seqOpen(sim_file)
 
 filter_effects <- c("synonymous_variant", "missense_variant")
 
