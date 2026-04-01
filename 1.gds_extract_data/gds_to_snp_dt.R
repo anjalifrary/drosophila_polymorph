@@ -6,18 +6,19 @@ library(doMC)
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/"
 out_rds <- paste0(out_dir, "mel_snp_dt.rds")
 if(!file.exists(out_rds)) file.create(out_rds)
-# out_csv <- paste0(out_dir, "mel_snp_dt.csv")
-# if(!file.exists(out_csv)) file.create(out_csv)
+out_csv <- paste0(out_dir, "mel_snp_dt.csv")
+if(!file.exists(out_csv)) file.create(out_csv)
 
 # load gds file
-mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
+mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
 gds_file <- seqOpen(mel_file)
-# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
+# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
 # gds_file <- seqOpen(sim_file)
 
 filter_effects <- c("synonymous_variant", "missense_variant")
 
 ### loading both dt tables
+# Filter for biallelic variants
 build_snp_dt <- function(gds) {
     seqResetFilter(gds)
     dt <- data.table(
@@ -77,20 +78,20 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
         ann_dt[, gene_id := ann_split[[5]]]         # flybase gene id
         ann_dt[, feature_type := ann_split[[6]]]    # e.g. transcript
         ann_dt[, transcript_id := ann_split[[7]]]   #
-        ann_dt[, biotype := ann_split[[8]]]         #e.g. protein-coding
-        ann_dt[, in_exon := ann_split[[9]]]         # intron or exon
+        ann_dt[, biotype := ann_split[[8]]]         # e.g. protein-coding
+        ann_dt[, in_exon_pos := ann_split[[9]]]     # intron or exon position
         ann_dt[, nt_change := ann_split[[10]]]      # nucleotide change & position (c.-1427T>A)
+        ann_dt[, nt_pos := ann_split[[13]]]         # amino acid position within the protein
+
         ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
-        # ann_dt[, aa_codon := ann_split[[12]]]       # codon that codes for amino acid 
-        ann_dt[, aa_pos := ann_split[[13]]]         # amino acid position within the protein
-        ann_dt[, aa_sub := gsub("[0-9]+", "->", aa_change)] # strip aa_change of digits to compare aa polymorphsim across diff transcripts
+        ann_dt[, codon_change := ann_split[[12]]]   # codon that codes for amino acid 
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
         
 
         ## merge binned table
         bin_table <- merge(snp.dt1, ann_dt[, .(variant.id, effect_order, effect, impact, gene, gene_id, 
-        feature_type, transcript_id, biotype, in_exon, nt_change, aa_change, aa_pos, aa_sub)], by = "variant.id")
+        feature_type, transcript_id, biotype, in_exon_pos, nt_change, nt_pos, aa_change, codon_change)], by = "variant.id")
 
         ## keep only first variant (by effect_order column)
         bin_table <- bin_table[effect_order==1]
@@ -104,7 +105,6 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
 }
 
 snp_dt <- build_snp_dt(gds_file)
-# snp_dt_test <- snp_dt[1:1000] #change the next line to the test dt 
 species_table <- build_species_dt(gds_file, snp_dt)
 
 # filter for synonymous or missense 
@@ -121,6 +121,10 @@ message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
 aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
-message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
 saveRDS(species_table, out_rds)
-# fwrite(species_table, out_csv)
+message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
+
+
+subset_table <- filtered_dt[1:500, ]
+fwrite(subset_table, out_csv)
+message("saved first 500 rows to csv at ", out_csv)

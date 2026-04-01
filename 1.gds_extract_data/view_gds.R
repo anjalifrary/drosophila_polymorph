@@ -16,12 +16,12 @@ out_file <- "/scratch/ejy4bu/drosophila/gds_analysis/view_gds.txt"
 if(!file.exists(out_file)) file.create(out_file)
 
 # load melanogaster gds file
-mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.gds"
+mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
 mel_gds <- seqOpen(mel_file)
 mel_gds
 
 # load simulans gds file
-sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds"
+sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
 sim_gds <- seqOpen(sim_file)
 sim_gds 
 
