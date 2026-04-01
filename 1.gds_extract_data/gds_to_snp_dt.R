@@ -124,6 +124,6 @@ message("filtered variants: kept ", filter_effects)
 saveRDS(species_table, out_rds)
 message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
 
-subset_table <- filtered_dt[1:500, ]
+subset_table <- species_dt[1:500, ]
 fwrite(subset_table, out_csv)
 message("saved first 500 rows to csv at ", out_csv)
