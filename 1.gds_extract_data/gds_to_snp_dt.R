@@ -4,16 +4,16 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-out_rds <- paste0(out_dir, "mel_snp_dt.rds")
+out_rds <- paste0(out_dir, "sim_snp_dt.rds")
 if(!file.exists(out_rds)) file.create(out_rds)
-out_csv <- paste0(out_dir, "mel_snp_dt.csv")
+out_csv <- paste0(out_dir, "sim_snp_dt.csv")
 if(!file.exists(out_csv)) file.create(out_csv)
 
 # load gds file
-mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
-gds_file <- seqOpen(mel_file)
-# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
-# gds_file <- seqOpen(sim_file)
+# mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
+# gds_file <- seqOpen(mel_file)
+sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
+gds_file <- seqOpen(sim_file)
 
 filter_effects <- c("synonymous_variant", "missense_variant")
 
@@ -111,19 +111,18 @@ species_table <- build_species_dt(gds_file, snp_dt)
 species_table <- species_table[effect %in% filter_effects] 
 message("filtered variants: kept ", filter_effects)
 
-# check that all amino acid polymorphisms are the same even with different transcripts:
-aa_consistent <- species_table[aa_sub != "", .(
-    num_transcripts = .N,
-    num_unique_aa = uniqueN(aa_sub),
-    consistent = uniqueN(aa_sub)==1
-), by = variant.id]
+# # check that all amino acid polymorphisms are the same even with different transcripts:
+# aa_consistent <- species_table[aa_sub != "", .(
+#     num_transcripts = .N,
+#     num_unique_aa = uniqueN(aa_sub),
+#     consistent = uniqueN(aa_sub)==1
+# ), by = variant.id]
 message("variants with consistent aa_change: ", sum(aa_consistent$consistent))
 message("variants with inconsistent aa_change: ", sum(!aa_consistent$consistent))
 aa_consistent[consistent == FALSE][1:10] # view first 10 inconsistent variants
 
 saveRDS(species_table, out_rds)
 message("variants: ", nrow(species_table), "\nsaved to: ", out_rds)
-
 
 subset_table <- filtered_dt[1:500, ]
 fwrite(subset_table, out_csv)
