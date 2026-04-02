@@ -3,7 +3,7 @@ library(dplyr)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
 
-in_rds <- paste0(out_dir, "all_variants__merge_unfilt.rds")
+in_rds <- paste0(out_dir, "all_variants_merge_unfilt.rds")
 out_rds <- paste0(out_dir, "all_variants_clean.rds")
 out_csv <- paste0(out_dir, "all_variants_clean_500test.csv")
 if(!file.exists(out_rds)) file.create(out_rds)
@@ -40,6 +40,11 @@ filtered_dt[, c("aa_change_mel", "aa_change_sim") := NULL] # remove this column
 filtered_dt[, codon_ref_mel := gsub("^([[:alpha:]]{3})/.*", "\\1", codon_change_mel)] # aGc
 filtered_dt[, codon_alt_mel := gsub(".*/([[:alpha:]]{3})$", "\\1", codon_change_mel)] # aTc
 
+filtered_dt[, codon_ref_sim := gsub("^([[:alpha:]]{3})/.*", "\\1", codon_change_sim)] # aGc
+filtered_dt[, codon_alt_sim := gsub(".*/([[:alpha:]]{3})$", "\\1", codon_change_sim)] # aTc
+
+filtered_dt[, c("codon_change_mel", "codon_change_sim") := NULL]
+
 ##### add empty classification column
 filtered_dt[, classification := NA_character_] # add empty classification colun
 
@@ -48,11 +53,11 @@ setcolorder(
   filtered_dt,
   c(
     "chr", "pos",
+    "classification",
     "ref_mel", "alt_mel", "ref_sim", "alt_sim",
     "nt_change_mel", "nt_change_sim", 
-    "codon_change_mel", "codon_change_sim",
+    "codon_ref_mel", "codon_alt_mel", "codon_ref_sim", "codon_alt_sim",
     "aa_ref_mel", "aa_alt_mel", "aa_ref_sim", "aa_alt_sim",
-    "classification",
     "af_mel", "af_sim",
     "effect_mel", "effect_sim",
     "gene_mel", "gene_sim",
