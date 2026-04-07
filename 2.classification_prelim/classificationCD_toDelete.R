@@ -8,16 +8,6 @@ rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/all_v
 shared_dt <- readRDS(rds_file)
 message(nrow(shared_dt), " total variants in shared table")
 
-### CLASS C: same position, diff nt, same amino acid ############################################
-shared_dt[
-    ref_mel == ref_sim &
-    alt_mel != alt_sim & 
-    aa_ref_mel == aa_ref_sim & 
-    aa_alt_mel == aa_alt_sim,
-    classification := "C"
-]
-shared_classC <- shared_dt[classification == "C"]
-message(nrow(shared_classC), " shared variants with same pos, diff nt, and same aa")
 
 
 ### CLASS D: same position, diff nt, diff amino acid ###########################################

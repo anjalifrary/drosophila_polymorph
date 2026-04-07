@@ -11,8 +11,8 @@ message(nrow(shared_dt), " total variants in shared table")
 
 ### CLASS E: same position, same nt but swapped ref/alt, same amino acid ############################################
 shared_dt[
-    ref_mel != ref_sim &
-    alt_mel == alt_sim & 
+    ref_mel == ref_sim &
+    alt_mel != alt_sim & 
     aa_ref_mel == aa_ref_sim & 
     aa_alt_mel == aa_alt_sim,
     classification := "E"
