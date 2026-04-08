@@ -77,17 +77,17 @@ fwrite(class_dt, csv_class)
 #########################################################
 
 
-## CLASS X: testing new combos at same position ############################################
-shared_dt[
-    ref_mel == ref_sim &
-    alt_mel == alt_sim & 
-    aa_ref_mel == aa_ref_sim & 
-    aa_alt_mel == aa_alt_sim,
-    classification := "X"
-]
-shared_dt[classification == "X", classification := NA]
+# ## CLASS X: testing new combos at same position ############################################
+# shared_dt[
+#     ref_mel == ref_sim &
+#     alt_mel == alt_sim & 
+#     aa_ref_mel == aa_ref_sim & 
+#     aa_alt_mel != aa_alt_sim,
+#     classification := "B"
+# ]
+# shared_dt[classification == "X", classification := NA]
 
-# shared_classX <- shared_dt[classification == "X"] # clear classification with class X
-message(nrow(shared_dt[classification == "X"]), " shared variants in class X")
+# # shared_classX <- shared_dt[classification == "X"] # clear classification with class X
+# message(nrow(shared_dt[classification == "X"]), " shared variants in class X")
 
-class_dt[class_dt$Classification=="H", "Count" ] <- nrow(shared_dt[classification == "H"])
+# class_dt[class_dt$Classification=="H", "Count" ] <- nrow(shared_dt[classification == "H"])
