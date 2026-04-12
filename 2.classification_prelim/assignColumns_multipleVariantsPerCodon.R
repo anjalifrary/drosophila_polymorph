@@ -1,3 +1,6 @@
+############ adds annotation columns to link variants to other variants in the same codon
+### in order to identify the class of polymorphisms that occur at different positions within a single codon
+
 library(data.table)
 
 rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/all_variants_clean.rds")

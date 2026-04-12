@@ -2,7 +2,7 @@
 ### A) shared polymorphism at same position
 ### B) multiple polymorphisms within the same codon
 
-#### edit - this is making an RDS heavily favored towards mel. skipping for now
+############ edit - this is making an RDS heavily favored towards mel. skipping for now
 
 library(data.table)
 
@@ -27,4 +27,4 @@ message("saved first 500 rows to csv at ", out_csv)
 
 
 out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/subset_variants_perCodon_sameSite.rds"
-fwrite(shared_dt, out_rds)
+saveRDS(filtered_dt, out_rds)
