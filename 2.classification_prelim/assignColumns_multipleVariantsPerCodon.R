@@ -59,7 +59,9 @@ codons_mult_variants[, positions := NULL]
 
 
 shared_dt[, c("aa_pos_toUse") := NULL]
-
+shared_dt[, c("codon_ref_use") := NULL]
+shared_dt[, c("nt_ref_use") := NULL]
+shared_dt[, c("strand") := NULL]
 
 
 ################ fix column orders ######################################
@@ -95,5 +97,4 @@ out_csv <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/all_variants
 subset_table <- shared_dt[1:500, ]
 fwrite(subset_table, out_csv)
 message("saved first 500 rows to csv at ", out_csv)
-
 
