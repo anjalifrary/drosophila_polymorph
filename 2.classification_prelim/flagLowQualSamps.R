@@ -70,9 +70,6 @@ sim_af_dt <- data.table(
   af_sim_recomputed = seqAlleleFreq(sim_gds)
 )
 
-# message("mel AF NA: ", sum(is.na(variants_of_interest$af_mel_recomputed)))
-# message("sim AF NA: ", sum(is.na(variants_of_interest$af_sim_recomputed)))
-
 ##############################################################################
 # 4. Rejoin tables by qual filter samples
 
@@ -81,12 +78,12 @@ variants_of_interest <- mel_af_dt[variants_of_interest, on = .(variant.id_mel)]
 variants_of_interest <- sim_af_dt[variants_of_interest, on = .(variant.id_sim)]
 
 #### Check allele frequencies
-variants_of_interest[!is.na(af_mel) & !is.na(af_mel_recomputed), .(
+variants_of_interest[!is.na(af_mel) & (af_mel_recomputed>0), .(
   mean_af_mel_before = mean(af_mel), mean_af_mel_after = mean(af_mel_recomputed),
   mean_diff = mean(abs(af_mel - af_mel_recomputed))
 )]
 
-variants_of_interest[!is.na(af_sim) & !is.na(af_sim_recomputed), .(
+variants_of_interest[!is.na(af_sim) & (af_sim_recomputed>0), .(
   mean_af_sim_before = mean(af_sim), mean_af_sim_after = mean(af_sim_recomputed),
   mean_diff = mean(abs(af_sim - af_sim_recomputed))
 )]
@@ -101,10 +98,23 @@ message(nrow(quality_dt), " variants after quality filter")
 
 #############################################################################
 # 5. Save file
+
+
 quality_dt[, af_mel := af_mel_recomputed]
 quality_dt[, af_sim := af_sim_recomputed]
 quality_dt[, af_mel_recomputed := NULL]
 quality_dt[, af_sim_recomputed := NULL]
+
+########## Fix the column names 
+cols <- names(filtered_dt)
+# setcolorder(quality_dt, cols)
+
+quality_dt <- quality_dt[, ..cols]
+names(quality_dt)
+
+# cols_to_remove <- grep("^i\\.", names(quality_dt), value = TRUE)
+# quality_dt[, (cols_to_remove) := NULL]
+# new_cols <- names(quality_dt)
 
 
 out_csv <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/subset_variantsOfInterest_qualFiltered_test500.csv"
@@ -117,5 +127,3 @@ saveRDS(quality_dt, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/sub
 seqClose(mel_gds)
 seqClose(sim_gds)
 message("complete!")
-
-########## Fix the column names 

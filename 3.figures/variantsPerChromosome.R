@@ -2,26 +2,25 @@ library(data.table)
 library(ggplot2)
 
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/figures"
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/figures/var_pos_plots/varOfInterest_N_QualFilter"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/subset_variantsOfInterest.rds"
 dt <- readRDS(in_rds)
 
-dt[, species := fifelse(
-    !is.na(ref_sim), "sim",
-    fifelse(!is.na(ref_mel), "mel", NA_character_)
-)]
+dt_long <- rbindlist(list(
+    dt[!is.na(ref_mel), .(chr, pos, species = "mel")],
+    dt[!is.na(ref_sim), .(chr, pos, species = "sim")]
+))
 
-dt <- dt[!is.na(species)]
-dt <- dt[order(chr, pos)]
+dt_long <- dt_long[order(chr, pos)]
 
 chroms <- unique(dt$chr)
 # chroms <- chroms[1]
 
 for (chrom in chroms) { 
-    dt_chr <- dt[chr == chrom] # subset dt for chromosome
-    chr_len <- max(dt[chr == chrom]$pos) # get chr length 
+    dt_chr <- dt_long[chr == chrom] # subset dt for chromosome
+    chr_len <- max(dt_long[chr == chrom]$pos) # get chr length 
     wrap_size <- (chr_len / 4)+1 # divide the chromosome into 4 lines for wrapping
     dt_chr[, line := floor(pos / wrap_size)] # set length of each line 
 
