@@ -4,14 +4,14 @@ library(foreach)
 library(doMC)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-out_csv <- paste0(out_dir, "all_variants_merge_unfilt_500test.csv")
-out_rds <- paste0(out_dir, "all_variants_merge_unfilt.rds")
+out_csv <- paste0(out_dir, "all_quality_variants_merge_unfilt_500test.csv")
+out_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
-mel_snp_rds <- paste0(out_dir, "mel_eff_snp_dt.rds")
+mel_snp_rds <- paste0(out_dir, "mel_filtered_eff_snp_dt.rds")
 mel_snp_dt <- readRDS(mel_snp_rds)
-sim_snp_rds <- paste0(out_dir, "sim_eff_snp_dt.rds")
+sim_snp_rds <- paste0(out_dir, "sim_filtered_eff_snp_dt.rds")
 sim_snp_dt <- readRDS(sim_snp_rds)
 
 # ### test on chromosome 2L

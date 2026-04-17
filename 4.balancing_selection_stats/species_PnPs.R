@@ -4,6 +4,7 @@ library(data.table)
 mel_rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/species_rdsFiles/mel_filtered_eff_snp_dt.rds")
 sim_rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/species_rdsFiles/sim_filtered_eff_snp_dt.rds")
 
+
 mel_syn <- mel_rds[effect == "synonymous_variant"]
 mel_nonsyn <- mel_rds[effect == "missense_variant"]
 # message(nrow(mel_rds), " total mel variants")
