@@ -9,9 +9,9 @@ out_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
 if(!file.exists(out_csv)) file.create(out_csv)
 if(!file.exists(out_rds)) file.create(out_rds)
 
-mel_snp_rds <- paste0(out_dir, "mel_filtered_eff_snp_dt.rds")
+mel_snp_rds <- paste0(out_dir, "species_rdsFiles/mel_filtered_eff_snp_dt.rds")
 mel_snp_dt <- readRDS(mel_snp_rds)
-sim_snp_rds <- paste0(out_dir, "sim_filtered_eff_snp_dt.rds")
+sim_snp_rds <- paste0(out_dir, "species_rdsFiles/sim_filtered_eff_snp_dt.rds")
 sim_snp_dt <- readRDS(sim_snp_rds)
 
 # ### test on chromosome 2L
