@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-#
-#SBATCH -J touch # A single job name for the array
-#SBATCH --ntasks-per-node=2 # one core
-#SBATCH -N 1 # on one node
-#SBATCH -t 0-48:00  ### 48 hours
-#SBATCH --mem 10G
-#SBATCH -o /scratch/ejy4bu/err_outs/move.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/move.%A_%a.err # Standard error
-#SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH -J touch           # Job name
+#SBATCH --ntasks=1         # Single task per job
+#SBATCH --cpus-per-task=10 # Number of CPU cores per task
+#SBATCH -N 1               # Run on one node
+#SBATCH -t 0-10:00         # 10 hours runtime
+#SBATCH --mem=100G         # Memory per node
+#SBATCH -o /scratch/ejy4bu/err_outs/touch.%A_%a.out  # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/touch.%A_%a.err  # Standard error
+#SBATCH -p standard       # Partition
+#SBATCH --account=berglandlab
 cd /scratch/ejy4bu
 find . -type f -exec touch {} +
 find . -type d -exec touch {} +
