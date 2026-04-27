@@ -9,6 +9,9 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/touch.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
+
 cd /scratch/ejy4bu
 find . -type f -exec touch {} +
 find . -type d -exec touch {} +
+
+sacct -j <job_id> --format=JobID,State,ExitCode,Elapsed,NodeList,Reason
