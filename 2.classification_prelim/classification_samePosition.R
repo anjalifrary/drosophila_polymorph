@@ -9,7 +9,7 @@ shared_dt <- readRDS(rds_file)
 message(nrow(shared_dt), " total variants in shared table")
 
 csv_class <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classificationScheme.csv")
-class_dt <- read.csv(csv_class)
+class_dt <- fread(csv_class)
 
 ### CLASS A: same position, same nt, same amino acid ############################################
 shared_dt[
