@@ -78,7 +78,7 @@ shared_classX <- NULL
 
 ############ UPDATE FILES ###############################
 # outputs summary of classification stats 
-table(shared_dt$classification, useNA = "ifany")
+table(shared_dt$classification_sameSite, useNA = "ifany")
 
 # RDS FILE
 saveRDS(shared_dt, rds_file)
