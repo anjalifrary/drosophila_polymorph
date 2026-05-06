@@ -9,28 +9,28 @@ same_site <- shared_dt[!is.na(ref_mel) & !is.na(ref_sim)]
 ### B ----- different site, same codon, polymorphic in BOTH species:
 # join on chr + codon_start_pos,,, one row must be mel and one row must be sim
 
-mel_only <- shared_dt[!is.na(ref_mel) & is.na(ref_sim)]
-sim_only <- shared_dt[!is.na(ref_sim) & is.na(ref_mel)]
+mel_codons <- unique(shared_dt[!is.na(ref_mel) & is.na(ref_sim), .(chr, codon_start_pos)])
+sim_codons <- unique(shared_dt[!is.na(ref_sim) & is.na(ref_mel), .(chr, codon_start_pos)])
 
-# Find codon_start_pos values that have BOTH mel and sim variant
-mel_codons <- mel_only[, .(chr, codon_start_pos)]
-sim_codons <- sim_only[, .(chr, codon_start_pos)]
 shared_codons <- merge(mel_codons, sim_codons, by = c("chr", "codon_start_pos"))
 
 # Keep mel and sim rows whose codon appears in shared_codons
-mel_with_sim_in_codon <- mel_only[shared_codons, on = .(chr, codon_start_pos), nomatch = 0L]
-sim_with_mel_in_codon <- sim_only[shared_codons, on = .(chr, codon_start_pos), nomatch = 0L]
+# mel_with_sim_in_codon <- mel_only[shared_codons, on = .(chr, codon_start_pos), nomatch = 0L]
+# sim_with_mel_in_codon <- sim_only[shared_codons, on = .(chr, codon_start_pos), nomatch = 0L]
 
-filtered_dt <- unique(rbindlist(list(
+filtered_dt <- rbindlist(list(
   same_site,
-  mel_with_sim_in_codon,
-  sim_with_mel_in_codon
-), use.names = TRUE))
+  shared_dt[shared_codons, on= .(chr, codon_start_pos)]
+), use.names = TRUE)
 
-setkey(filtered_dt, chr, pos)
+filtered_dt <- unique(filtered_dt)
+
+
 message(nrow(same_site), " same-site variants (Condition A)")
-message(nrow(mel_with_sim_in_codon), " mel variants with sim in same codon (Condition B)")
-message(nrow(sim_with_mel_in_codon), " sim variants with mel in same codon (Condition B)")
+message(nrow(shared_codons), " codons polymorphic in both species (Condition B)")
+
+# message(nrow(mel_with_sim_in_codon), " mel variants with sim in same codon (Condition B)")
+# message(nrow(sim_with_mel_in_codon), " sim variants with mel in same codon (Condition B)")
 message(nrow(filtered_dt), " total unique rows kept")
 
 
@@ -47,6 +47,9 @@ filtered_dt[, strand := fifelse(
 
 filtered_dt[strand == "forward", codon_start_pos := pos - (regexpr("[A-Z]", codon_ref_use) - 1)]
 filtered_dt[strand == "reverse", codon_start_pos := pos + (regexpr("[A-Z]", codon_ref_use) - 1)]
+
+setkey(filtered_dt, chr, pos)
+
 
 # Recompute adjacent variant positions
 filtered_dt[, aa_pos_toUse := ifelse(!is.na(aa_pos_mel), aa_pos_mel, aa_pos_sim)]
