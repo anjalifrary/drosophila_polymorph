@@ -66,7 +66,6 @@ codon_counts <- shared_dt[,
 
 joint_counts <- codon_counts[, .N, by = .(n_mel, n_sim)]
 
-# idk how this works lol
 joint_matrix <- dcast(
     joint_counts,
     n_mel ~ n_sim,
