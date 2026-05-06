@@ -3,7 +3,7 @@
 
 library(data.table)
 
-rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/all_variants_clean.rds")
+rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_clean.rds")
 shared_dt <- readRDS(rds_file)
 message(nrow(shared_dt), " total variants in shared table")
 
@@ -92,11 +92,11 @@ setcolorder(shared_dt, new_order)
 
 ################## save files ############################################
 
-out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/all_variants_adjacent_annotation_test.rds"
+out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_working.rds"
 saveRDS(shared_dt, out_rds)
 message("Saved updated shared_dt with adjacent variant positions")
 
-out_csv <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/all_variants_adjacent_annotation_test_test500.csv"
+out_csv <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_working.csv"
 subset_table <- shared_dt[1:500, ]
 fwrite(subset_table, out_csv)
 message("saved first 500 rows to csv at ", out_csv)

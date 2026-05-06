@@ -84,7 +84,6 @@ build_species_dt <- function(gds, snp_dt, bin_size=10000){
         ann_dt[, nt_pos := ann_split[[13]]]         # amino acid position within the protein
 
         ann_dt[, aa_change := ann_split[[11]]]      # amino acid change
-        # ann_dt[, codon_change := ann_split[[12]]]   # codon that codes for amino acid 
 
         ann_dt[, ann := NULL]  # drop the raw string, keep parsed columns
 

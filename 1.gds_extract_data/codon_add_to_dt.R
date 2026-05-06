@@ -1,5 +1,5 @@
 ############  Adding codon identity   ############################################
-# don't do this anymore because I updated the datatables at the start (gds_to_sp_dt.R)
+# don't do this anymore because I updated the datatables at the start (gds_to_snp_dt.R)
 
 library(SeqArray)
 library(data.table)
