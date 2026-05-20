@@ -121,3 +121,4 @@ message("saved first 500 rows to csv at ", out_csv)
 out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds"
 saveRDS(filtered_dt, out_rds)
 
+# cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds /project/berglandlab/anjali/drosophila_polymorphism/mel_sim_sharedTables
