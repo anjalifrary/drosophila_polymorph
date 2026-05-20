@@ -216,9 +216,10 @@ setcolorder(
     )
 )
 
-# save class_table
-fwrite(class_table, csv_class)
-message("classification table written to: ", csv_class)
+# commented out to avoid overwriting existing annotated table
+# # save class_table
+# fwrite(class_table, csv_class)
+# message("classification table written to: ", csv_class)
 
 
 # update shared table classification column
