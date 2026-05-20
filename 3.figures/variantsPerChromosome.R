@@ -2,10 +2,10 @@ library(data.table)
 library(ggplot2)
 
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/figures/var_pos_plots/varOfInterest_N_QualFilter"
+out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/figures/var_pos_plots/varOfInterest_final"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
-in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/subset_variantsOfInterest.rds"
+in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva.rds"
 dt <- readRDS(in_rds)
 
 dt_long <- rbindlist(list(
@@ -37,7 +37,7 @@ for (chrom in chroms) {
         scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
 
     ggsave(
-    filename = file.path(out_dir, paste0("variant_wrapped_scatter_per_chr_", chrom, ".png")),
+    filename = file.path(out_dir, paste0("variants_chr", chrom, ".png")),
     plot = p,
     width = 12,
     height = 6,
