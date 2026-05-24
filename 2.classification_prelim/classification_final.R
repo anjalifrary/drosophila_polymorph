@@ -291,11 +291,11 @@ table(subset_table$classification, useNA = "ifany")
 fwrite(subset_table, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_test500.csv")
 
 mkdir -p 
-cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed.rds /project/berglandlab/anjali/drosophila_polymorphism/classification
+cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva.rds /project/berglandlab/anjali/drosophila_polymorphism/classification
 
-cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classification_table.csv /project/berglandlab/anjali/drosophila_polymorphism/classification
+cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classification_table_final.csv /project/berglandlab/anjali/drosophila_polymorphism/classification
 
-cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_test500.csv /project/berglandlab/anjali/drosophila_polymorphism/classification
+cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_test500.csv /project/berglandlab/anjali/drosophila_polymorphism/classification
 
 
 
