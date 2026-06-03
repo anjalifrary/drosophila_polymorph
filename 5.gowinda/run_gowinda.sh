@@ -31,7 +31,7 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
-  --mode gene \
+  --mode snp \
   --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt
 
 
@@ -45,5 +45,5 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition updownstream2000 \
   --gene-definition gene \
   --threads 10 \
-  --mode gene \
+  --mode snp \
   --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_updown2k_gene.txt
