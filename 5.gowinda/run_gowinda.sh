@@ -12,19 +12,18 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-total_snp=/scratch/ejy4bu/drosophila/gowinda/total_snp.txt
+# background=/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt
+background=/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt
 candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
 gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
 go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 # go_file=/scratch/ejy4bu/drosophila/gowinda/gene_association.fb
 
-echo "total_snp=$total_snp"
-echo "candidate_snp=$candidate_snp"
-echo "gtf_file=$gtf_file"
-echo "go_file=$go_file"
+suffix=$(basename "$candidate_snp" .txt)
+suffix=${suffix#candidate_snp_}
 
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
-  --snp-file $total_snp \
+  --snp-file $background \
   --candidate-snp-file $candidate_snp \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
@@ -32,12 +31,12 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_snp.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_gene.txt
 
 
   
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
-  --snp-file $total_snp \
+  --snp-file $background \
   --candidate-snp-file $candidate_snp \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
@@ -46,4 +45,4 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_updown2k_snp.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_updown2k_gene.txt
