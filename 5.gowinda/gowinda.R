@@ -31,6 +31,12 @@ fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .
 gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
 
 ### GO file
+gaf <- fread("/scratch/ejy4bu/drosophila/gowinda/gene_association.fb",
+    sep = "\t", header = FALSE)
+
+# Remove comment lines
+gaf <- gaf[!grepl("^!", V1)]
+
 # making GO file
 library(AnnotationDbi)
 library(org.Dm.eg.db)  # Drosophila melanogaster annotation package
