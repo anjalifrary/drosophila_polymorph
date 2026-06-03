@@ -30,10 +30,10 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
   --simulations 100000 \
-  --gene-definition snp \
+  --gene-definition gene \
   --threads 10 \
-  --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_gene_classedBackground.txt
+  --mode gene \
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_classedBackground.txt
 
 
   
