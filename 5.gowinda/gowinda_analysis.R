@@ -1,6 +1,16 @@
 library(data.table)
 library(dplyr)
 
+# column 1: the GO term
+# column 2: on the average this number of genes are found per simulation for the given GO category. In --mode gene every gene is only counted once whereas in --mode snp a single gene may be counted several times dependent on the SNP
+# column 3: using the candidate SNPs this number of genes was found for the given GO category. In --mode gene every gene is only counted once whereas in --mode snp a single gene may be counted several times dependent on the SNP
+# column 4: p-value (uncorrected for multiple testing)
+# column 5: FDR (p-value after adjustment for multiple testing)
+# column 6: the number of genes (uniq) found for the given GO category
+# column 7: the number of genes that could at most be found for the given GO category, i.e.: genes of the given GO category that have an corresponding entry in the annotation file and contain at least one SNP
+# column 8: total number of genes for the given GO category in the GO association file
+# column 9: description of the given GO term
+# column 10: comma separated list of the gene_ids found for the given GO category
 
 cols <- c("GO.id", "SimulatedGenes", "ObservedGenes", 
   "p.value", "FDR", 

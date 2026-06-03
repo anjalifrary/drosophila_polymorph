@@ -31,11 +31,21 @@ fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .
 gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
 
 ### GO file
-gaf <- fread("/scratch/ejy4bu/drosophila/gowinda/gene_association.fb",
-    sep = "\t", header = FALSE)
+gaf <- fread(
+    "/scratch/ejy4bu/drosophila/gowinda/gene_association.fb",
+    sep="\t", header=FALSE, fill=TRUE, skip=5
+)
 
 # Remove comment lines
-gaf <- gaf[!grepl("^!", V1)]
+# gaf <- gaf[!grepl("^!", V1)]
+gowinda_go <- gaf[grepl("^FBgn", V2) & grepl("^GO:", V5),
+    .(
+        TERM  = unique(V5)[1],
+        genes = paste(unique(V2), collapse=" ")
+    ), by=V5]
+    
+fwrite(gowinda_go, "/scratch/ejy4bu/drosophila/gowinda/flybase_gaf_go.txt",
+    sep="\t", col.names=FALSE, quote=FALSE)
 
 # making GO file
 library(AnnotationDbi)

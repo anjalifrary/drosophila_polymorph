@@ -47,3 +47,20 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
 #   --threads 10 \
 #   --mode snp \
 #   --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_updown2k_classedBackground.txt
+
+###### ARRAY run of all groups:
+# #SBATCH --array=0-5
+
+# GROUPS=(A B AB FGOP XY FGOPXY)
+# GROUP=${GROUPS[$SLURM_ARRAY_TASK_ID]}
+
+# java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
+#   --snp-file /scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt \
+#   --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${GROUP}.txt \
+#   --gene-set-file /scratch/ejy4bu/drosophila/gowinda/flybase_gaf_go.txt \
+#   --annotation-file /scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf \
+#   --simulations 100000 \
+#   --gene-definition gene \
+#   --threads 10 \
+#   --mode gene \
+#   --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${GROUP}_gene.txt
