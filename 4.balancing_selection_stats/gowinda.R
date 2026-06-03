@@ -21,7 +21,9 @@ gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
 gaf <- fread("/scratch/ejy4bu/drosophila/gowinda/gene_association.fb",
     sep = "\t", header = FALSE)
 
-gowinda_go <- unique(gaf[, .(GO = V5, Gene = V2)])
+# gowinda_go <- unique(gaf[, .(GO = V5, Gene = V2)])
+gowinda_go <- gaf[, .(genes = paste(unique(V2), collapse=";")), by=V5]
+
 
 fwrite(gowinda_go,"/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
     sep = "\t", col.names = FALSE)
