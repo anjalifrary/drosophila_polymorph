@@ -13,7 +13,7 @@
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
 total_snp=/scratch/ejy4bu/drosophila/gowinda/total_snp.txt
-candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_B.txt
+candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
 gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
 go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 # go_file=/scratch/ejy4bu/drosophila/gowinda/gene_association.fb
@@ -32,7 +32,7 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_B_gene.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt
 
 
   
@@ -46,4 +46,4 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_B_updown2k_gene.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_updown2k_gene.txt
