@@ -15,10 +15,15 @@ candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_A.txt
 gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
 go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 
+echo "total_snp=$total_snp"
+echo "candidate_snp=$candidate_snp"
+echo "gtf_file=$gtf_file"
+echo "go_file=$go_file"
 
+set -x
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $total_snp \
-  --candidate-snp-file $candidate_snp_A \
+  --candidate-snp-file $candidate_snp \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
   --simulations 1000000 \
