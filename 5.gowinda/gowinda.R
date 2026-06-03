@@ -31,17 +31,6 @@ fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .
 gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
 
 ### GO file
-gaf <- fread("/scratch/ejy4bu/drosophila/gowinda/gene_association.fb",
-    sep = "\t", header = FALSE)
-
-# gowinda_go <- unique(gaf[, .(GO = V5, Gene = V2)])
-gowinda_go <- gaf[, .(genes = paste(unique(V2), collapse=";")), by=V5]
-
-
-fwrite(gowinda_go,"/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
-    sep = "\t", col.names = FALSE)
-
-
 # making GO file
 library(AnnotationDbi)
 library(org.Dm.eg.db)  # Drosophila melanogaster annotation package
@@ -57,11 +46,11 @@ go_dt <- as.data.table(go_to_fb)[!is.na(FLYBASE)]
 
 gowinda_go <- go_dt[, .(
     TERM  = unique(GO)[1],   # reuse GO ID as descriptor ** FIX ** 
-    genes = paste(unique(FLYBASE), collapse = ";")
+    genes = paste(unique(FLYBASE), collapse = "\t")
 ), by = GO]
 
 fwrite(gowinda_go, "/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
-    sep = "\t", col.names = FALSE)
+    sep = "\t", col.names = FALSE, quote = FALSE)
 
 # java -Xmx8g -jar Gowinda.jar \
 #   --snp-file total_snps.txt \
