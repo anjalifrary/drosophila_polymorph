@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 #SBATCH -J gowinda         # Job name
 #SBATCH --ntasks=1         # Single task per job
