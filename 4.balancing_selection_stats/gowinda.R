@@ -30,6 +30,17 @@ fwrite(gowinda_go,"/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
 
 fwrite(unique(voi[classification=="A", .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_A.txt", sep="\t", col.names=FALSE)
 
+# making GO file
+library(AnnotationDbi)
+library(org.Dm.eg.db)  # Drosophila melanogaster annotation package
+library(data.table)
+
+go_to_fb <- AnnotationDbi::select(org.Dm.eg.db,
+    keys    = keys(org.Dm.eg.db, keytype = "GO"),
+    columns = c("GO", "TERM", "FLYBASE"),
+    keytype = "GO"
+)
+
 # java -Xmx8g -jar Gowinda.jar \
 #   --snp-file total_snps.txt \
 #   --candidate-snp-file candidate_A.txt \
