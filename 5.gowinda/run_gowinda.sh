@@ -5,10 +5,12 @@
 #SBATCH -N 1               # Run on one node
 #SBATCH -t 0-10:00         # 10 hours runtime
 #SBATCH --mem=100G         # Memory per node
-#SBATCH -o /scratch/ejy4bu/err_outs/gowinda.%A_%a.out  # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/gowinda.%A_%a.err  # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.out  # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
+
+mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
 total_snp=/scratch/ejy4bu/drosophila/gowinda/total_snp.txt
 candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_B.txt
