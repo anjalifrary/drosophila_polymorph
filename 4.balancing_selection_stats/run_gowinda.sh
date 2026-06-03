@@ -16,7 +16,7 @@ gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
 go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 
 
-java -Xmx8g -jar Gowinda.jar \
+java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file total_snp \
   --candidate-snp-file candidate_snp_A \
   --gene-set-file go_file \
