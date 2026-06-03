@@ -12,7 +12,7 @@ mel_rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/spec
 total_snp <- unique(mel_rds[, .(chr, pos)])
 fwrite(total_snp, "/scratch/ejy4bu/drosophila/gowinda/total_snp.txt", sep="\t", col.names=FALSE)
 
-voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/mel_sim_sharedTables/subset_qualVar_ofInterest_final.rds")
+voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
 candidate_snp <- unique(voi[, .(chr, pos)])
 fwrite(candidate_snp, "/scratch/ejy4bu/drosophila/gowinda/candidate_snp.txt", sep="\t", col.names=FALSE)
 

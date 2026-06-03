@@ -21,7 +21,6 @@ echo "candidate_snp=$candidate_snp"
 echo "gtf_file=$gtf_file"
 echo "go_file=$go_file"
 
-set -x
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $total_snp \
   --candidate-snp-file $candidate_snp \
@@ -31,4 +30,18 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/gowinda_A.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/gowinda_A_gene.txt
+
+
+  
+java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
+  --snp-file $total_snp \
+  --candidate-snp-file $candidate_snp \
+  --gene-set-file $go_file \
+  --annotation-file $gtf_file \
+  --simulations 1000000 \
+  --gene-definition updownstream2000 \
+  --gene-definition gene \
+  --threads 10 \
+  --mode gene \
+  --output-file /scratch/ejy4bu/drosophila/gowinda/gowinda_A_updown2k_gene.txt
