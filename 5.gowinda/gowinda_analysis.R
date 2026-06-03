@@ -9,7 +9,7 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
 
 # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
-results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE, col.names=cols)
+results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
 
 significant = results %>% filter(FDR < 0.05)
 
