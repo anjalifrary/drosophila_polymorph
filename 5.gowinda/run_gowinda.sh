@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=10 # Number of CPU cores per task
 #SBATCH -N 1               # Run on one node
 #SBATCH -t 0-10:00         # 10 hours runtime
-#SBATCH --mem=100G         # Memory per node
+#SBATCH --mem=70G         # Memory per node
 #SBATCH -o /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
@@ -22,12 +22,14 @@ go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 suffix=$(basename "$candidate_snp" .txt)
 suffix=${suffix#candidate_snp_}
 
+# once done exploring, set simulations to 1000000 (1M for final results)
+
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $background \
   --candidate-snp-file $candidate_snp \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
-  --simulations 1000000 \
+  --simulations 100000 \
   --gene-definition gene \
   --threads 10 \
   --mode snp \
@@ -40,9 +42,8 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --candidate-snp-file $candidate_snp \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
-  --simulations 1000000 \
+  --simulations 100000 \
   --gene-definition updownstream2000 \
-  --gene-definition gene \
   --threads 10 \
   --mode snp \
   --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_updown2k_classedBackground.txt
