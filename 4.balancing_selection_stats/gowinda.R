@@ -28,7 +28,7 @@ gowinda_go <- gaf[, .(genes = paste(unique(V2), collapse=";")), by=V5]
 fwrite(gowinda_go,"/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
     sep = "\t", col.names = FALSE)
 
-fwrite(unique(voi[classification=="A", .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_A.txt", sep="\t", col.names=FALSE)
+fwrite(unique(voi[classification=="B", .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_B.txt", sep="\t", col.names=FALSE)
 
 # making GO file
 library(AnnotationDbi)
@@ -37,9 +37,19 @@ library(data.table)
 
 go_to_fb <- AnnotationDbi::select(org.Dm.eg.db,
     keys    = keys(org.Dm.eg.db, keytype = "GO"),
-    columns = c("GO", "TERM", "FLYBASE"),
+    columns = c("GO", "FLYBASE"),
     keytype = "GO"
 )
+
+go_dt <- as.data.table(go_to_fb)[!is.na(FLYBASE)]
+
+gowinda_go <- go_dt[, .(
+    TERM  = unique(GO)[1],   # reuse GO ID as descriptor ** FIX ** 
+    genes = paste(unique(FLYBASE), collapse = ";")
+), by = GO]
+
+fwrite(gowinda_go, "/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
+    sep = "\t", col.names = FALSE)
 
 # java -Xmx8g -jar Gowinda.jar \
 #   --snp-file total_snps.txt \

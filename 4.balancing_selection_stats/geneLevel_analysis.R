@@ -6,7 +6,7 @@ library(foreach)
 library(SeqArray)
 
 
-# nlp file from Alan - contains only 
+# nlp file from Alan - contains only mel
 load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/Drosophila_melanogaster.10_03_2026.nlpTable.paramask.genmap.busco.Rdata")
 
 tsp <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")

@@ -11,7 +11,7 @@
 #SBATCH --account=berglandlab
 
 total_snp=/scratch/ejy4bu/drosophila/gowinda/total_snp.txt
-candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_A.txt
+candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_B.txt
 gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
 go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 # go_file=/scratch/ejy4bu/drosophila/gowinda/gene_association.fb
@@ -30,7 +30,7 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/gowinda_A_gene.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_B_gene.txt
 
 
   
@@ -44,4 +44,4 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/gowinda_A_updown2k_gene.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_B_updown2k_gene.txt
