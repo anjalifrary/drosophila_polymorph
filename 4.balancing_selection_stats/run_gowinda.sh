@@ -17,12 +17,12 @@ go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 
 
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
-  --snp-file total_snp \
-  --candidate-snp-file candidate_snp_A \
-  --gene-set-file go_file \
-  --annotation-file gtf_file \
+  --snp-file $total_snp \
+  --candidate-snp-file $candidate_snp_A \
+  --gene-set-file $go_file \
+  --annotation-file $gtf_file \
   --simulations 1000000 \
   --gene-definition gene \
-  --threads 16 \
+  --threads 10 \
   --mode gene \
   --output-file /scratch/ejy4bu/drosophila/gowinda/gowinda_A.txt
