@@ -33,7 +33,7 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_geneMode_classedBackground.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_geneMode_allBackground.txt
 
 
   
