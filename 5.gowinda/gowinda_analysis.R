@@ -21,9 +21,11 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
 
 results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
 
-significant = results %>% filter(FDR < 0.05)
+nrow(unique(results %>% filter(FDR < 0.05)))
 
+### add GO Description to results file
+library(ontologyIndex)
+go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
 
-# Significant hits
-results[FDR < 0.05]
-results[p.value < 0.05]
+head(go_file$name) # format: named vector GO:0000001 -> "mitochondrion inheritance"
+results$Description <- go_file$name[results$GO.id]
