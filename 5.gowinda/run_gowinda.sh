@@ -53,7 +53,7 @@ suffix=${suffix#candidate_snp_}
 # #SBATCH --array=0-5
 
 SUFFICES=("A" "B" "AB" "FGOP" "XY" "FGOPXY" "ABFGOPXY")
-SUFFIX=${GROUPS[$SLURM_ARRAY_TASK_ID]}
+SUFFIX=${SUFFICES[$SLURM_ARRAY_TASK_ID]}
 
 echo "SUFFIX=$SUFFIX"
 echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SUFFIX}.txt"
