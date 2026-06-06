@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
-#SBATCH --array=0-5
+#SBATCH --array=0-6
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
@@ -54,6 +54,9 @@ suffix=${suffix#candidate_snp_}
 
 GROUPS=(A B AB FGOP XY FGOPXY ABFGOPXY)
 GROUP=${GROUPS[$SLURM_ARRAY_TASK_ID]}
+
+echo "GROUP=$GROUP"
+echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${GROUP}.txt"
 
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $background \
