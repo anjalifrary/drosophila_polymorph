@@ -52,19 +52,19 @@ suffix=${suffix#candidate_snp_}
 ###### ARRAY run of all groups:
 # #SBATCH --array=0-5
 
-GROUPS=("A" "B" "AB" "FGOP" "XY" "FGOPXY" "ABFGOPXY")
-GROUP=${GROUPS[$SLURM_ARRAY_TASK_ID]}
+SUFFICES=("A" "B" "AB" "FGOP" "XY" "FGOPXY" "ABFGOPXY")
+SUFFIX=${GROUPS[$SLURM_ARRAY_TASK_ID]}
 
-echo "GROUP=$GROUP"
-echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${GROUP}.txt"
+echo "SUFFIX=$SUFFIX"
+echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SUFFIX}.txt"
 
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $background \
-  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${GROUP}.txt \
+  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SUFFIX}.txt \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
   --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/final/gowinda_${GROUP}_snp_allBackground.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/final/gowinda_${SUFFIX}_snp_allBackground.txt
