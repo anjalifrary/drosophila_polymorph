@@ -9,6 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
+#SBATCH --array=0-5
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
@@ -24,16 +25,16 @@ suffix=${suffix#candidate_snp_}
 
 # once done exploring, set simulations to 1000000 (1M for final results)
 
-java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
-  --snp-file $background \
-  --candidate-snp-file $candidate_snp \
-  --gene-set-file $go_file \
-  --annotation-file $gtf_file \
-  --simulations 1000000 \
-  --gene-definition gene \
-  --threads 10 \
-  --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${suffix}_snpMode_allBackground_1Msim.txt
+# java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
+#   --snp-file $background \
+#   --candidate-snp-file $candidate_snp \
+#   --gene-set-file $go_file \
+#   --annotation-file $gtf_file \
+#   --simulations 1000000 \
+#   --gene-definition gene \
+#   --threads 10 \
+#   --mode snp \
+#   --output-file /scratch/ejy4bu/drosophila/gowinda/results/final/gowinda_${suffix}_snp_allBackground.txt
 
 
   
@@ -51,16 +52,16 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
 ###### ARRAY run of all groups:
 # #SBATCH --array=0-5
 
-# GROUPS=(A B AB FGOP XY FGOPXY)
-# GROUP=${GROUPS[$SLURM_ARRAY_TASK_ID]}
+GROUPS=(A B AB FGOP XY FGOPXY ABFGOPXY)
+GROUP=${GROUPS[$SLURM_ARRAY_TASK_ID]}
 
-# java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
-#   --snp-file /scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt \
-#   --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${GROUP}.txt \
-#   --gene-set-file /scratch/ejy4bu/drosophila/gowinda/flybase_gaf_go.txt \
-#   --annotation-file /scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf \
-#   --simulations 100000 \
-#   --gene-definition gene \
-#   --threads 10 \
-#   --mode gene \
-#   --output-file /scratch/ejy4bu/drosophila/gowinda/results/gowinda_${GROUP}_gene.txt
+java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
+  --snp-file $background \
+  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${GROUP}.txt \
+  --gene-set-file $go_file \
+  --annotation-file $gtf_file \
+  --simulations 1000000 \
+  --gene-definition gene \
+  --threads 10 \
+  --mode snp \
+  --output-file /scratch/ejy4bu/drosophila/gowinda/results/final/gowinda_${GROUP}_snp_allBackground.txt
