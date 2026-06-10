@@ -7,7 +7,7 @@ library(data.table)
     # GO gene sets
 
 ### background snps
-mel_rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/species_rdsFiles/mel_filtered_eff_snp_dt.rds")
+mel_rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_merge_unfilt.rds")
 total_snp <- unique(mel_rds[, .(chr, pos)])
 fwrite(total_snp, "/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt", sep="\t", col.names=FALSE)
 
