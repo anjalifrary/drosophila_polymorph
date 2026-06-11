@@ -19,7 +19,33 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
 
 # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
-results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
+# results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
+dir <- "/scratch/ejy4bu/drosophila/gowinda/results/final"
+files_list <- list.files(path = dir, pattern = "\\.txt$", full.names = TRUE)
+
+library(ontologyIndex)
+go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+
+
+for (file_name in files_list) {
+
+  group <- basename(file_name)
+  group <- sub("^gowinda_", "", group)
+  group <- sub("_snp_allBackground\\.txt$", "", group)
+
+  assign(
+    paste0("results_", group),
+    read.delim(file_name, header = FALSE, col.names = cols)
+  )
+  file <- get(paste0("results_", group))
+  file$Description <- go_file$name[file$GO.id]
+  assign(paste0("results_", group), file)
+
+  print(paste0(group, ": ", nrow(unique(file %>% filter(FDR < 0.05)))))
+  rm(file)
+}
+
+
 
 nrow(unique(results %>% filter(FDR < 0.05)))
 
