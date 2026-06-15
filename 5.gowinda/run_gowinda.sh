@@ -15,7 +15,7 @@ mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
 background=/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt
 # background=/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt
-candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
+# candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
 gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
 # go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_gaf_go.txt
@@ -60,11 +60,11 @@ echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SU
 
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $background \
-  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SUFFIX}.txt \
+  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/maf_filter_mel5/candidate_snp_${SUFFIX}.txt \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
   --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/results/final/gowinda_${SUFFIX}_snp_allBackground.txt
+  --output-file /scratch/ejy4bu/drosophila/gowinda/maf_filter_mel5/gowinda_${SUFFIX}_snp_allBackground.txt
