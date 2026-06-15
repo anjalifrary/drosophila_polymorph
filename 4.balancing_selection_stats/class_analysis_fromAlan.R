@@ -11,6 +11,7 @@
     # load("/Users/alanbergland/Downloads/Drosophila_melanogaster.10_03_2026.nlpTable.paramask.genmap.busco.Rdata") ###   save(nlp.mel, file="/project/berglandlab/multispecies_endemism/data/Dmel/Dmelanogaster_nlp.Rdata")
     # load("/scratch/ejy4bu/drosophila/Drosophila_melanogaster.10_03_2026.nlpTable.Rdata")
     load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/Drosophila_melanogaster.10_03_2026.nlpTable.paramask.genmap.busco.Rdata")
+    # load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/Drosophila_simulans.10_03_2026.nlpTable.paramask.genmap.busco.Rdata")
     tsp <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
 
     nlp <- merge(nlp, tsp[,c("chr", "pos", "classification")], by=c("chr", "pos"), all.x=T)

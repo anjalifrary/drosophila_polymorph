@@ -1,5 +1,3 @@
-
-
 library(data.table)
 library(ggplot2)
 library(foreach)
@@ -8,8 +6,65 @@ library(SeqArray)
 
 # nlp file from Alan - contains only mel
 load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/Drosophila_melanogaster.10_03_2026.nlpTable.paramask.genmap.busco.Rdata")
+mel_nlp <- nlp 
+load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/Drosophila_simulans.10_03_2026.nlpTable.paramask.genmap.busco.Rdata")
+sim_nlp <- nlp
+rm(nlp)    
 
-tsp <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
+variants <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
+
+sim_nlp[, chr:=sub("^sim_", "", chr)]
+
+sim_nlp <- merge(sim_nlp, variants[, c("chr", "pos", "codon_start_pos", "classification", "af_mel", "af_sim")], by=c("chr", "pos"), all.x=T)
+# gives 1902 variants where classification is not empty ???? 
+mel_nlp <- merge(mel_nlp, variants[, c("chr", "pos", "codon_start_pos", "classification", "af_mel", "af_sim")], by=c("chr", "pos"), all.x=T)
+
+nrow(sim_nlp[!is.na(classification)])
+nrow(mel_nlp[!is.na(classification)])
+
+mel_nlp <- mel_nlp[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
+nrow(mel_nlp) # 112666
+
+sim_nlp <- sim_nlp[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
+nrow(sim_nlp) # 985
+
+
+# what allele frequency to be considered a polymorphism ?? 
+nrow(mel_nlp[poly_af>0.05 & poly_af<0.95]) # 56397
+nrow(sim_nlp[poly_af>0.05 & poly_af<0.95]) # 821
+
+nrow(mel_nlp[poly_af>0.03 & poly_af<0.97]) # 90185
+nrow(sim_nlp[poly_af>0.03 & poly_af<0.97]) # 931
+
+nrow(mel_nlp[poly_af>0.01 & poly_af<0.99]) # 112178
+nrow(sim_nlp[poly_af>0.01 & poly_af<0.99]) # 985
+
+# 5% MAF filter:
+mel_dt_5 <- mel_nlp[poly_af>0.05 & poly_af<0.95]
+sim_dt_5 <- sim_nlp[poly_af>0.05 & poly_af<0.95]
+
+mel_dt_5 <- merge(mel_dt_5, variants[, .(chr, pos, codon_start_pos)], by = c("chr", "pos"), all.x = TRUE)
+sim_dt_5 <- merge(sim_dt_5, variants[, .(chr, pos, codon_start_pos)], by = c("chr", "pos"), all.x = TRUE)
+
+voi <- mel_dt_5[, .(chr, pos, classification, codon_start_pos, poly_af, mel = 1L, sim = 0L)]
+voi[classification %in% c("A","B","F","G","O","P"), sim := 1L]
+
+xy_sim <- merge(
+  mel_dt_5[classification %in% c("X","Y"), .(chr, codon_start_pos)],
+  variants[classification %in% c("X","Y"), .(chr, pos, codon_start_pos, classification)],
+  by = c("chr", "codon_start_pos")
+)
+xy_sim[, `:=`(mel = 0L, sim = 1L)]
+
+xy_sim <- xy_sim[, .(chr, pos, classification, mel, sim)]
+
+voi_final <- rbindlist(list(voi[, .(chr, pos, classification, mel, sim)], xy_sim[, .(chr, pos, classification, mel, sim)]),
+  use.names = TRUE
+)
+table(voi_final$classification)
+
+saveRDS(voi_final, "/scratch/ejy4bu/drosophila/gowinda/maf_filter_mel5/voi_abfgopxy.rds")
+
 
 # merge tsp file on chr and pos, include classification column
 # nlp <- merge(nlp, tsp[,c("chr", "pos", "classification")], by=c("chr", "pos"), all.x=T)
@@ -51,3 +106,4 @@ geno <- seqGetData(mel_gds, "genotype")
 # what about sim ?? 
 # how to visualize the geographic mapping?
 
+# adding MAF filter 
