@@ -43,6 +43,7 @@ nrow(sim_nlp[poly_af>0.01 & poly_af<0.99]) # 985
 mel_dt_5 <- mel_nlp[poly_af>0.05 & poly_af<0.95]
 sim_dt_5 <- sim_nlp[poly_af>0.05 & poly_af<0.95]
 
+### to get only variants required for gowinda analysis:
 mel_dt_5 <- merge(mel_dt_5, variants[, .(chr, pos, codon_start_pos)], by = c("chr", "pos"), all.x = TRUE)
 sim_dt_5 <- merge(sim_dt_5, variants[, .(chr, pos, codon_start_pos)], by = c("chr", "pos"), all.x = TRUE)
 
@@ -65,6 +66,16 @@ table(voi_final$classification)
 
 saveRDS(voi_final, "/scratch/ejy4bu/drosophila/gowinda/maf_filter_mel5/voi_abfgopxy.rds")
 
+### to get variants of interest file with MAF 5% in mel filter:
+mel_dt_5 <- merge(mel_dt_5[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], variants, by=c("chr", "pos"), all.x=T)
+sim_dt_5 <- merge(sim_dt_5[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], variants, by=c("chr", "pos"), all.x=T)
+
+voi <- rbindlist(list(
+    mel_dt_5[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")], 
+    sim_dt_5[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
+), use.names=T)
+
+saveRDS(voi, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_melMAF5.rds")
 
 # merge tsp file on chr and pos, include classification column
 # nlp <- merge(nlp, tsp[,c("chr", "pos", "classification")], by=c("chr", "pos"), all.x=T)
@@ -106,4 +117,5 @@ geno <- seqGetData(mel_gds, "genotype")
 # what about sim ?? 
 # how to visualize the geographic mapping?
 
-# adding MAF filter 
+
+
