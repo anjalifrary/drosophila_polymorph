@@ -2,7 +2,7 @@ library(data.table)
 
 in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_MAF5.rds"
 shared_dt <- readRDS(in_rds)
-
+# shared_dt <- voi
 ### 1. confirm correct codon start pos 
 
 shared_dt[, `:=`(
