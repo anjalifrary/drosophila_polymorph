@@ -12,9 +12,10 @@ library(readxl)
 library(SNPRelate)
 library(poolfstat)
 
-# output_directory <- "/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/"
-output_directory <- "/project/berglandlab/anjali/drosophila_polymorphism/"
+output_directory <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/"
 
+spp <- "Drosophila_simulans"
+# spp <- "Drosophila_melanogaster"
 
 # relevant section for anjali
 
@@ -27,14 +28,17 @@ nlp <- foreach(bin.i=unique(snp.dt$bin), .errorhandling="remove") %dopar% {
 nlp <- rbindlist(nlp)
 nlp <- nlp[nLocales_poly>0]
 
-n_bins_total <- length(unique(snp.dt$bin))
-n_bins_returned <- length(unique(nlp$bin))
+# these should match:
+length(unique(snp.dt$bin))
+length(unique(nlp$bin))
 
-n_bins_total
-n_bins_returned
+save(nlp, file=paste(output_directory, spp, ".", "17_06_2026", ".nlpTable.Rdata", sep=""))
 
 
 
+#############################
+# SKIP THIS STUFF FOR NOW
+#############################
 
 ### which species to work on
 args <- commandArgs(trailingOnly = TRUE)

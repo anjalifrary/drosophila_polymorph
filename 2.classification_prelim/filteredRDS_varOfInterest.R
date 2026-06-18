@@ -1,6 +1,6 @@
 library(data.table)
 
-in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_working.rds"
+in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_MAF5.rds"
 shared_dt <- readRDS(in_rds)
 
 ### 1. confirm correct codon start pos 
@@ -112,13 +112,13 @@ message("Adjacent variant positions recomputed on filtered table")
 
 ############### save tables: ###########################
 
-out_csv <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.csv"
-subset_table <- filtered_dt[1:500, ]
-fwrite(subset_table, out_csv)
-message("saved first 500 rows to csv at ", out_csv)
+# out_csv <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.csv"
+# subset_table <- filtered_dt[1:500, ]
+# fwrite(subset_table, out_csv)
+# message("saved first 500 rows to csv at ", out_csv)
 
 
-out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds"
+out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5.rds"
 saveRDS(filtered_dt, out_rds)
 
 # cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds /project/berglandlab/anjali/drosophila_polymorphism/mel_sim_sharedTables

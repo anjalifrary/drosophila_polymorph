@@ -1,10 +1,10 @@
 library(data.table)
 
-rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds")
+rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5.rds")
 shared_dt <- readRDS(rds_file)
 message(nrow(shared_dt), " total rows in shared table")
 
-csv_class <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classification_table_final.csv")
+csv_class <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classification_table_06-18-2026.csv")
 
 
 # function to get an 'unordered' set for codon and amino acid comparison (ordering by alphabetization)
@@ -172,7 +172,8 @@ setorder(
     total_codons,
     shared_codons,
     -total_aa,
-    shared_aa
+    shared_aa,
+    mel_aa
 )
 
 class_table[, Classification := LETTERS[seq_len(.N)]]
@@ -193,11 +194,6 @@ setcolorder(
         "sim_aa"
     )
 )
-
-# commented out to avoid overwriting existing annotated table
-# # save class_table
-# fwrite(class_table, csv_class)
-# message("classification table written to: ", csv_class)
 
 
 # update shared table classification column
@@ -221,7 +217,7 @@ all_classes <- merge(
 )
 
 # clear class column
-shared_dt[, classification := NA_character_]
+shared_dt[, classification2 := NA_character_]
 
 # merge classification on chr and codon start pos
 shared_dt[
@@ -231,14 +227,14 @@ shared_dt[
         Classification
     )],
     on = .(chr, codon_start_pos),
-    classification := i.Classification
+    classification2 := i.Classification
 ]
 
 # clean up working columns
 drop_cols <- c(
-    "adjacent_var_pos1",
-    "adjacent_var_pos2",
-    "adjacent_var_pos3",
+    # "adjacent_var_pos1",
+    # "adjacent_var_pos2",
+    # "adjacent_var_pos3",
     "codon_pair_mel",
     "aa_pair_mel",
     "codon_pair_sim",
@@ -255,7 +251,14 @@ drop_cols <- c(
 
 shared_dt[, (drop_cols) := NULL]
 
-out_rds <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed.rds")
+
+# commented out to avoid overwriting existing annotated table
+# # save class_table
+fwrite(class_table, csv_class)
+message("classification table written to: ", csv_class)
+
+
+out_rds <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5_classed.rds")
 
 saveRDS(shared_dt, out_rds)
 
@@ -263,10 +266,10 @@ message("classified RDS written to: ", out_rds)
 
 
 
-# CSV SUBSET
-subset_table <- shared_dt[1:500, ]
-table(subset_table$classification, useNA = "ifany")
-fwrite(subset_table, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_test500.csv")
+# # CSV SUBSET
+# subset_table <- shared_dt[1:500, ]
+# table(subset_table$classification, useNA = "ifany")
+# fwrite(subset_table, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_test500.csv")
 
 mkdir -p 
 cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva.rds /project/berglandlab/anjali/drosophila_polymorphism/classification

@@ -2,10 +2,12 @@ library(SeqArray)
 library(data.table)
 library(foreach)
 library(doMC)
-registerDoMC(16)
+registerDoMC(30)
 
-
+# simulans:
 genofile <- seqOpen("/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds")
+
+# melanogaster
 # genofile <- seqOpen("/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds")
 
 codon_mutation_matrix <- function() {
@@ -104,6 +106,10 @@ snp.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
                     id=seqGetData(genofile, "variant.id"))
 
 snp.dt <- snp.dt[nAlleles==2] ### subset to sites with only two alleles
+
+snp.dt <- snp.dt[1:100000] # test 
+
+
 seqSetFilter(genofile, snp.dt$id)
 snp.dt[,bin:=floor(id/10000)]
 table(snp.dt$chr)
