@@ -218,7 +218,7 @@ all_classes <- merge(
 )
 
 # clear class column
-shared_dt[, classification2 := NA_character_]
+shared_dt[, classification := NA_character_]
 
 # merge classification on chr and codon start pos
 shared_dt[
@@ -228,7 +228,7 @@ shared_dt[
         Classification
     )],
     on = .(chr, codon_start_pos),
-    classification2 := i.Classification
+    classification := i.Classification
 ]
 
 # clean up working columns
