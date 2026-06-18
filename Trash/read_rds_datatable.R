@@ -1,6 +1,8 @@
 library(SeqArray)
 library(data.table)
 
+### just to view rds datatable -- delete later
+
 shared_table <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_datatables/shared_snp_dt_table.rds")
 head(shared_table)
 dim(shared_table)

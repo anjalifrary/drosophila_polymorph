@@ -20,6 +20,9 @@ get_pair <- function(ref,alt) {
 #     return("zero_shared")
 # }
 
+# counts shared (codons) or (amino acids) per codon. 
+    # takes a codon or amino acid PAIR for mel and sim, 
+    # computes # union (total) and # intersect (shared)
 count_shared <- function(mel, sim){
     if (any(is.na(mel)) | any(is.na(sim))){
         return(c(
@@ -40,31 +43,11 @@ count_shared <- function(mel, sim){
 }
 
 # get codon pairs for mel and sim: 
-shared_dt[, codon_pair_mel := mapply(
-    get_pair,
-    codon_ref_mel,
-    codon_alt_mel,
-    SIMPLIFY = FALSE
-)]
-shared_dt[, aa_pair_mel := mapply(
-    get_pair,
-    aa_ref_mel,
-    aa_alt_mel,
-    SIMPLIFY = FALSE
-)]
+shared_dt[, codon_pair_mel := mapply(get_pair, codon_ref_mel, codon_alt_mel, SIMPLIFY = FALSE)]
+shared_dt[, aa_pair_mel := mapply(get_pair, aa_ref_mel, aa_alt_mel, SIMPLIFY = FALSE)]
 
-shared_dt[, codon_pair_sim := mapply(
-    get_pair,
-    codon_ref_sim,
-    codon_alt_sim,
-    SIMPLIFY = FALSE
-)]
-shared_dt[, aa_pair_sim := mapply(
-    get_pair,
-    aa_ref_sim,
-    aa_alt_sim,
-    SIMPLIFY = FALSE
-)]
+shared_dt[, codon_pair_sim := mapply(get_pair, codon_ref_sim, codon_alt_sim, SIMPLIFY = FALSE)]
+shared_dt[, aa_pair_sim := mapply(get_pair, aa_ref_sim, aa_alt_sim, SIMPLIFY = FALSE)]
 
 # codons:
 shared_dt[, c("total_codons", "shared_codons","Nshared_codons") :=
@@ -93,12 +76,9 @@ shared_dt[, mel_aa := lengths(lapply(aa_pair_mel, unique))]
 shared_dt[, sim_aa := lengths(lapply(aa_pair_sim, unique))]
 
 
-#### same site
-same_site <- shared_dt[
-    !is.na(ref_mel) & !is.na(ref_sim)
-]   
+################### for same site variants:
+same_site <- shared_dt[!is.na(ref_mel) & !is.na(ref_sim)]   
 same_site[, same_pos := 1L]
-
 
 same_summary <- same_site[
     ,
@@ -116,7 +96,6 @@ same_summary <- same_site[
         sim_aa
     )
 ]
-
 
 
 ################### for different site variants:
@@ -167,7 +146,6 @@ all_classes <- rbindlist(
     list(same_summary, diff_summary),
     use.names = TRUE
 )
-
 
 
 ###### auto-build table

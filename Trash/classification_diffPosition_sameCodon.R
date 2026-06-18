@@ -2,6 +2,8 @@
 # for the classification of different site but same codon, same / different nucleotides, same / different amino acids 
 ################################################################################################
 
+# old - delete
+
 library(data.table)
 
 rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_variantsOfInterest_qualFiltered.rds")
