@@ -60,7 +60,7 @@ echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SU
 
 java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --snp-file $background \
-  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/maf_filter_mel5/candidate_snp_${SUFFIX}.txt \
+  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/MAF5/candidate_snp_${SUFFIX}.txt \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
   --simulations 1000000 \

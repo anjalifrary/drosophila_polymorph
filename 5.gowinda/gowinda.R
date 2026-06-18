@@ -6,26 +6,26 @@ library(data.table)
     # GTF annotation file - make sure I'm using the right one
     # GO gene sets
 
-### background snps
-mel_rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_merge_unfilt.rds")
-total_snp <- unique(mel_rds[, .(chr, pos)])
-fwrite(total_snp, "/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt", sep="\t", col.names=FALSE)
+dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/"
 
+### background snps
+rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_merge_unfilt.rds")
+total_snp <- unique(rds[, .(chr, pos)])
+fwrite(total_snp, paste0(dir, "background_all_snps.txt"), sep="\t", col.names=FALSE)
 
 ### filtered background snps
-voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
+voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
 candidate_snp <- unique(voi[, .(chr, pos)])
-fwrite(candidate_snp, "/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt", sep="\t", col.names=FALSE)
+fwrite(candidate_snp, paste0(dir, "background_classed_snps.txt"), sep="\t", col.names=FALSE)
 
 ### candidate snps by classes
-fwrite(unique(voi[classification=="A", .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_A.txt", sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification=="B", .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_B.txt", sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification%in%c("A", "B"), .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt", sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification%in%c("F", "G", "O", "P"), .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_FGOP.txt", sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification%in%c("X", "Y"), .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_XY.txt", sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_FGOPXY.txt", sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .(chr, pos)]), "/scratch/ejy4bu/drosophila/gowinda/candidate_snp_ABFGOPXY.txt", sep="\t", col.names=FALSE)
-
+# fwrite(unique(voi[classification=="A", .(chr, pos)]), paste0(dir, "candidate_snp_A.txt"), sep="\t", col.names=FALSE)
+# fwrite(unique(voi[classification=="B", .(chr, pos)]), paste0(dir, "candidate_snp_B.txt"), sep="\t", col.names=FALSE)
+fwrite(unique(voi[classification%in%c("A", "B"), .(chr, pos)]), paste0(dir, "candidate_snp_AB.txt"), sep="\t", col.names=FALSE)
+# fwrite(unique(voi[classification%in%c("F", "G", "O", "P"), .(chr, pos)]), paste0(dir, "candidate_snp_FGOP.txt"), sep="\t", col.names=FALSE)
+# fwrite(unique(voi[classification%in%c("X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_XY.txt"), sep="\t", col.names=FALSE)
+fwrite(unique(voi[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_FGOPXY.txt"), sep="\t", col.names=FALSE)
+fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_ABFGOPXY"), sep="\t", col.names=FALSE)
 
 ### gtf annotation file
 gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
