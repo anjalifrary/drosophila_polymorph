@@ -206,3 +206,6 @@ snp.dt <- merge(snp.dt.codon, snp.dt)
 setkey(snp.dt, chr, pos)
 snp.dt[mutations_per_codon==3]
 prop.table(table(snp.dt.codon$N))
+
+View(snp.dt)
+colnames(snp.dt)

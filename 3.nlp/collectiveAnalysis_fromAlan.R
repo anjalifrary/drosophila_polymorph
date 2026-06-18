@@ -17,13 +17,21 @@ output_directory <- "/project/berglandlab/anjali/drosophila_polymorphism/"
 
 
 # relevant section for anjali
+
+# test <- nlp_fun(bin.i=bin.i, lib_type="pooled")
+# str(test)
+
 nlp <- foreach(bin.i=unique(snp.dt$bin), .errorhandling="remove") %dopar% {
   nlp_fun(bin.i=bin.i, lib_type="pooled")
 }
 nlp <- rbindlist(nlp)
 nlp <- nlp[nLocales_poly>0]
 
+n_bins_total <- length(unique(snp.dt$bin))
+n_bins_returned <- length(unique(nlp$bin))
 
+n_bins_total
+n_bins_returned
 
 
 
@@ -77,6 +85,9 @@ setkey(snp.dt, col)
 ######################
 ### version
 NLP_table_build_date <- "10_03_2026"  ### initial attemp; DMY
+
+spp <- Drosophila_simulans
+ 
 
 ### run or load
 source("~/misc/1000G/done/1.collectiveAnalysis/2.makeNLP_table.R")
