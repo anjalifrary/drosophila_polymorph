@@ -20,7 +20,7 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
 # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
 # results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
-dir <- "/scratch/ejy4bu/drosophila/gowinda/maf_filter_mel5"
+dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5"
 files_list <- list.files(path = dir, pattern = "\\.txt$", full.names = TRUE)
 
 library(ontologyIndex)

@@ -25,7 +25,7 @@ fwrite(unique(voi[classification%in%c("A", "B"), .(chr, pos)]), paste0(dir, "can
 # fwrite(unique(voi[classification%in%c("F", "G", "O", "P"), .(chr, pos)]), paste0(dir, "candidate_snp_FGOP.txt"), sep="\t", col.names=FALSE)
 # fwrite(unique(voi[classification%in%c("X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_XY.txt"), sep="\t", col.names=FALSE)
 fwrite(unique(voi[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_FGOPXY.txt"), sep="\t", col.names=FALSE)
-fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_ABFGOPXY"), sep="\t", col.names=FALSE)
+fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_ABFGOPXY.txt"), sep="\t", col.names=FALSE)
 
 ### gtf annotation file
 gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
