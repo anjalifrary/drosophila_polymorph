@@ -1,6 +1,8 @@
 library(data.table)
 library(ggplot2)
 
+# old - see plots_mean_nlp-xtx-age.R
+
 geva <- fread("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/AlleleAges.VA.cm_GEVA.txt")
 
 
