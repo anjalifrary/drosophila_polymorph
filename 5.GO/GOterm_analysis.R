@@ -3,6 +3,66 @@ library(ggplot2)
 library(foreach)
 
 
+### GO Sem sim 
+# https://yulab-smu.top/biomedical-knowledge-mining-book/011-GOSemSim.html
+## citation
+# Guangchuang Yu, Fei Li, Yide Qin, Xiaochen Bo, Yibo Wu and Shengqi Wang.
+# GOSemSim: an R package for measuring semantic similarity among GO terms
+# and gene products. Bioinformatics. 2010, 26(7):976-978
+
+library(AnnotationDbi)
+library(org.Dm.eg.db)
+library(GOSemSim)
+dmGO <- godata(annoDb = 'org.Dm.eg.db', ont="BF")
+# User can set computeIC=FALSE if they only want to use Wang’s method.
+
+# test similarity score between 0 and 1 [immune response vs immune system process]
+# 1 = same
+# 0 = completely different
+goSim("GO:0006955", "GO:0002376", semData=dmGO, measure="Wang")
+
+AB_terms <- unique(results_AB[FDR<0.05]$GO.id)
+FGOPXY_terms <- unique(results_FGOPXY[FDR<0.05]$GO.id)
+
+
+# mgoSim() calculates semantic similarity between two sets of GO terms 
+sim <- mgoSim(AB_terms, FGOPXY_terms, semData=dmGO, measure="Wang", combine=NULL)
+
+hc <- hclust(as.dist(1 - sim))
+plot(hc)
+
+# mclusterSim() calculates semantic similarity between two sets of gene clusters
+# clusterSim() between two gene clusters
+
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# GO classification based on GO distribution at a specific level
+library(clusterProfiler)
+library(org.Dm.eg.db)
+data(geneList, package="DOSE")
+gene <- names(geneList)[abs(geneList) > 2]
+head(gene)
+
+ggo <- groupGO(gene     = gene,
+               OrgDb    = org.Dm.eg.db,
+               ont      = "BP",
+               level    = 3,
+               readable = TRUE)
+
+head(ggo)
+
+# GO over-represenation analysis
+ego <- enrichGO(gene          = gene,
+                universe      = names(geneList),
+                OrgDb         = org.Dm.eg.db,
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05,
+        readable      = TRUE)
+head(ego)
+
 # generate var file from the geographic_clines.R file
 var <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_ABFGOPXY_mafmel5_xtx_061626.rds")
 
