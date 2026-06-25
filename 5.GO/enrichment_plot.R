@@ -54,8 +54,8 @@ results_FGOPXY$enrichment <- results_FGOPXY$ObservedGenes / results_FGOPXY$Simul
 results_FGOPXY$neglogFDR <- -log10(results_FGOPXY$FDR)
 
 
-# results <- results_AB
-results <- results_FGOPXY
+results <- results_AB
+# results <- results_FGOPXY
 
 ggplot(results, aes(x = enrichment, y = neglogFDR)) +
   geom_point(alpha = 0.7) +

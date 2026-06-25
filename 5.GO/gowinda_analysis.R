@@ -17,21 +17,33 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
   "N_GenesFound", "N_GenesMax", "N_GenesTotal",
   "Description", "Genes")
 
+
+
+library(ontologyIndex)
+go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+
+#####################################################
+# add ontology 
+library(AnnotationDbi)
+library(GO.db)
+go_dt <- data.table(GO.id = keys(GO.db))
+go_dt[, ontology := Ontology(GO.id)]
+# gowinda_results from line 22, modify for each results file
+# gowinda_results <- merge(gowinda_results, go_dt, by="GO.id", all.x=T)
+
+
 # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
 # results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
 dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5"
-files_list <- list.files(path = dir, pattern = "\\.txt$", full.names = TRUE)
-
-library(ontologyIndex)
-go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+files_list <- list.files(path = dir, pattern = "\\_gene_allBackground.txt$", full.names = TRUE)
 
 
 for (file_name in files_list) {
 
   group <- basename(file_name)
   group <- sub("^gowinda_", "", group)
-  group <- sub("_snp_allBackground\\.txt$", "", group)
+  group <- sub("_gene_allBackground\\.txt$", "", group)
 
   assign(
     paste0("results_", group),
@@ -39,6 +51,7 @@ for (file_name in files_list) {
   )
   file <- get(paste0("results_", group))
   file$Description <- go_file$name[file$GO.id]
+  file <- merge(file, go_dt, by="GO.id", all.x=T)
   assign(paste0("results_", group), file)
 
   print(paste0(group, " with FDR<0.05: ", nrow(unique(file %>% filter(FDR < 0.05)))))
@@ -49,25 +62,17 @@ for (file_name in files_list) {
 ### GOdavid
 #########################################################################
 
-fwrite(
-    data.table(gene_id = genes_AB),
-    "/scratch/ejy4bu/drosophila/gowinda/GO_analysis/all_genes_AB.txt",
-    col.names = FALSE
-)
+# fwrite(
+#     data.table(gene_id = genes_AB),
+#     "/scratch/ejy4bu/drosophila/gowinda/GO_analysis/all_genes_AB.txt",
+#     col.names = FALSE
+# )
 
-sig_AB <- unique(unlist(strsplit(
-     results_AB[results_AB$FDR < 0.05, "Genes"],
-     ","
- )))
+# sig_AB <- unique(unlist(strsplit(
+#      results_AB[results_AB$FDR < 0.05, "Genes"],
+#      ","
+#  )))
 
-#####################################################
-# add ontology 
-library(AnnotationDbi)
-library(GO.db)
-go_dt <- data.table(GO.id = keys(GO.db))
-go_dt[, ontology := Ontology(GO.id)]
-# gowinda_results from line 22, modify for each results file
-gowinda_results <- merge(gowinda_results, go_dt, by="GO.id", all.x=T)
 
 #####################################################
 # slim
