@@ -22,10 +22,45 @@ dmGO <- godata(annoDb = 'org.Dm.eg.db', ont="BP")
 goSim("GO:0006955", "GO:0002376", semData=dmGO, measure="Wang")
 # gives 0.63
 
+# get results tables
+    library(dplyr)
+
+
+    cols <- c("GO.id", "SimulatedGenes", "ObservedGenes", 
+    "p.value", "FDR", 
+    "N_GenesFound", "N_GenesMax", "N_GenesTotal",
+    "Description", "Genes")
+
+    # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
+
+    # results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
+    dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/"
+
+    library(ontologyIndex)
+    go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+
+    results_AB <- read.delim(paste0(dir, "gowinda_AB_snp_allBackground.txt"), header = FALSE, col.names = cols)
+    results_FGOPXY <- read.delim(paste0(dir, "gowinda_FGOPXY_snp_allBackground.txt"), header = FALSE, col.names = cols)
+
+    # add english description
+    results_AB$Description <- go_file$name[results_AB$GO.id]
+    results_FGOPXY$Description <- go_file$name[results_FGOPXY$GO.id]
+
+    # add ontology - most interested in BP 
+    library(GO.db)
+    go_dt <- data.table(GO.id = keys(GO.db))
+    go_dt[, ontology := Ontology(GO.id)]
+    # gowinda_results from line 22, modify for each results file
+
+    results_AB <- merge(results_AB, go_dt, by="GO.id", all.x=T)
+    results_FGOPXY <- merge(results_FGOPXY, go_dt, by="GO.id", all.x=T)
+
+
+
 AB_terms <- unique(results_AB$GO.id[results_AB$FDR<0.05])
 FGOPXY_terms <- unique(results_FGOPXY$GO.id[results_FGOPXY$FDR<0.05])
-length(AB_terms)
-length(FGOPXY_terms)
+length(AB_terms) # 1149
+length(FGOPXY_terms) # 145
 
 # mgoSim() calculates semantic similarity between two sets of GO terms 
 AB_sim <- mgoSim(AB_terms, AB_terms, semData=dmGO, measure="Wang", combine=NULL)
@@ -43,11 +78,23 @@ plot(hc_FGOPXY, labels = FALSE)
 
 hc_all <- hclust(as.dist())
 
+### trying to view clusters
+cl_AB <- cutree(hc_AB, k = 10)
+cluster_AB <- data.table(
+    GO.id = names(cl_AB),
+    cluster = cl_AB
+)
+
+cluster_AB[
+    results_AB[, .(GO.id, Description)],
+    on = "GO.id"
+][order(cluster)]
+
 # mclusterSim() calculates semantic similarity between two sets of gene clusters
 # clusterSim() between two gene clusters
 
 # GO classification based on GO distribution at a specific level
-library(clusterProfiler)
+library(clusterProfiler) # G Yu. Thirteen years of clusterProfiler. The Innovation. 2024,5(6):100722
 library(org.Dm.eg.db)
 data(geneList, package="DOSE")
 gene <- names(geneList)[abs(geneList) > 2]
@@ -56,6 +103,7 @@ head(gene)
 
 ggo <- groupGO(gene     = gene,
                OrgDb    = org.Dm.eg.db,
+               keytype = "ENTREZID"
                ont      = "BP",
                level    = 3,
                readable = TRUE)
