@@ -66,5 +66,5 @@ java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
-  --mode snp \
+  --mode gene \
   --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/gowinda_${SUFFIX}_gene_allBackground.txt
