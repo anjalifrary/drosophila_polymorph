@@ -1,6 +1,7 @@
 library(data.table)
 
-in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_MAF5.rds"
+in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_MAF5_clean.rds"
+# in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_MAF5.rds"
 shared_dt <- readRDS(in_rds)
 # shared_dt <- voi
 ### 1. confirm correct codon start pos 
@@ -118,7 +119,7 @@ message("Adjacent variant positions recomputed on filtered table")
 # message("saved first 500 rows to csv at ", out_csv)
 
 
-out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5.rds"
+out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_fromBG_qualVar_ofInterest_MAF5_06-29-2026.rds"
 saveRDS(filtered_dt, out_rds)
 
 # cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds /project/berglandlab/anjali/drosophila_polymorphism/mel_sim_sharedTables

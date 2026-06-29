@@ -3,11 +3,11 @@ library(dplyr)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/"
 
-in_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
-out_rds <- paste0(out_dir, "all_quality_variants_clean.rds")
-out_csv <- paste0(out_dir, "all_quality_variants_clean_500test.csv")
+in_rds <- paste0(out_dir, "all_quality_variants_MAF5_merge_unfilt.rds")
+out_rds <- paste0(out_dir, "all_quality_variants_MAF5_clean.rds")
+# out_csv <- paste0(out_dir, "all_quality_variants_clean_500test.csv")
 if(!file.exists(out_rds)) file.create(out_rds)
-if(!file.exists(out_csv)) file.create(out_csv)
+# if(!file.exists(out_csv)) file.create(out_csv)
 
 unfiltered_dt <- readRDS(in_rds)
 
@@ -71,9 +71,9 @@ names(filtered_dt)
 saveRDS(filtered_dt, out_rds)
 message("saved clean rds to ", out_rds)
 
-subset_table <- filtered_dt[1:500, ]
-fwrite(subset_table, out_csv)
-message("saved first 500 rows to csv at ", out_csv)
+# subset_table <- filtered_dt[1:500, ]
+# fwrite(subset_table, out_csv)
+# message("saved first 500 rows to csv at ", out_csv)
 
 
 
