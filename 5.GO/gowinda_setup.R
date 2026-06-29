@@ -6,17 +6,17 @@ library(data.table)
     # GTF annotation file - make sure I'm using the right one
     # GO gene sets
 
-dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/"
+dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/"
 
 ### background snps
-rds <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_merge_unfilt.rds")
+rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/all_quality_variants_MAF5_clean.rds")
 total_snp <- unique(rds[, .(chr, pos)])
 fwrite(total_snp, paste0(dir, "background_all_snps.txt"), sep="\t", col.names=FALSE)
 
 ### filtered background snps
-voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
-candidate_snp <- unique(voi[, .(chr, pos)])
-fwrite(candidate_snp, paste0(dir, "background_classed_snps.txt"), sep="\t", col.names=FALSE)
+voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/voi_fromBG_qualVar_ofInterest_MAF5_classed_06-29-2026.rds")
+# candidate_snp <- unique(voi[, .(chr, pos)])
+# fwrite(candidate_snp, paste0(dir, "background_classed_snps.txt"), sep="\t", col.names=FALSE)
 
 ### candidate snps by classes
 # fwrite(unique(voi[classification=="A", .(chr, pos)]), paste0(dir, "candidate_snp_A.txt"), sep="\t", col.names=FALSE)
@@ -28,13 +28,11 @@ fwrite(unique(voi[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)
 fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_ABFGOPXY.txt"), sep="\t", col.names=FALSE)
 
 ### gtf annotation file
-gtf_file <- fread("/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf")
+gtf_file <- fread("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf")
 
 ### GO file
-gaf <- fread(
-    "/scratch/ejy4bu/drosophila/gowinda/gene_association.fb",
-    sep="\t", header=FALSE, fill=TRUE, skip=5
-)
+gaf <- fread("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gene_association.fb",
+    sep="\t", header=FALSE, fill=TRUE, skip=5)
 
 # Remove comment lines
 # gaf <- gaf[!grepl("^!", V1)]
@@ -44,7 +42,7 @@ gowinda_go <- gaf[grepl("^FBgn", V2) & grepl("^GO:", V5),
         genes = paste(unique(V2), collapse=" ")
     ), by=V5]
     
-fwrite(gowinda_go, "/scratch/ejy4bu/drosophila/gowinda/flybase_gaf_go.txt",
+fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt",
     sep="\t", col.names=FALSE, quote=FALSE)
 
 # making GO file
@@ -65,7 +63,7 @@ gowinda_go <- go_dt[, .(
     genes = paste(unique(FLYBASE), collapse = "\t")
 ), by = GO]
 
-fwrite(gowinda_go, "/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt",
+fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_go.txt",
     sep = "\t", col.names = FALSE, quote = FALSE)
 
 # java -Xmx8g -jar Gowinda.jar \

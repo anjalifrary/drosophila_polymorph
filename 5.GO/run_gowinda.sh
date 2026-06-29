@@ -13,15 +13,35 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-background=/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt
+background=/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/background_all_snps.txt
 # background=/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt
 # candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
-gtf_file=/scratch/ejy4bu/drosophila/gowinda/dmel-all-r6.67.gtf
+gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 # go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
-go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_gaf_go.txt
+go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
+jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
 
-suffix=$(basename "$candidate_snp" .txt)
-suffix=${suffix#candidate_snp_}
+SUFFICES=("A" "B" "AB" "FGOP" "XY" "FGOPXY" "ABFGOPXY")
+SUFFIX=${SUFFICES[$SLURM_ARRAY_TASK_ID]}
+
+echo "SUFFIX=$SUFFIX"
+echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/candidate_snp_${SUFFIX}.txt"
+
+# gene mode
+# gene definition = gene (no exonic snps = not useful for updownstream)
+
+java -Xmx8g -jar $jar_file \
+  --snp-file $background \
+  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/candidate_snp_${SUFFIX}.txt \
+  --gene-set-file $go_file \
+  --annotation-file $gtf_file \
+  --simulations 1000000 \
+  --gene-definition gene \
+  --threads 10 \
+  --mode gene \
+  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/gowinda_${SUFFIX}_gene_allBackground.txt
+
+
 
 # once done exploring, set simulations to 1000000 (1M for final results)
 
@@ -52,19 +72,7 @@ suffix=${suffix#candidate_snp_}
 ###### ARRAY run of all groups:
 # #SBATCH --array=0-5
 
-SUFFICES=("A" "B" "AB" "FGOP" "XY" "FGOPXY" "ABFGOPXY")
-SUFFIX=${SUFFICES[$SLURM_ARRAY_TASK_ID]}
 
-echo "SUFFIX=$SUFFIX"
-echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/candidate_snp_${SUFFIX}.txt"
+# suffix=$(basename "$candidate_snp" .txt)
+# suffix=${suffix#candidate_snp_}
 
-java -Xmx8g -jar /scratch/ejy4bu/drosophila/gowinda/Gowinda-1.12.jar \
-  --snp-file $background \
-  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/MAF5/candidate_snp_${SUFFIX}.txt \
-  --gene-set-file $go_file \
-  --annotation-file $gtf_file \
-  --simulations 1000000 \
-  --gene-definition gene \
-  --threads 10 \
-  --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/gowinda_${SUFFIX}_gene_allBackground.txt
