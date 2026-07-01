@@ -13,7 +13,8 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-background=/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/background_all_snps.txt
+# background=/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/background_all_snps.txt
+background=/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt
 # background=/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt
 # candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
@@ -38,8 +39,8 @@ java -Xmx8g -jar $jar_file \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
-  --mode snp \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/gowinda_${SUFFIX}_snp_allBackground.txt
+  --mode gene \
+  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/gowinda_${SUFFIX}_gene_allBackground.txt
 
 
 
