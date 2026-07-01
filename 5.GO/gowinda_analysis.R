@@ -35,7 +35,7 @@ go_dt[, ontology := Ontology(GO.id)]
 # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
 # results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
-dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5"
+dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/"
 files_list <- list.files(path = dir, pattern = "\\_gene_allBackground.txt$", full.names = TRUE)
 
 
@@ -55,6 +55,8 @@ for (file_name in files_list) {
   assign(paste0("results_", group), file)
 
   print(paste0(group, " with FDR<0.05: ", nrow(unique(file %>% filter(FDR < 0.05)))))
+  print(paste0(group, " with p<0.05: ", nrow(unique(file %>% filter(p.value < 0.05)))))
+
   rm(file)
 }
 

@@ -38,8 +38,8 @@ java -Xmx8g -jar $jar_file \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
-  --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/gowinda_${SUFFIX}_gene_allBackground.txt
+  --mode snp \
+  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/gowinda_${SUFFIX}_snp_allBackground.txt
 
 
 
