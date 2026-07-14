@@ -10,6 +10,9 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+### to Run
+# sbatch --array=1-$( wc -l < /project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv )%10 ~/1-2.inbread_dataProcessing/1.downloadSRA.sh
+
 module load gcc/11.4.0 sratoolkit/3.1.1 
 # module load gcc/11.4.0 sratoolkit/3.1.1 aspera-connect/4.2.8
 
@@ -53,7 +56,7 @@ else
   fasterq-dump \
   --split-files \
   --split-3 \
-  --outfile ${wd}/fastq/${proj}/${sranum} \
+  -O ${wd}/fastq/${proj}/${sranum} \
   -e 10 \
   -p \
   --temp /scratch/ejy4bu/tmp \
