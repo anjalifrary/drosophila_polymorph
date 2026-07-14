@@ -120,7 +120,8 @@ filtered_dt[, c("adjacent_var_pos1", "adjacent_var_pos2", "adjacent_var_pos3") :
 # message("saved first 500 rows to csv at ", out_csv)
 
 
-out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_qualVar_ofInterest.rds"
+# out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_qualVar_ofInterest.rds"
+out_rds <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest.rds"
 saveRDS(filtered_dt, out_rds)
 
 # cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds /project/berglandlab/anjali/drosophila_polymorphism/mel_sim_sharedTables

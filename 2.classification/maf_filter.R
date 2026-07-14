@@ -17,11 +17,8 @@ load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version
 mel_nlp <- nlp
 rm(nlp)   
 
-cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
-
-
-# all variant table, classed, no maf filter yet:
-variants <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_classed_geva.rds")
+# all variant table, no maf filter yet:
+variants <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest.rds")
 sim_nlp <- merge(sim_nlp, variants[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
 mel_nlp <- merge(mel_nlp, variants[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
 
@@ -35,23 +32,13 @@ nrow(variants)
 nrow(mel_nlp) 
 nrow(sim_nlp) 
 
-# nrow(mel_nlp[classification%in%(cand_classes)]) # 112666
-# nrow(sim_nlp[classification%in%(cand_classes)]) # 985
 
-# # what allele frequency to be considered a polymorphism ?? 
-# nrow(mel_nlp[poly_af>0.05 & poly_af<0.95]) # 56397
-# nrow(sim_nlp[poly_af>0.05 & poly_af<0.95]) # 821
-
-# nrow(mel_nlp[poly_af>0.03 & poly_af<0.97]) # 90185
-# nrow(sim_nlp[poly_af>0.03 & poly_af<0.97]) # 931
-
-# nrow(mel_nlp[poly_af>0.01 & poly_af<0.99]) # 112178
-# nrow(sim_nlp[poly_af>0.01 & poly_af<0.99]) # 985
 
 mel_dt <- merge(mel_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], variants, by = c("chr", "pos"), all.x=TRUE)
 sim_dt <- merge(sim_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], variants, by = c("chr", "pos"), all.x=TRUE)
 
-af_threshold <- 0.05
+af_threshold <- 0.10
+maf_label <- af_threshold * 100
 
 mel_dt <- mel_dt[poly_af > af_threshold & poly_af < (1 - af_threshold)]
 sim_dt <- sim_dt[poly_af > af_threshold & poly_af < (1 - af_threshold)]
@@ -120,12 +107,16 @@ mel_only_cols <- names(sim_dt)[endsWith(names(sim_dt), "_mel")]
 mel_dt <- mel_dt[, (sim_only_cols) := NULL]
 sim_dt <- sim_dt[, (mel_only_cols) := NULL]
 
-mel_dt[, PostMode := NULL]
-mel_dt[, PostMedian := NULL]
+# mel_dt[, PostMode := NULL]
+# mel_dt[, PostMedian := NULL]
 
-sim_dt[, PostMode := NULL]
-sim_dt[, PostMedian := NULL]
+# sim_dt[, PostMode := NULL]
+# sim_dt[, PostMedian := NULL]
 
+identical(
+  mel_dt[, .(chr,pos,codon_start_pos)],
+  sim_dt[, .(chr,pos,codon_start_pos)]
+)
 
 voi <- merge(
     mel_dt, 
@@ -134,12 +125,32 @@ voi <- merge(
     all =TRUE
 )
 
+voi[
+  !is.na(codon_start_pos.x) &
+  !is.na(codon_start_pos.y) &
+  codon_start_pos.x != codon_start_pos.y,
+  .N
+]
+
+voi[, codon_start_pos := codon_start_pos.x]
+voi[, codon_start_pos.x := NULL]
+voi[, codon_start_pos.y := NULL]
+
 names(voi)
 
-# old voi, made from master candidate file, applied MAF 5% to it
-# maf5_voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
+file_name <- paste0("/project/berglandlab/anjali/drosophila_polymorphism/classification/MAF", 
+  maf_label,
+  "filter/subset_qualVar_ofInterest_MAF", 
+  maf_label, ".rds")
+saveRDS(voi, file_name)
 
-# next - 
+
+ 
+# old voi, made from master candidate file, applied MAF 5% to it
+# maf5_voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/old_tables/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
+
+# next - run classification_final
+## no need to run filteredRDS_varOfInterest.R because ran before maf filter (input rds should be output of filteredRDS_varOfInterest)
 
 # saveRDS(voi, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5.rds")
 # saveRDS(voi_candidates, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_MAF5_ABFGOPXY.rds")

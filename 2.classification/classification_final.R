@@ -1,15 +1,26 @@
 library(data.table)
 
-rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_fromBG_qualVar_ofInterest_MAF5_06-29-2026.rds")
+maf_label <- 5
+
+dir <- paste0("/project/berglandlab/anjali/drosophila_polymorphism/classification/MAF", 
+  maf_label,
+  "filter/")
+
+rds_file <- paste0(dir, "subset_qualVar_ofInterest_MAF", maf_label, ".rds")
+
+# rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_fromBG_qualVar_ofInterest_MAF5_06-29-2026.rds")
 # rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5.rds")
 shared_dt <- readRDS(rds_file)
 # shared_dt <- filtered_dt
 message(nrow(shared_dt), " total rows in shared table")
 
-out_rds <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_fromBG_qualVar_ofInterest_MAF5_classed_06-29-2026.rds")
+# out_rds <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_fromBG_qualVar_ofInterest_MAF5_classed_06-29-2026.rds")
+out_rds <- paste0(dir, "subset_qualVar_ofInterest_MAF", maf_label, "_classed.rds")
 
-csv_class <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classification_table_06-29-2026.csv")
+# csv_class <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/classification/classification_table_06-29-2026.csv")
+csv_class <- paste0(dir, "classification_table_MAF", maf_label, ".csv")
 
+candidate_rds <- paste0(dir, "voi_qualVar_ofInterest_MAF", maf_label, "_classed.rds")
 
 # function to get an 'unordered' set for codon and amino acid comparison (ordering by alphabetization)
 get_pair <- function(ref,alt) {
@@ -255,18 +266,18 @@ drop_cols <- c(
 
 shared_dt[, (drop_cols) := NULL]
 
+cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
+
+candidates <- shared_dt[classification%in%cand_classes, ]
 
 # save class_table
 fwrite(class_table, csv_class)
 message("classification table written to: ", csv_class)
 
-
-
 saveRDS(shared_dt, out_rds)
-
 message("classified RDS written to: ", out_rds)
 
-
+saveRDS(candidates, candidate_rds)
 
 # # CSV SUBSET
 # subset_table <- shared_dt[1:500, ]
