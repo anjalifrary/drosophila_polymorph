@@ -11,7 +11,7 @@
 #SBATCH --account berglandlab
 
 ### to Run
-# sbatch --array=1-$( wc -l < /project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv )%10 ~/1-2.inbread_dataProcessing/1.downloadSRA.sh
+# sbatch --array=1-$( wc -l < /project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv )%10 ~/drosophila_polymorph/1-2.inbred_dataProcessing/1.downloadSRA.sh
 
 module load gcc/11.4.0 sratoolkit/3.1.1 
 # module load gcc/11.4.0 sratoolkit/3.1.1 aspera-connect/4.2.8
@@ -25,7 +25,7 @@ fi
 ### cat /scratch/aob2x/compBio/logs/prefetch.3259341_3.out
 
 
-SLURM_ARRAY_TASK_ID=1
+# SLURM_ARRAY_TASK_ID=2
 
 metadata="/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv"
 
@@ -66,15 +66,15 @@ else
 
 fi
 
-if [ -f "${wd}/fastq/${proj}/${sranum}_1.fastq" ]; then
-  gzip ${wd}/fastq/${proj}/${sranum}_1.fastq
-  gzip ${wd}/fastq/${proj}/${sranum}_2.fastq
-fi
+# if [ -f "${wd}/fastq/${proj}/${sranum}_1.fastq" ]; then
+#   gzip ${wd}/fastq/${proj}/${sranum}_1.fastq
+#   gzip ${wd}/fastq/${proj}/${sranum}_2.fastq
+# fi
 
-if [ -f "${wd}/fastq/${proj}/${sranum}" ]; then
-  gzip -c ${wd}/fastq/${proj}/${sranum} > ${wd}/fastq/${proj}/${sranum}.fastq.gz
-  rm ${wd}/fastq/${proj}/${sranum}
-fi
+# if [ -f "${wd}/fastq/${proj}/${sranum}" ]; then
+#   gzip -c ${wd}/fastq/${proj}/${sranum} > ${wd}/fastq/${proj}/${sranum}.fastq.gz
+#   rm ${wd}/fastq/${proj}/${sranum}
+# fi
 
 #rm /scratch/aob2x/fastq/${sranum}.sra
 # cat /home/aob2x/CompEvoBio_modules/data/runs.csv | nl | grep "SRR12463313"
