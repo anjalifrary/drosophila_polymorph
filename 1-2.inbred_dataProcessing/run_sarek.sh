@@ -31,7 +31,7 @@ nextflow run nf-core/sarek \
     --save_reference \
     --aligner bwa-mem \
     --tools haplotypecaller \
-    --igenomes_ignore \
+    --igenomes_ignsore \
     -resume
 
 # set --tools haplotypecaller restricts it to GATK Haplotype Caller 
