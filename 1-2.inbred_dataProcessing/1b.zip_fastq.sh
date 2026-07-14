@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-#SBATCH -J trimSRA # A single job name for the array
+#SBATCH -J zipFASTQ # A single job name for the array
 #SBATCH --ntasks-per-node=10 # one core
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
 #SBATCH --mem 100G
-#SBATCH -o /scratch/ejy4bu/err_outs/SRA/trim.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/SRA/trim.%A_%a.err # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/zip.%A_%a.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/zip.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-3
+#SBATCH --array=1-184
 #ijob -A berglandlab -c10 -p standard --mem=40G
 
 module load gcc htslib
