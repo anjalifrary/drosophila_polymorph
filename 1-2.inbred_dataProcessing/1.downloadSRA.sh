@@ -5,8 +5,8 @@
 #SBATCH -N 1 # on one node
 #SBATCH -t 6:00:00 ### 6 hours
 #SBATCH --mem 10G
-#SBATCH -o /scratch/ejy4bu/err_outs/prefetch.%A_%a.out  # Std out
-#SBATCH -e /scratch/ejy4bu/err_outs/prefetch.%A_%a.out  # Std error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/prefetch.%A_%a.out  # Std out
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/prefetch.%A_%a.out  # Std error
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
@@ -20,7 +20,6 @@ wd=/scratch/ejy4bu/drosophila/inbred
 if [ ! -d $wd ]; then
   mkdir $wd
 fi
-### run as: sbatch --array=1-$( wc -l < ~/CompEvoBio_modules/utils/getSRA/sras_2025.csv )%20 ~/CompEvoBio_modules/utils/getSRA/downloadSRA.sh
 ### cat /scratch/aob2x/compBio/logs/prefetch.52222298_*.out | grep -B1 "do not"
 ### cat /scratch/aob2x/compBio/logs/prefetch.3259341_3.out
 
