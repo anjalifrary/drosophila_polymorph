@@ -73,8 +73,7 @@ if [ ! -f "${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz" ]; then
 fi
 
 ### 3. bwa mem single end mode -> to sorted bam
-# if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
-if [ -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
+if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
     echo "mapping/sorting sample ${samp_name}. "
     bwa mem \
         -t 10 \
