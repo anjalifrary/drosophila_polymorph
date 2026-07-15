@@ -27,13 +27,24 @@ nextflow run nf-core/sarek \
     -profile apptainer \
     --input $sample_csv \
     --outdir $out_dir \
+    --genome null \
+    --igenomes_ignore \
     --fasta $ref \
     --save_reference \
     --aligner bwa-mem \
+    --trim_fastq \
     --tools haplotypecaller \
-    --igenomes_ignsore \
+    --save_trimmed \
+    --save_mapped \
+    --save_output_as_bam
     -resume
 
 # set --tools haplotypecaller restricts it to GATK Haplotype Caller 
 # aligner as bwa-mem skips other defaults (Dragmap or bwa-mem2)
-# igenomes_ignore to ignore built in iGenomes paths for humans / mouse
+# igenomes_ignore to ignore built in iGenomes paths for humans / mouse * and genome null 
+# default start in pipieline is --step mapping 
+# --save-trimmed saves intermediate trimmed files
+
+# other flags
+# --length-required for minimum length of reads to keep
+#
