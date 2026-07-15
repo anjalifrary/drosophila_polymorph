@@ -104,11 +104,12 @@ fi
 ### 5. Haplotype caller 
 if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
     echo "haplotype caller on sample ${samp_name}. "
-    gatk HaplotypeCaller \
+    gatk --java-options "-Xmx40G -XX:+UseG1GC" HaplotypeCaller \
     -R ${ref} \
     -I ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
     -O ${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz \
-    -ERC GVCF
+    -ERC GVCF \
+    --native-pair-hmm-threads 8
 fi
 
 
