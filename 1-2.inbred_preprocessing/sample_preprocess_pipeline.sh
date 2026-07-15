@@ -59,7 +59,8 @@ fastqc \
 ### 2. fastp trim single-end mode
 module load miniforge && conda activate fastp
 
-if [! -f "${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz" ]; then
+if [ ! -f "${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz" ]; then
+    echo "trimming sample ${samp_name}. "
     fastp \
         --in1 ${fastq} \
         --out1 ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
@@ -72,7 +73,8 @@ if [! -f "${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz" ]; then
 fi
 
 ### 3. bwa mem single end mode -> to sorted bam
-if [! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
+if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
+    echo "mapping/sorting sample ${samp_name}. "
     bwa mem \
         -t 10 \
         -K 100000000 \
@@ -88,7 +90,8 @@ if [! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
 fi
 ### 4. dedup mark duplicates (GATK)
 
-if [! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
+if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
+    echo "dedup sample ${samp_name}. "
     java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
         I=${SAMPLE_DIR}/bam/${samp_name}.sorted.bam  \
         O=${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
@@ -106,9 +109,12 @@ fi
 #   -M ${SAMPLE_DIR}/bam/${samp_name}.markdup.metrics.txt
 
 ### 5. Haplotype caller 
-gatk HaplotypeCaller \
--R ${ref} \
--I ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
--O ${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz \
--ERC GVCF
+if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz"]; then
+    echo "trimming sample ${samp_name}. "
+    gatk HaplotypeCaller \
+    -R ${ref} \
+    -I ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
+    -O ${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz \
+    -ERC GVCF
+fi
 
