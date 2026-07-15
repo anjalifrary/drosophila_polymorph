@@ -109,7 +109,7 @@ fi
 #   -M ${SAMPLE_DIR}/bam/${samp_name}.markdup.metrics.txt
 
 ### 5. Haplotype caller 
-if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz"]; then
+if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
     echo "trimming sample ${samp_name}. "
     gatk HaplotypeCaller \
     -R ${ref} \
