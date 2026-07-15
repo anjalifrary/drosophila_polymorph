@@ -11,6 +11,7 @@
 #SBATCH --account berglandlab
 
 cd 1-2.inbred_dataProcessing
+
 module purge
 module load java/17
 module load nextflow
@@ -24,7 +25,7 @@ export NXF_APPTAINER_CACHEDIR="/scratch/ejy4bu/tmp/apptainer_cache"
 mkdir -p $NXF_APPTAINER_CACHEDIR
 
 nextflow run nf-core/sarek \
-    -r 3.4.0 \
+    -r 3.9.0 \
     -profile apptainer \
     --input $sample_csv \
     --outdir $out_dir \
@@ -34,6 +35,7 @@ nextflow run nf-core/sarek \
     --save_reference \
     --aligner bwa-mem \
     --trim_fastq \
+    --step mapping \
     --tools haplotypecaller \
     --save_trimmed \
     --save_mapped \
