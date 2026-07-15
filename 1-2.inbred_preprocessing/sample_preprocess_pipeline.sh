@@ -4,12 +4,12 @@
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
-#SBATCH --mem 50G
+#SBATCH --mem 80G
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/prepipeline.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/prepipeline.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-1
+#SBATCH --array=2-183
 
 set -euo pipefail
 
@@ -112,6 +112,7 @@ if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
     --native-pair-hmm-threads 8
 fi
 
+echo "Complete"
 
 # ### 6. concatenate vcfs 
 # module load bcftools
