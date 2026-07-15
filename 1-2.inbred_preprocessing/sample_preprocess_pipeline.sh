@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/prepipeline.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=0-1
+#SBATCH --array=0-0
 
 set -euo pipefail
 
@@ -59,37 +59,42 @@ fastqc \
 ### 2. fastp trim single-end mode
 module load miniforge && conda activate fastp
 
-fastp \
-    --in1 ${fastq} \
-    --out1 ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
-    --json ${SAMPLE_DIR}/fastp/${samp_name}.fastp.json \
-  --html ${SAMPLE_DIR}/fastp/${samp_name}.fastp.html \
-  --thread 10
+if [! -f "${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz" ]; then
+    fastp \
+        --in1 ${fastq} \
+        --out1 ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
+        --json ${SAMPLE_DIR}/fastp/${samp_name}.fastp.json \
+    --html ${SAMPLE_DIR}/fastp/${samp_name}.fastp.html \
+    --thread 10
 
-conda deactivate
-conda deactivate
+    conda deactivate
+    conda deactivate
+fi
 
 ### 3. bwa mem single end mode -> to sorted bam
-bwa mem \
-    -t 10 \
-    -K 100000000 \
-    -Y \
-    ${ref} \
-    ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
-    | samtools view -uh -q 20 \
-    | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam -
+if [! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
+    bwa mem \
+        -t 10 \
+        -K 100000000 \
+        -Y \
+        -R "@RG\tID:${sample}\tSM:${sample}\tPL:ILLUMINA\tLB:${sample}" \
+        ${ref} \
+        ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
+        | samtools view -uh -q 20 \
+        | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam -
 
-samtools index ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
-echo "finished mapping $samp_name"
-
+    samtools index ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
+    echo "finished mapping $samp_name"
+fi
 ### 4. dedup mark duplicates (GATK)
-module load picard
 
-java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
-    I=${SAMPLE_DIR}/bam/${samp_name}.sorted.bam  \
-    O=${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
-    M=${SAMPLE_DIR}/bam/${samp_name}.markdup.metrics.txt \
-    CREATE_INDEX=true
+if [! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
+    java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
+        I=${SAMPLE_DIR}/bam/${samp_name}.sorted.bam  \
+        O=${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
+        M=${SAMPLE_DIR}/bam/${samp_name}.markdup.metrics.txt \
+        CREATE_INDEX=true
+fi
 # should i remove duplicates or just flag?
 
 # samtools index ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam
