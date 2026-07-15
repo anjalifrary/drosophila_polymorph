@@ -39,8 +39,10 @@ nextflow run nf-core/sarek \
     --tools haplotypecaller \
     --save_trimmed \
     --save_mapped \
-    --save_output_as_bam \
-    -resume
+    --save_output_as_bam 
+    
+    # \
+    # -resume
 
 # set --tools haplotypecaller restricts it to GATK Haplotype Caller 
 # aligner as bwa-mem skips other defaults (Dragmap or bwa-mem2)
