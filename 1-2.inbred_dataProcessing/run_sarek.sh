@@ -10,6 +10,7 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+cd 1-2.inbred_dataProcessing
 module purge
 module load java/17
 module load nextflow
