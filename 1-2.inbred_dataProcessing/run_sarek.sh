@@ -18,7 +18,9 @@ module load nextflow
 module load apptainer
 
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-sample_csv="/scratch/ejy4bu/drosophila/inbred/sarek/sample_inputs_sarek.csv"
+# sample_csv="/scratch/ejy4bu/drosophila/inbred/sarek/sample_inputs_sarek.csv"
+sample_csv="/scratch/ejy4bu/drosophila/inbred/sarek/sample_inputs_noStatus_sarek.csv"
+
 out_dir="/scratch/ejy4bu/drosophila/inbred/sarek_results/"
 
 export NXF_APPTAINER_CACHEDIR="/scratch/ejy4bu/tmp/apptainer_cache"
