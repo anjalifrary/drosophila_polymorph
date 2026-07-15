@@ -83,7 +83,7 @@ if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
         ${ref} \
         ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
         | samtools view -uh -q 20 \
-        | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam -
+        | samtools sort --threads 2 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam -
 
     samtools index ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
     echo "finished mapping $samp_name"
@@ -103,7 +103,7 @@ fi
 
 ### 5. Haplotype caller 
 if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
-    echo "trimming sample ${samp_name}. "
+    echo "haplotype caller on sample ${samp_name}. "
     gatk HaplotypeCaller \
     -R ${ref} \
     -I ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
@@ -111,3 +111,26 @@ if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
     -ERC GVCF
 fi
 
+
+# ### 6. concatenate vcfs 
+# module load bcftools
+
+# # Define input and output directories
+# VCF_DIR="/project/berglandlab/chlorella_sequencing/vcfs"
+# OUTPUT_VCF="/project/berglandlab/chlorella_sequencing/combined_chlorella.vcf.gz"
+
+# # Create a list of VCF files
+# VCF_LIST=$(ls ${VCF_DIR}/*.vcf.gz | sort)
+
+# # Concatenate VCFs using bcftools
+# bcftools concat -a -O z -o ${OUTPUT_VCF} ${VCF_DIR}/*.vcf.gz
+
+# # Index the final VCF (optional but recommended for SNPeff)
+# bcftools index ${OUTPUT_VCF}
+
+# ### 7. SnpEFF
+# SNPEFF_DIR=$HOME/snpEff
+# VCF_IN="/project/berglandlab/chlorella_sequencing/combined_chlorella.vcf.gz"
+# VCF_OUT="/project/berglandlab/chlorella_sequencing/combined_chlorella_annotated.vcf"
+
+# java -Xmx32g -jar $SNPEFF_DIR/snpEff.jar -v chlorella $VCF_IN > $VCF_OUT
