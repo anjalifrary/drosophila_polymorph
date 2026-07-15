@@ -84,11 +84,12 @@ if [ -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
         ${ref} \
         ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
         | samtools view -uh -q 20 \
-        | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam -
+        | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
 
     samtools index ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
     echo "finished mapping $samp_name"
 fi
+
 ### 4. dedup mark duplicates (GATK)
 
 if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
@@ -100,14 +101,6 @@ if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
         CREATE_INDEX=true
 fi
 # should i remove duplicates or just flag?
-
-# samtools index ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam
-
-
-# gatk MarkDuplicates \
-#   -I ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam \
-#   -O ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
-#   -M ${SAMPLE_DIR}/bam/${samp_name}.markdup.metrics.txt
 
 ### 5. Haplotype caller 
 if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
