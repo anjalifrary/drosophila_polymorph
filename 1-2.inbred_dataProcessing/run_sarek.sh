@@ -36,7 +36,7 @@ nextflow run nf-core/sarek \
     --tools haplotypecaller \
     --save_trimmed \
     --save_mapped \
-    --save_output_as_bam
+    --save_output_as_bam \
     -resume
 
 # set --tools haplotypecaller restricts it to GATK Haplotype Caller 
@@ -48,3 +48,9 @@ nextflow run nf-core/sarek \
 # other flags
 # --length-required for minimum length of reads to keep
 #
+
+#FastQC gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the FastQC help pages.
+# The FastQC plots displayed in the MultiQC report shows untrimmed reads. They may contain adapter sequence and potentially regions with low quality.
+
+# FastP is a tool designed to provide all-in-one preprocessing for FastQ files and is used for trimming and splitting. The tool then determines QC metrics for the processed reads.
+
