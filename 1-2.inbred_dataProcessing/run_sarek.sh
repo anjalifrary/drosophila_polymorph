@@ -36,6 +36,7 @@ nextflow run nf-core/sarek \
     --aligner bwa-mem \
     --trim_fastq \
     --step mapping \
+    --skip_tools baserecalibrator \
     --tools haplotypecaller \
     --save_trimmed \
     --save_mapped \
