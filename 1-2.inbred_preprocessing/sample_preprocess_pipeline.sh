@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 #SBATCH -J preprocess # A single job name for the array
-#SBATCH --ntasks-per-node=10 # one core
+#SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
 #SBATCH --mem 100G
@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/prepipeline.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=0-184%8
+#SBATCH --array=0-1
 
 set -euo pipefail
 
@@ -19,21 +19,26 @@ set -euo pipefail
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
 
-### do once
-bwa index ${ref}
-samtools faidx ${ref}
-gatk CreateSequenceDictionary -R ${ref} # ?? 
+# ### do once
+# bwa index ${ref}
+# samtools faidx ${ref}
+# gatk CreateSequenceDictionary -R ${ref} 
 
 module load gcc/11.4.0 htslib
 module load sratoolkit/3.1.1
 module load bwa
 module load samtools
 module load picard
+module load gatk
+module load fastqc
+
 
 
 MY_DATA="/scratch/ejy4bu/drosophila/inbred/fastq/PRJNA318623/"
-SAMPLES=($(ls -d ${MY_DATA}/*/))
-echo "Samples = ${SAMPLES}"
+# SAMPLES=($(ls -d ${MY_DATA}*/))
+SAMPLES=("${MY_DATA}"*/)
+
+echo "Samples = ${#SAMPLES[@]}"
 
 SAMPLE_DIR="${SAMPLES[$SLURM_ARRAY_TASK_ID]}"
 samp_name=$(basename "$SAMPLE_DIR")
@@ -52,7 +57,6 @@ fastqc \
     ${fastq}
 
 ### 2. fastp trim single-end mode
-
 module load miniforge && conda activate fastp
 
 fastp \
@@ -62,6 +66,9 @@ fastp \
   --html ${SAMPLE_DIR}/fastp/${samp_name}.fastp.html \
   --thread 10
 
+conda deactivate
+conda deactivate
+
 ### 3. bwa mem single end mode -> to sorted bam
 bwa mem \
     -t 10 \
@@ -70,7 +77,7 @@ bwa mem \
     ${ref} \
     ${SAMPLE_DIR}/fastp/${samp_name}.trimmed.fastq.gz \
     | samtools view -uh -q 20 \
-    | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
+    | samtools sort --threads 10 -o ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam -
 
 samtools index ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
 echo "finished mapping $samp_name"
@@ -97,6 +104,6 @@ java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
 gatk HaplotypeCaller \
 -R ${ref} \
 -I ${SAMPLE_DIR}/bam/${samp_name}.markdup.bam \
--O ${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf \
+-O ${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz \
 -ERC GVCF
 
