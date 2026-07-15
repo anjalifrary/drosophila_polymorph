@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/prepipeline.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=0-0
+#SBATCH --array=1-1
 
 set -euo pipefail
 
