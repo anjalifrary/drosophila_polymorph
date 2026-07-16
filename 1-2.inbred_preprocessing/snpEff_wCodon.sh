@@ -18,6 +18,8 @@
  SNPEFF_HOME=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff
 
 # Dmel6 reference genome
+
+
  
 echo "Annotating Dm6 vcf with SnpEff..."
 
@@ -25,11 +27,12 @@ java -Xmx32G \
     -jar ${SNPEFF}/snpEff.jar ann -formatEff \
     -v BDGP6.86 \
     -stats ${outdir}/snpEff_summary.html \
-    /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz \
+    /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz \
     | bgzip -@ 10 -c - > \
-    /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+    /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
 
-bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+
 
 
 
