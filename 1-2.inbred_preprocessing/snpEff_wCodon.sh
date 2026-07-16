@@ -10,8 +10,9 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+module load bcftools
 
- SNPEFF_HOME=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff
+ SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
 # Dmel6 reference genome
 
