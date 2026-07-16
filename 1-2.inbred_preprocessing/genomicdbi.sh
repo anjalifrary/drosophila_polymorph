@@ -24,8 +24,8 @@ mkdir -p ${outdir}
 gvcf_dir="/scratch/ejy4bu/drosophila/inbred/fastq/PRJNA318623"
 
 #  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.vcf.gz | \
-
-chroms=("2L" "2R" "3L" "3R" "4" "X")
+chroms=("sim_2L" "sim_2R" "sim_3L" "sim_3R" "sim_4" "sim_X")
+# chroms=("2L" "2R" "3L" "3R" "4" "X")
 chr=${chroms[$SLURM_ARRAY_TASK_ID]}
 
 JAVAMEM=80G
