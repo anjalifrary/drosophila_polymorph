@@ -10,29 +10,33 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-# module load bcftools
+module load bcftools
 module load htslib
+module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 
- SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
+SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-# Dmel6 reference genome
-
+in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
+out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz"
 
  
 echo "Annotating Dm6 vcf with SnpEff..."
 
 java -Xmx32G \
-    -jar ${SNPEFF}/snpEff.jar ann -formatEff \
+    -jar ${SNPEFF}/snpEff.jar ann \
+    -formatEff \
     -v BDGP6.86 \
     -stats ${outdir}/snpEff_summary.html \
-    /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz \
+    $in_vcf \
     | bgzip -@ 10 -c - > \
-    /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+    $out_vcf
+
+echo "Finished annotating"
+echo "Indexing..."
 
 bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
 
-
-
+echo "Complete"
 
 ### annotate
 #  module load htslib
