@@ -10,9 +10,12 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+set -euo pipefail
+
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
+mkdir -p ${outdir}
 #  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.vcf.gz | \
 gvcf_dir="/scratch/ejy4bu/drosophila/inbred/fastq/PRJNA318623"
 
@@ -48,23 +51,23 @@ fi
 #   [the list of --variant ..]
 #   -o .vcf
 
-# gatk CombineGVCFs \
-#     -R ${ref} \
-#     $(while read gvcf; do echo "--variant $gvcf"; done < gvcf.list) \
-#     -O dsim3_combined.g.vcf.gz
+gatk CombineGVCFs \
+    -R ${ref} \
+    $(while read gvcf; do echo "--variant $gvcf"; done < ${outdir}/gvcf.list) \
+    -O ${outdir}/dsim3_combined.g.vcf.gz
 
 ### Consolidate vcfs 
-# error handling:
-if [ -d "${outdir}/dsim_genomicsdb" ]; then
-    echo "Removing existing GenomicsDB workspace..."
-    rm -rf ${outdir}/dsim_genomicsdb
-fi
+# # error handling:
+# if [ -d "${outdir}/dsim_genomicsdb" ]; then
+#     echo "Removing existing GenomicsDB workspace..."
+#     rm -rf ${outdir}/dsim_genomicsdb
+# fi
 
-gatk GenomicsDBImport \
-    -R ${ref} \
-    --genomicsdb-workspace-path ${outdir}/dsim_genomicsdb \
-    --batch-size 50 \
-    $(while read gvcf; do echo "--variant $gvcf"; done < ${outdir}/gvcf.list)
+# gatk GenomicsDBImport \
+#     -R ${ref} \
+#     --genomicsdb-workspace-path ${outdir}/dsim_genomicsdb \
+#     --batch-size 50 \
+#     $(while read gvcf; do echo "--variant $gvcf"; done < ${outdir}/gvcf.list)
 
 ### Joint Genotyping
 gatk GenotypeGVCFs \
