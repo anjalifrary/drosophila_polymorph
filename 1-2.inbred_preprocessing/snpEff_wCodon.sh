@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 
-#SBATCH -J runFASTQC # A single job name for the array
-#SBATCH --ntasks-per-node=20 # one core
-#SBATCH -N 1 # on one node
-#SBATCH -t 4:00:00 ### 15 seconds
-#SBATCH --mem 10G
-#SBATCH -o /scratch/aob2x/logs/demo_1.%A_%a.out # Standard output
-#SBATCH -e /scratch/aob2x/logs/demo_1.%A_%a.err # Standard error
+#SBATCH -J snpeff               # A single job name for the array
+#SBATCH --ntasks-per-node=10    # one core
+#SBATCH -N 1                    # on one node
+#SBATCH -t 0-10:00              # 10 hours
+#SBATCH --mem 80G
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/snpeff.%A_%a.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/snpeff.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-
-### run as: sbatch ~/misc/1000G/done/Dsim/5.DSim.snpEff_codon.sh
-### sacct -j 10700313
-### cat /scratch/aob2x/logs/demo_1.10700296*.err
 
 
  SNPEFF_HOME=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff
