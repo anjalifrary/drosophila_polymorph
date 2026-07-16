@@ -10,7 +10,8 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-module load bcftools
+# module load bcftools
+module load htslib
 
  SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
