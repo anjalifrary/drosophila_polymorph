@@ -17,6 +17,22 @@
 
  SNPEFF_HOME=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff
 
+# Dmel6 reference genome
+ 
+echo "Annotating Dm6 vcf with SnpEff..."
+
+java -Xmx32G \
+    -jar ${SNPEFF}/snpEff.jar ann -formatEff \
+    -v BDGP6.86 \
+    -stats ${outdir}/snpEff_summary.html \
+    /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz \
+    | bgzip -@ 10 -c - > \
+    /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+
+bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+
+
+
 ### annotate
 #  module load htslib
 #
@@ -33,14 +49,14 @@
 #  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz \
 #  20
 
-module load htslib
+# module load htslib
 
-zcat /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz |
-grep -E "#|missense|synonymous" | \
-bgzip -@ 10 -c - > /project/berglandlab/multispecies_endemism/data/Dsim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.NS_SYN.ann.eff.vcf.gz
+# zcat /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz |
+# grep -E "#|missense|synonymous" | \
+# bgzip -@ 10 -c - > /project/berglandlab/multispecies_endemism/data/Dsim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.NS_SYN.ann.eff.vcf.gz
 
-module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+# module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 
-Rscript --vanilla ~/DESTv3/snpCalling_dev/scatter_gather_annotate/vcf2gds.R \
-/project/berglandlab/multispecies_endemism/data/Dsim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.NS_SYN.ann.eff.vcf.gz \
-20
+# Rscript --vanilla ~/DESTv3/snpCalling_dev/scatter_gather_annotate/vcf2gds.R \
+# /project/berglandlab/multispecies_endemism/data/Dsim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.NS_SYN.ann.eff.vcf.gz \
+# 20

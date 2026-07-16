@@ -54,8 +54,8 @@ fi
 gatk CombineGVCFs \
     -R ${ref} \
     $(while read gvcf; do echo "--variant $gvcf"; done < ${outdir}/gvcf.list) \
-    -O ${outdir}/dsim3_combined.g.vcf.gz
-
+    -O ${outdir}/dsim3.signor.combined.g.vcf.gz
+echo "Done combining gVCFs"
 ### Consolidate vcfs 
 # # error handling:
 # if [ -d "${outdir}/dsim_genomicsdb" ]; then
