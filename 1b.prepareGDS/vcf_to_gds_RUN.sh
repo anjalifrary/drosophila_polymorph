@@ -15,4 +15,4 @@ module load gcc/11.4.0 openmpi/4.1.4
 module load R/4.5.0
 
 
-Rscript vcf_to_gds.R
+Rscript 1b.prepareGDS/vcf_to_gds.R
