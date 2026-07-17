@@ -53,6 +53,11 @@ bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-H
 
 echo "Complete"
 
+cp /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.ann.eff.vcf.gz.csi \
+/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
+
+
+
 ### annotate
 #  module load htslib
 #
