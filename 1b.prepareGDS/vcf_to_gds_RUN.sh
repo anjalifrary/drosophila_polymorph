@@ -10,8 +10,9 @@
 #SBATCH -p standard        # Partition
 #SBATCH --account=berglandlab
 
-
-module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 export R_LIBS_USER=~/Rlibs
+module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+module load R/4.5.0
+
 
 Rscript vcf_to_gds.R
