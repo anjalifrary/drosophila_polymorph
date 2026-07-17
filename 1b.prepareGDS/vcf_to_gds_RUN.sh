@@ -11,7 +11,7 @@
 #SBATCH --account=berglandlab
 
 export R_LIBS_USER=~/Rlibs
-module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+module load gcc/11.4.0 openmpi/4.1.4 
 module load R/4.5.0
 
 
