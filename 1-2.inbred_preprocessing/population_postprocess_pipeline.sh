@@ -10,6 +10,9 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+### OLD VERSION _ UPDATE BEFORE RUN
+### moved genomics dbi section to new script for optimization / memory constraints
+
 set -euo pipefail
 
 module load gcc/11.4.0
