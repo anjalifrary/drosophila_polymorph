@@ -3,8 +3,8 @@ library(dplyr)
 
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/"
 
-in_rds <- paste0(out_dir, "all_quality_variants_MAF5_merge_unfilt.rds")
-out_rds <- paste0(out_dir, "all_quality_variants_MAF5_clean.rds")
+in_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
+out_rds <- paste0(out_dir, "all_quality_variants_clean.rds")
 # out_csv <- paste0(out_dir, "all_quality_variants_clean_500test.csv")
 if(!file.exists(out_rds)) file.create(out_rds)
 # if(!file.exists(out_csv)) file.create(out_csv)
