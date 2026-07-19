@@ -3,7 +3,7 @@
 #SBATCH -J gdbi # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-10:00 # 10 hours
+#SBATCH -t 0-18:00 # 10 hours
 #SBATCH --mem 100G
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/gdbi.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/gdbi.%A_%a.err # Standard error
@@ -102,7 +102,7 @@ gatk --java-options "-Xmx${JAVAMEM}" GenomicsDBImport \
     -R ${ref} \
     --genomicsdb-workspace-path $work \
     --tmp-dir $tmp \
-    --batch-size 50 \
+    --batch-size 150 \
     --sample-name-map ${sample_map} \
     --reader-threads $CPU \
     -L ${chr}
