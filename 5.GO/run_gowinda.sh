@@ -9,15 +9,16 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
-#SBATCH --array=0-10
+#SBATCH --array=0-8
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
 BG_dir=/scratch/ejy4bu/drosophila/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/gowinda/candidateFiles/
-CANDIDATE_dir=MAF0.5filter_polyAF
-CANDIDATE_id=0.5_polyAF
 OUTPUT_root=/scratch/ejy4bu/drosophila/gowinda/results
+
+CANDIDATE_dir=MAF1filter_polyAF
+CANDIDATE_id=1_polyAF
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
