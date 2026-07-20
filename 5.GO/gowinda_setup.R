@@ -54,6 +54,10 @@ gowinda_go <- go_dt[, .(
 fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_go.txt",
     sep = "\t", col.names = FALSE, quote = FALSE)
 
+
+
+
+
 ### building background from snps with 1 polymorphic site per codon 
 # includes single-species and both-species polymorphic codons
 rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/all_quality_variants_clean.rds")
@@ -97,7 +101,7 @@ fwrite(bg_SharedOnly[, .(chr, pos)], "/scratch/ejy4bu/drosophila/gowinda/backgro
 
 ### MASTER CANDIDATES FILE - do once
 # all shared polymorphisms (classed)
-shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_final.rds")
+shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_7-20-2026.rds")
 classesOfInterest <- c("A", "B", "F", "G", "O", "P", "X", "Y")
 masterCandidates <- shared_dt[classification%in%classesOfInterest, ]
 saveRDS(masterCandidates, "/scratch/ejy4bu/drosophila/gowinda/candidateFiles/masterCandidateFile.rds")
@@ -118,20 +122,21 @@ load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version
 mel_nlp <- nlp
 rm(nlp)   
 
+masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/gowinda/candidateFiles/masterCandidateFile.rds")
+
 # all variant table, no maf filter yet:
 sim_nlp <- merge(sim_nlp, masterCandidates[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
 mel_nlp <- merge(mel_nlp, masterCandidates[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
 
 nrow(masterCandidates)
 
-mel_dt <- merge(mel_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], masterCandidates, by = c("chr", "pos"), all.x=TRUE)
-sim_dt <- merge(sim_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], masterCandidates, by = c("chr", "pos"), all.x=TRUE)
+mel_dt <- merge(mel_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], masterCandidates, by = c("chr", "pos"), all.x=FALSE)
+sim_dt <- merge(sim_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], masterCandidates, by = c("chr", "pos"), all.x=FALSE)
 
-masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/gowinda/candidateFiles/masterCandidateFile.rds")
 
-getCandidates_filterByMAF <- function(masterCandidates=masterCandidates, maf, setting) {
+getCandidates_filterByMAF <- function(maf, setting) {
     ### testing: params:
-    # maf = 0.05
+    # maf = 0.02
     # setting = "poly"
 
     if ((maf <= 0) || (setting%in%c("global", "poly") == FALSE)) stop("invalid params")
@@ -188,11 +193,11 @@ getCandidates_filterByMAF <- function(masterCandidates=masterCandidates, maf, se
         paste0(dir, "candidate_chrpos_XY_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
 }
 
-maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50)
+maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
 for (m in maf_inputs) {
-    getCandidates_filterByMAF(masterCandidates, maf = m, "poly")
-    getCandidates_filterByMAF(masterCandidates, maf = m, "global")
+    getCandidates_filterByMAF(maf = m, "poly")
+    getCandidates_filterByMAF(maf = m, "global")
 }
 
 

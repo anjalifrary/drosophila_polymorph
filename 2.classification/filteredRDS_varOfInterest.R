@@ -1,6 +1,7 @@
 library(data.table)
 
-in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_clean.rds"
+# in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/merged_tables/quality/all_quality_variants_clean.rds"
+in_rds <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/all_quality_variants_clean.rds"
 # in_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_geva_MAF5.rds"
 shared_dt <- readRDS(in_rds)
 # shared_dt <- voi
@@ -20,6 +21,19 @@ shared_dt[strand == "reverse", codon_start_pos := pos + (regexpr("[A-Z]", codon_
 shared_dt[, c("codon_ref_use", "nt_ref_use", "strand") := NULL]
 # setkey(filtered_dt, chr, pos)
 
+mel_only <- shared_dt[!is.na(ref_mel)]
+sim_only <- shared_dt[!is.na(ref_sim)]
+
+mel_codon_count <- mel_only[, .(n_mel = .N), by = .(chr, codon_start_pos)]
+sim_codon_count <- sim_only[, .(n_sim = .N), by = .(chr, codon_start_pos)]
+
+valid_codons <- merge(mel_codon_count[n_mel==1], sim_codon_count[n_sim==1],by=c("chr", "codon_start_pos"))
+valid_dt <- shared_dt[valid_codons,on=.(chr,codon_start_pos),nomatch=0]
+
+valid_dt[, c("n_mel", "n_sim") := NULL]
+
+
+shared_dt <- valid_dt
 ### 2: same-site variants, defined by mel and sim are both present at nucleotide positions
 same_site_all <- shared_dt[!is.na(ref_mel) & !is.na(ref_sim)]
 # ensure that there is only 1 same-site polymorphism per codon
@@ -121,7 +135,7 @@ filtered_dt[, c("adjacent_var_pos1", "adjacent_var_pos2", "adjacent_var_pos3") :
 
 
 # out_rds <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/subset_qualVar_ofInterest.rds"
-out_rds <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest.rds"
+out_rds <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_7-20-2026.rds"
 saveRDS(filtered_dt, out_rds)
 
 # cp /scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_final.rds /project/berglandlab/anjali/drosophila_polymorphism/mel_sim_sharedTables
