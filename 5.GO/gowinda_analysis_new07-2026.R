@@ -72,7 +72,23 @@ append_gowinda_summary <- function(results, file, csv_file, filter_col="FDR", th
     )
 
     if(file.exists(csv_file)){
-        out <- rbind(fread(csv_file), new_row, fill=TRUE)
+        out <- fread(csv_file)
+
+        # check if this exact analysis already exists
+        duplicate <- out[
+            classes == new_row$classes &
+            MAF_value == new_row$MAF_value &
+            MAF_def == new_row$MAF_def &
+            background == new_row$background &
+            threshold == new_row$threshold
+        ]
+
+        if(nrow(duplicate) > 0){
+            message("Already exists: skipping ", basename(file))
+            return(invisible(out))
+        }
+        out <- rbind(out, new_row, fill=TRUE)
+
     } else {
         out <- new_row
         file.create(csv_file)
@@ -124,7 +140,7 @@ library(ggplot2)
 
 csv <- fread(out_csv)
 
-class="AB"
+# class="AB"
 # class="FGOPXY"
 class="ABFGOPXY"
 # class="XY"
@@ -155,7 +171,7 @@ ggplot(plot_counts, aes(x=MAF_value, y=N_GOTerms)) +
 
 
 ### Persistance of specific GO terms:
-go_long <- plot_counts[GO.ids != "",
+go_long <- plot_counts[N_GOTerms > 0, 
     .(GO.id = unlist(strsplit(GO.ids, ";"))),
     by = .(MAF_value)
 ]
