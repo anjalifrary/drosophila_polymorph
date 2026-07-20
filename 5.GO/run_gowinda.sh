@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/gowinda/results
 
-CANDIDATE_dir=MAF5filter_polyAF
-CANDIDATE_id=5_polyAF
+CANDIDATE_dir=MAF10filter_polyAF
+CANDIDATE_id=10_polyAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 # running 0.02, 0.01, 0.005
