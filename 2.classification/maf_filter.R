@@ -18,7 +18,7 @@ mel_nlp <- nlp
 rm(nlp)   
 
 # all variant table, no maf filter yet:
-variants <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest.rds")
+variants <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_final.rds")
 sim_nlp <- merge(sim_nlp, variants[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
 mel_nlp <- merge(mel_nlp, variants[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
 
@@ -37,7 +37,7 @@ nrow(sim_nlp)
 mel_dt <- merge(mel_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], variants, by = c("chr", "pos"), all.x=TRUE)
 sim_dt <- merge(sim_nlp[, .(chr, pos, variant, nLocales_poly, global_af, poly_af, poly_maf)], variants, by = c("chr", "pos"), all.x=TRUE)
 
-af_threshold <- 0.10
+af_threshold <- 0.01
 maf_label <- af_threshold * 100
 
 mel_dt <- mel_dt[poly_af > af_threshold & poly_af < (1 - af_threshold)]
@@ -137,6 +137,8 @@ voi[, codon_start_pos.x := NULL]
 voi[, codon_start_pos.y := NULL]
 
 names(voi)
+
+# voi <- merge(voi, shared_dt[, c("chr", "pos", "classification", "codon_start_pos")], by = c("chr", "pos", "codon_start_pos"), all.x=T)
 
 file_name <- paste0("/project/berglandlab/anjali/drosophila_polymorphism/classification/MAF", 
   maf_label,
