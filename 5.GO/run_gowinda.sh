@@ -17,12 +17,13 @@ BG_dir=/scratch/ejy4bu/drosophila/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/gowinda/candidateFiles/
 CANDIDATE_dir=MAF0.5filter_polyAF
 CANDIDATE_id=0.5_polyAF
-OUTPUT_ROOT=/scratch/ejy4bu/drosophila/gowinda/results
+OUTPUT_root=/scratch/ejy4bu/drosophila/gowinda/results
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
 jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
 
+ls /scratch/ejy4bu/drosophila/gowinda/backgroundFiles/bg_sharedOnly_noMAF.txt
 
 
 SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")
@@ -39,11 +40,11 @@ SUFFIX=${SUFFICES[$SUFFIX_INDEX]}
 echo "SUFFIX=$SUFFIX"
 echo "BACKGROUND=$BACKGROUND"
 
-background="${BG_DIR}/${BACKGROUND}.txt"
-candidate="${CANDIDATE_ROOT}/${CANDIDATE_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
-output="${OUTPUT_ROOT}/${CANDIDATE_dir}/${BACKGROUND}/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
+background="${BG_dir}/${BACKGROUND}.txt"
+candidate="${CANDIDATE_root}/${CANDIDATE_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
+output="${OUTPUT_root}/${CANDIDATE_dir}/${BACKGROUND}/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
 
-mkdir -p "${OUTPUT_ROOT}/${CANDIDATE_dir}/${BACKGROUND}"
+mkdir -p "${OUTPUT_root}/${CANDIDATE_dir}/${BACKGROUND}"
 
 echo "bg=$background"
 echo "candidate file=$candidate"
