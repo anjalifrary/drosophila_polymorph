@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/gowinda/results
 
-CANDIDATE_dir=MAF1filter_polyAF
-CANDIDATE_id=1_polyAF
+CANDIDATE_dir=MAF2filter_polyAF
+CANDIDATE_id=2_polyAF
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
