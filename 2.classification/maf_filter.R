@@ -138,8 +138,6 @@ voi[, codon_start_pos.y := NULL]
 
 names(voi)
 
-# voi <- merge(voi, shared_dt[, c("chr", "pos", "classification", "codon_start_pos")], by = c("chr", "pos", "codon_start_pos"), all.x=T)
-
 file_name <- paste0("/project/berglandlab/anjali/drosophila_polymorphism/classification/MAF", 
   maf_label,
   "filter/subset_qualVar_ofInterest_MAF", 
