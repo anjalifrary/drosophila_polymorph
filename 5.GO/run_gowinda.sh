@@ -13,34 +13,55 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-# background=/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/background_all_snps.txt
-background=/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt
-# background=/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt
-# candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
+BG_dir=/scratch/ejy4bu/drosophila/gowinda/backgroundFiles/
+CANDIDATE_root=/scratch/ejy4bu/drosophila/gowinda/candidateFiles/
+CANDIDATE_dir=MAF0.5filter_polyAF
+CANDIDATE_id=0.5_polyAF
+OUTPUT_ROOT=/scratch/ejy4bu/drosophila/gowinda/results
+
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
-# go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
 jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
 
-SUFFICES=("A" "B" "AB" "FGOP" "XY" "FGOPXY" "ABFGOPXY")
-SUFFIX=${SUFFICES[$SLURM_ARRAY_TASK_ID]}
+
+
+SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")
+BACKGROUNDS=("bg_speciesSpecific_noMAF" "bg_sharedOnly_noMAF")
+
+BG_INDEX=$((SLURM_ARRAY_TASK_ID / 4))
+SUFFIX_INDEX=$((SLURM_ARRAY_TASK_ID % 4))
+
+BACKGROUND=${BACKGROUNDS[$BG_INDEX]}
+SUFFIX=${SUFFICES[$SUFFIX_INDEX]}
+
+# SUFFIX=${SUFFICES[$SLURM_ARRAY_TASK_ID]}
 
 echo "SUFFIX=$SUFFIX"
-echo "--candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/candidate_snp_${SUFFIX}.txt"
+echo "BACKGROUND=$BACKGROUND"
 
-# gene mode
+background="${BG_DIR}/${BACKGROUND}.txt"
+candidate="${CANDIDATE_ROOT}/${CANDIDATE_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
+output="${OUTPUT_ROOT}/${CANDIDATE_dir}/${BACKGROUND}/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
+
+mkdir -p "${OUTPUT_ROOT}/${CANDIDATE_dir}/${BACKGROUND}"
+
+echo "bg=$background"
+echo "candidate file=$candidate"
+echo "output file=$output"
+
+# gene mode (more conservative)
 # gene definition = gene (no exonic snps = not useful for updownstream)
 
 java -Xmx8g -jar $jar_file \
   --snp-file $background \
-  --candidate-snp-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/candidate_snp_${SUFFIX}.txt \
+  --candidate-snp-file $candidate \
   --gene-set-file $go_file \
   --annotation-file $gtf_file \
   --simulations 1000000 \
   --gene-definition gene \
   --threads 10 \
   --mode gene \
-  --output-file /scratch/ejy4bu/drosophila/gowinda/MAF5/new_7-1-26/results/gowinda_${SUFFIX}_gene_allBackgroundnoMAF.txt
+  --output-file $output
 
 
 
@@ -77,3 +98,12 @@ java -Xmx8g -jar $jar_file \
 # suffix=$(basename "$candidate_snp" .txt)
 # suffix=${suffix#candidate_snp_}
 
+
+# # background=/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/background_all_snps.txt
+# background=/scratch/ejy4bu/drosophila/gowinda/background_all_snps.txt
+# # background=/scratch/ejy4bu/drosophila/gowinda/background_classed_snps.txt
+# # candidate_snp=/scratch/ejy4bu/drosophila/gowinda/candidate_snp_AB.txt
+# gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
+# # go_file=/scratch/ejy4bu/drosophila/gowinda/flybase_go.txt
+# go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
+# jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
