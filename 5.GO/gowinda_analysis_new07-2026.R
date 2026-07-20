@@ -89,7 +89,7 @@ dir.create("/scratch/ejy4bu/drosophila/gowinda/gowindaRunsStats/")
 
 ### to loop over a single results directory:
 
-dir <- "/scratch/ejy4bu/drosophila/gowinda/results/MAF0.5filter_polyAF/"
+dir <- "/scratch/ejy4bu/drosophila/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
 for (file_name in files_list) {
@@ -124,14 +124,19 @@ library(ggplot2)
 
 csv <- fread(out_csv)
 
-classes="AB"
+class="AB"
+# class="FGOPXY"
+class="ABFGOPXY"
+# class="XY"
 bg="speciesSpecific_noMAF"
 # bg="sharedOnly_noMAF"
 maf_def="polyAF"
 # maf_def="globalAF"
 
+csv <- as.data.table(csv)
+
 plot_counts <- csv[ 
-    classes==classes & 
+    classes==class & 
     background==bg & 
     MAF_def==maf_def,
     .(classes, MAF_value, MAF_def, background, threshold, N_GOTerms, GO.ids)]
@@ -148,40 +153,19 @@ ggplot(plot_counts, aes(x=MAF_value, y=N_GOTerms)) +
     ) +
     theme_classic()
 
-go_long <- csv[
-    classes == "ABFGOPXY" &
-    background == "speciesSpecific_noMAF" &
-    threshold == "FDR<0.05" &
-    GO.ids != "",
-    .(
-        MAF_value,
-        GO.id = unlist(strsplit(GO.ids, ";"))
-    ),
-    by = .(classes, background, threshold, MAF_value)
+
+### Persistance of specific GO terms:
+go_long <- plot_counts[GO.ids != "",
+    .(GO.id = unlist(strsplit(GO.ids, ";"))),
+    by = .(MAF_value)
 ]
 
-go_persistence <- go_long[
-    ,
-    .(
-        n_MAF = uniqueN(MAF_value),
-        MAFs = paste(sort(unique(MAF_value)), collapse=",")
-    ),
-    by=GO.id
-]
-
-go_persistence[order(-n_MAF)]
-
-
-ggplot(
-    go_long,
-    aes(
-        x=factor(MAF_value),
-        y=reorder(GO.id, GO.id)
-    )
-) +
-    geom_tile(fill="black") +
+ggplot(go_long,
+       aes(x = factor(MAF_value),
+           y = GO.id)) +
+    geom_tile() +
     labs(
-        x="MAF filter (%)",
-        y="GO term"
+        x = "MAF filter (%)",
+        y = "GO term"
     ) +
     theme_classic()
