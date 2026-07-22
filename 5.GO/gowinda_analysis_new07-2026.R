@@ -109,9 +109,11 @@ dir <- "/scratch/ejy4bu/drosophila/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
 for (file_name in files_list) {
+    message("Processing: ", file_name)
+
     # skip empty files
     if(file.info(file_name)$size == 0){
-        message("Skipping empty file: ", file)
+        message("Skipping empty file: ", file_name)
         next
     }
     results <- fread(file_name, header=FALSE, col.names=cols)
@@ -144,8 +146,8 @@ csv <- fread(out_csv)
 # class="FGOPXY"
 class="ABFGOPXY"
 # class="XY"
-bg="speciesSpecific_noMAF"
-# bg="sharedOnly_noMAF"
+# bg="speciesSpecific_noMAF"
+bg="sharedOnly_noMAF"
 maf_def="polyAF"
 # maf_def="globalAF"
 
@@ -157,6 +159,14 @@ plot_counts <- csv[
     MAF_def==maf_def,
     .(classes, MAF_value, MAF_def, background, threshold, N_GOTerms, GO.ids)]
 
+
+### Persistance of specific GO terms:
+go_long <- plot_counts[N_GOTerms > 0, 
+    .(GO.id = unlist(strsplit(GO.ids, ";"))),
+    by = .(MAF_value)
+]
+go_long[, persistence := uniqueN(MAF_value), by = GO.id]
+
 # y = number significant go terms
 # x = MAF 
 ggplot(plot_counts, aes(x=MAF_value, y=N_GOTerms)) +
@@ -165,23 +175,88 @@ ggplot(plot_counts, aes(x=MAF_value, y=N_GOTerms)) +
     scale_x_continuous(breaks=unique(plot_counts$MAF_value)) +
     labs(
         x="MAF filter (%)",
-        y="Number of significant GO terms"
+        y="Number of significant GO terms", 
+        title=paste0(class, " , ", bg, " background")
     ) +
     theme_classic()
 
-
-### Persistance of specific GO terms:
-go_long <- plot_counts[N_GOTerms > 0, 
-    .(GO.id = unlist(strsplit(GO.ids, ";"))),
-    by = .(MAF_value)
-]
-
+### color code by ontology to easily examine BP GO terms
 ggplot(go_long,
        aes(x = factor(MAF_value),
-           y = GO.id)) +
+           y =  reorder(GO.id, -persistence))) +
     geom_tile() +
     labs(
         x = "MAF filter (%)",
-        y = "GO term"
+        y = "GO term",
+        title=paste0(class, " , ", bg, " background")
+
     ) +
-    theme_classic()
+    theme_classic() + 
+    theme(axis.text.y = element_text(size = 5)) + 
+    scale_y_discrete(limits = rev)
+
+
+### inspect go ids
+gaf <- fread(
+    "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt",
+    header=FALSE, col.names=c("GO.id", "GO.id", "Gene.ids")
+)
+
+id <- "GO:0045879"
+
+# data.table(
+#     GO.id = id,
+#     Name = Term(id),
+#     Ontology = Ontology(id),
+#     Definition = Definition(id)
+# )
+
+
+inspect_go <- function(go_ids){
+
+ rbindlist(lapply(go_ids, function(go_id){
+    genes <- unique(unlist(strsplit(gaf[GO.id == go_id, Gene.ids],"\\s+")))
+    data.table(
+        GO.id = go_id,
+        Name = Term(go_id)[1],
+        Ontology = Ontology(go_id)[1],
+        N_genes = length(genes),
+        Persistence = unique(go_long[GO.id==go_id, persistence])[1],
+        Definition = Definition(go_id)[1],
+        Genes = list(genes)
+    )
+}))}
+
+View(inspect_go(id))
+### one row per gene
+inspect_go_genePerRow <- function(go_id){
+
+    genes <- unique(unlist(strsplit(gaf[GO.id == go_id, Gene.ids],"\\s+")))
+
+    data.table(
+        GO.id = go_id,
+        Name = Term(go_id),
+        Ontology = Ontology(go_id),
+        Definition = Definition(go_id),
+        Gene.id = genes
+    )
+}
+
+View(inspect_go_genePerRow(id))
+
+
+### extract from table used to make figures
+sort(unique(go_long$GO.id))
+
+# sort by persistence
+unique(go_long[, .(GO.id, persistence)])[order(-persistence, GO.id)]
+
+persistent <- unique(
+    go_long[persistence >= 3, GO.id]
+)
+
+persistent_info <- inspect_go(persistent)
+View(persistent_info)
+
+all_info <- inspect_go(go_long$GO.id)
+View(all_info)
