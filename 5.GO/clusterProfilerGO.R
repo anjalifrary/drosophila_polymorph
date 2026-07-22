@@ -1,62 +1,11 @@
-library(data.table)
 
-# requires four files:
-    # background snps in .txt file of chr | pos
-    # candidate snps - subset
-    # GTF annotation file - make sure I'm using the right one
-    # GO gene sets
+library(clusterProfiler)
+library(org.Dm.eg.db)
+library(enrichplot)
+library(DOSE)
+library(ggplot2)
 
-dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_6-29-26/"
-
-# ### background snps
-# rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/all_quality_variants_MAF5_clean.rds")
-# total_snp <- unique(rds[, .(chr, pos)])
-# fwrite(total_snp, paste0(dir, "background_all_snps.txt"), sep="\t", col.names=FALSE)
-
-### DO ONCE
-
-### gtf annotation file
-gtf_file <- fread("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf")
-
-### GO file
-gaf <- fread("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gene_association.fb",
-    sep="\t", header=FALSE, fill=TRUE, skip=5)
-
-# Remove comment lines
-# gaf <- gaf[!grepl("^!", V1)]
-gowinda_go <- gaf[grepl("^FBgn", V2) & grepl("^GO:", V5),
-    .(
-        TERM  = unique(V5)[1],
-        genes = paste(unique(V2), collapse=" ")
-    ), by=V5]
-    
-fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt",
-    sep="\t", col.names=FALSE, quote=FALSE)
-
-# making GO file
-library(AnnotationDbi)
-library(org.Dm.eg.db)  # Drosophila melanogaster annotation package
-library(data.table)
-
-go_to_fb <- AnnotationDbi::select(org.Dm.eg.db,
-    keys    = keys(org.Dm.eg.db, keytype = "GO"),
-    columns = c("GO", "FLYBASE"),
-    keytype = "GO"
-)
-
-go_dt <- as.data.table(go_to_fb)[!is.na(FLYBASE)]
-
-gowinda_go <- go_dt[, .(
-    TERM  = unique(GO)[1],   # reuse GO ID as descriptor ** FIX ** 
-    genes = paste(unique(FLYBASE), collapse = "\t")
-), by = GO]
-
-fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_go.txt",
-    sep = "\t", col.names = FALSE, quote = FALSE)
-
-
-
-
+### SET UP (similar to gowinda, but gene-level not snp-level)
 
 ### building background from snps with 1 polymorphic site per codon 
 # includes single-species and both-species polymorphic codons
@@ -96,17 +45,14 @@ bg_SharedOnly <- merge(mel_codon_count[n_mel == 1], sim_codon_count[n_sim == 1],
 )
 bg_SharedOnly <- merge(rds, bg_SharedOnly[, .(chr, codon_start_pos)], by = c("chr", "codon_start_pos"))
 
-fwrite(bg_SpeciesSpecific[, .(chr, pos)], "/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/bg_speciesSpecific_noMAF.txt", sep="\t", col.names=F)
-fwrite(bg_SharedOnly[, .(chr, pos)], "/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/bg_sharedOnly_noMAF.txt", sep="\t", col.names=F)
+bg_species_genes <- unique(na.omit(bg_SpeciesSpecific$gene_id_mel))
+bg_shared_genes  <- unique(na.omit(bg_SharedOnly$gene_id_mel))
 
-### MASTER CANDIDATES FILE - do once
-# all shared polymorphisms (classed)
-shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_7-20-2026.rds")
-classesOfInterest <- c("A", "B", "F", "G", "O", "P", "X", "Y")
-masterCandidates <- shared_dt[classification%in%classesOfInterest, ]
-saveRDS(masterCandidates, "/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")
+saveRDS(bg_species_genes, "/scratch/ejy4bu/drosophila/GO/clusterProfiler/bg_speciesSpecific_genes.rds")
 
-### FILTER CANDIDATES FOR MAF FILTER - save gowinda inputs
+saveRDS(bg_shared_genes, "/scratch/ejy4bu/drosophila/GO/clusterProfiler/bg_sharedOnly_genes.rds")
+
+#### make candidate files, varying by MAF thresholds 
 
 ### Set up: load nlp files
 # sim file
@@ -122,7 +68,7 @@ load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version
 mel_nlp <- nlp
 rm(nlp)   
 
-masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")
+masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/gowinda/candidateFiles/masterCandidateFile.rds")
 
 # all variant table, no maf filter yet:
 sim_nlp <- merge(sim_nlp, masterCandidates[, c("chr", "pos", "codon_start_pos", "classification")], by=c("chr", "pos"), all.x=T)
@@ -178,7 +124,7 @@ getCandidates_filterByMAF <- function(maf, setting) {
     setorder(unique_chr_pos, chr, pos)
 
     ### save candidates
-    dir = paste0("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/MAF", maf_label, "filter_", setting, "AF/") 
+    dir = paste0("/scratch/ejy4bu/drosophila/gowinda/candidateFiles/MAF", maf_label, "filter_", setting, "AF/") 
 
     if (!dir.exists(dir)) {
         dir.create(dir, recursive = TRUE)
@@ -199,36 +145,3 @@ for (m in maf_inputs) {
     getCandidates_filterByMAF(maf = m, "poly")
     getCandidates_filterByMAF(maf = m, "global")
 }
-
-
-# ### filtered background snps
-# voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/voi_fromBG_qualVar_ofInterest_MAF5_classed_06-29-2026.rds")
-# # candidate_snp <- unique(voi[, .(chr, pos)])
-# # fwrite(candidate_snp, paste0(dir, "background_classed_snps.txt"), sep="\t", col.names=FALSE)
-
-### candidate snps by classes
-# fwrite(unique(voi[classification=="A", .(chr, pos)]), paste0(dir, "candidate_snp_A.txt"), sep="\t", col.names=FALSE)
-# fwrite(unique(voi[classification=="B", .(chr, pos)]), paste0(dir, "candidate_snp_B.txt"), sep="\t", col.names=FALSE)
-# fwrite(unique(voi[classification%in%c("A", "B"), .(chr, pos)]), paste0(dir, "candidate_snp_AB.txt"), sep="\t", col.names=FALSE)
-# fwrite(unique(voi[classification%in%c("F", "G", "O", "P"), .(chr, pos)]), paste0(dir, "candidate_snp_FGOP.txt"), sep="\t", col.names=FALSE)
-# fwrite(unique(voi[classification%in%c("X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_XY.txt"), sep="\t", col.names=FALSE)
-# fwrite(unique(voi[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_FGOPXY.txt"), sep="\t", col.names=FALSE)
-# fwrite(unique(voi[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"), .(chr, pos)]), paste0(dir, "candidate_snp_ABFGOPXY.txt"), sep="\t", col.names=FALSE)
-
-
-# java -Xmx8g -jar Gowinda.jar \
-#   --snp-file total_snps.txt \
-#   --candidate-snp-file candidate_A.txt \
-#   --gene-set-file flybase_go.txt \
-#   --annotation-file dmel.gtf \
-#   --simulations 1000000 \
-#   --gene-definition gene \
-#   --threads 16 \
-#   --mode gene \
-#   --output-file A_gowinda.txt
-
-
-# for regulatory variation
-# --gene-definition updownstream2000
-
-# can set mode to snp instead of gene... should I?

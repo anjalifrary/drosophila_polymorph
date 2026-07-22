@@ -31,13 +31,13 @@ goSim("GO:0006955", "GO:0002376", semData=dmGO, measure="Wang")
     "N_GenesFound", "N_GenesMax", "N_GenesTotal",
     "Description", "Genes")
 
-    # results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
+    # results <- fread("/scratch/ejy4bu/drosophila/GO/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
-    # results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
-    dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/new_6-29-26/results/"
+    # results <- read.delim("/scratch/ejy4bu/drosophila/GO/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
+    dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_6-29-26/results/"
 
     library(ontologyIndex)
-    go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+    go_file <- get_ontology("/scratch/ejy4bu/drosophila/GO/gowinda/go.obo")
 
     results_AB <- read.delim(paste0(dir, "gowinda_AB_gene_allBackground.txt"), header = FALSE, col.names = cols)
     results_FGOPXY <- read.delim(paste0(dir, "gowinda_FGOPXY_gene_allBackground.txt"), header = FALSE, col.names = cols)

@@ -21,7 +21,7 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
 
 
 library(ontologyIndex)
-go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+go_file <- get_ontology("/scratch/ejy4bu/drosophila/GO/gowinda/go.obo")
 
 #####################################################
 # add ontology 
@@ -100,12 +100,12 @@ append_gowinda_summary <- function(results, file, csv_file, filter_col="FDR", th
 
 # csv headers
 # MAF_value | MAF_def | background | classes | statThreshold | N_GOTerms | GO.ids
-out_csv <- "/scratch/ejy4bu/drosophila/gowinda/gowindaRunsStats/gowindaStats_FDR0.05.csv"
-dir.create("/scratch/ejy4bu/drosophila/gowinda/gowindaRunsStats/")
+out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats_FDR0.05.csv"
+dir.create("/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/")
 
 ### to loop over a single results directory:
 
-dir <- "/scratch/ejy4bu/drosophila/gowinda/results/"
+dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
 for (file_name in files_list) {
@@ -122,7 +122,7 @@ for (file_name in files_list) {
 
 
 ### to inspect a single file:
-file <- "/scratch/ejy4bu/drosophila/gowinda/results/MAF1filter_polyAF/bg_speciesSpecific_noMAF/gowinda_XY_1_polyAF.txt"
+file <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/MAF1filter_polyAF/bg_speciesSpecific_noMAF/gowinda_XY_1_polyAF.txt"
 results <- read.delim(file, header=FALSE, col.names=cols)
 setDT(results)
 

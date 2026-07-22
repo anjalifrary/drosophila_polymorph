@@ -13,9 +13,9 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-BG_dir=/scratch/ejy4bu/drosophila/gowinda/backgroundFiles/
-CANDIDATE_root=/scratch/ejy4bu/drosophila/gowinda/candidateFiles/
-OUTPUT_root=/scratch/ejy4bu/drosophila/gowinda/results
+BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
+CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
+OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
 
 CANDIDATE_dir=MAF49filter_polyAF
 CANDIDATE_id=49_polyAF
@@ -27,7 +27,7 @@ gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowin
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
 jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
 
-ls /scratch/ejy4bu/drosophila/gowinda/backgroundFiles/bg_sharedOnly_noMAF.txt
+ls /scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/bg_sharedOnly_noMAF.txt
 
 
 SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")

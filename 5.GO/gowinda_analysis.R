@@ -20,7 +20,7 @@ cols <- c("GO.id", "SimulatedGenes", "ObservedGenes",
 
 
 library(ontologyIndex)
-go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+go_file <- get_ontology("/scratch/ejy4bu/drosophila/GO/gowinda/go.obo")
 
 #####################################################
 # add ontology 
@@ -32,10 +32,10 @@ go_dt[, ontology := Ontology(GO.id)]
 # gowinda_results <- merge(gowinda_results, go_dt, by="GO.id", all.x=T)
 
 
-# results <- fread("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_A_gene.txt", header=FALSE)
+# results <- fread("/scratch/ejy4bu/drosophila/GO/gowinda/results/gowinda_A_gene.txt", header=FALSE)
 
-# results <- read.delim("/scratch/ejy4bu/drosophila/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
-dir <- "/scratch/ejy4bu/drosophila/gowinda/MAF5/new_7-1-26/results/"
+# results <- read.delim("/scratch/ejy4bu/drosophila/GO/gowinda/results/gowinda_AB_gene.txt", header=FALSE, col.names=cols)
+dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_7-1-26/results/"
 files_list <- list.files(path = dir, pattern = "\\_gene_allBackground.txt$", full.names = TRUE)
 
 
@@ -66,7 +66,7 @@ for (file_name in files_list) {
 
 # fwrite(
 #     data.table(gene_id = genes_AB),
-#     "/scratch/ejy4bu/drosophila/gowinda/GO_analysis/all_genes_AB.txt",
+#     "/scratch/ejy4bu/drosophila/GO/gowinda/GO_analysis/all_genes_AB.txt",
 #     col.names = FALSE
 # )
 
@@ -80,8 +80,8 @@ for (file_name in files_list) {
 # slim
 library(ontologyIndex)
 library(data.table)
-go_basic <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go-basic.obo", propagate_relationships = "is_a")
-go_slim <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/goslim_drosophila.obo")
+go_basic <- get_ontology("/scratch/ejy4bu/drosophila/GO/gowinda/go-basic.obo", propagate_relationships = "is_a")
+go_slim <- get_ontology("/scratch/ejy4bu/drosophila/GO/gowinda/goslim_drosophila.obo")
 slim_ids <- go_slim$id
 
 # gowinda_results <- results_AB
@@ -233,7 +233,7 @@ nrow(unique(results %>% filter(FDR < 0.05)))
 
 ### add GO Description to results file
 library(ontologyIndex)
-go_file <- get_ontology("/scratch/ejy4bu/drosophila/gowinda/go.obo")
+go_file <- get_ontology("/scratch/ejy4bu/drosophila/GO/gowinda/go.obo")
 
 head(go_file$name) # format: named vector GO:0000001 -> "mitochondrion inheritance"
 results$Description <- go_file$name[results$GO.id]
