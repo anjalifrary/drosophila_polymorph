@@ -93,6 +93,7 @@ fi
 
 mkdir -p $tmp
 
+### ran from another script
 echo "Running GenomicsDBImport..."
 
 gatk GenomicsDBImport \
@@ -105,6 +106,8 @@ gatk GenomicsDBImport \
     -L ${chr}
 
 rm -rf "$tmpdir"
+
+### stopped here
 
 ### Joint Genotyping
 gatk GenotypeGVCFs \
