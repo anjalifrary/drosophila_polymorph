@@ -1,9 +1,11 @@
 
 library(clusterProfiler)
 library(org.Dm.eg.db)
-library(enrichplot)
-library(DOSE)
-library(ggplot2)
+
+library(data.table)
+
+
+### can't get cluster profiler to load because icu is wrong and igraph won't work... 
 
 ### SET UP (similar to gowinda, but gene-level not snp-level)
 
@@ -123,19 +125,24 @@ getCandidates_filterByMAF <- function(maf, setting) {
     unique_chr_pos <- unique(all_pos[!is.na(chr) & !is.na(pos)])
     setorder(unique_chr_pos, chr, pos)
 
+    # merge back to masterCandidates
+    candidate_genes <- merge(unique_chr_pos, unique(masterCandidates[, .(chr, pos, gene_id_mel)]), 
+        by = c("chr", "pos"))
+    candidate_genes <- unique(candidate_gene_table$gene_id_mel)
+
     ### save candidates
-    dir = paste0("/scratch/ejy4bu/drosophila/gowinda/candidateFiles/MAF", maf_label, "filter_", setting, "AF/") 
+    dir = paste0("/scratch/ejy4bu/drosophila/GO/clusterProfiler/candidateFiles/MAF", maf_label, "filter_", setting, "AF/") 
 
     if (!dir.exists(dir)) {
         dir.create(dir, recursive = TRUE)
     }
-    fwrite(unique_chr_pos[classification%in%classesOfInterest, .(chr, pos)], 
+    fwrite(candidate_genes[classification%in%classesOfInterest, .(chr, pos)], 
         paste0(dir, "candidate_chrpos_ABFGOPXY_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
-    fwrite(unique_chr_pos[classification%in%c("A", "B"), .(chr, pos)], 
+    fwrite(candidate_genes[classification%in%c("A", "B"), .(chr, pos)], 
         paste0(dir, "candidate_chrpos_AB_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
-    fwrite(unique_chr_pos[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)], 
+    fwrite(candidate_genes[classification%in%c("F", "G", "O", "P", "X", "Y"), .(chr, pos)], 
         paste0(dir, "candidate_chrpos_FGOPXY_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
-    fwrite(unique_chr_pos[classification%in%c("X", "Y"), .(chr, pos)], 
+    fwrite(candidate_genes[classification%in%c("X", "Y"), .(chr, pos)], 
         paste0(dir, "candidate_chrpos_XY_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
 }
 
