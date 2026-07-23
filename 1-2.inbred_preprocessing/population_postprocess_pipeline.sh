@@ -109,6 +109,7 @@ rm -rf "$tmpdir"
 
 ### stopped here
 
+# fix for separate chr outputs from genomicsdbimport:
 ### Joint Genotyping
 gatk GenotypeGVCFs \
     -R ${ref} \
