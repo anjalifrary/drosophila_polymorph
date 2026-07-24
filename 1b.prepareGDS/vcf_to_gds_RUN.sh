@@ -27,4 +27,6 @@ module load R/4.5.0
 #     -o /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.reheadered.ann.eff.vcf.gz \
 #     $vcf
 
+bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.reheadered.ann.eff.vcf.gz
+
 Rscript 1b.prepareGDS/vcf_to_gds.R
