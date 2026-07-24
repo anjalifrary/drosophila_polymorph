@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH -J gdbi # A single job name for the array
+#SBATCH -J genotype # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-18:00 # 10 hours
 #SBATCH --mem 100G
-#SBATCH -o /scratch/ejy4bu/err_outs/SRA/gdbi.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/SRA/gdbi.%A_%a.err # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
 #SBATCH --array=0-5

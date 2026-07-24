@@ -81,7 +81,7 @@ fi
 #     -O ${outdir}/dsim3.signor.combined.g.vcf.gz
 # echo "Done combining gVCFs"
 
-### Consolidate vcfs 
+### 1. Consolidate vcfs 
 
 work="${outdir}/dsim_genomicsdb_${chr}"
 tmp="/scratch/ejy4bu/tmp/temp_dsim_gdbi_${chr}"
@@ -110,16 +110,32 @@ rm -rf "$tmp"
 ### stopped here
 
 # fix for separate chr outputs from genomicsdbimport:
-### Joint Genotyping
+# ran from another script for chr level genotyping
+### 2. Joint Genotyping
 gatk GenotypeGVCFs \
     -R ${ref} \
     -V gendb://${outdir}/dsim_genomicsdb \
     -O ${outdir}/dsim3.signor.combined.raw.vcf.gz
 
-### Normalize vcfs
+
+
+# # 3. merge all vcfs: (do outside of array job)
+# bcftools concat \
+#     -Oz \
+#     -o ${outdir}/dsim3.signor.combined.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.2L.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.2R.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.3L.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.3R.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.4.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.X.raw.vcf.gz
+
+# bcftools index ${outdir}/dsim3.signor.combined.raw.vcf.gz
+
+### 4. Normalize vcfs
+# what should -m flag be?? was -both, should it be -any
 bcftools norm \
     -f ${ref} \
-    # -m -both \
     -m -any \
     -Oz \
     -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
@@ -127,7 +143,7 @@ bcftools norm \
 
 bcftools index ${outdir}/dsim3.signor.combined.norm.vcf.gz
 
-### Filter variants (used GATK best practices hard filters.. ?)
+### 5. Filter variants (used GATK best practices hard filters.. ?)
 echo "Filtering..."
 gatk VariantFiltration \
     -R ${ref} \
@@ -170,7 +186,7 @@ gatk VariantFiltration \
 # bcftools index ${outdir}/dsim3.signor.combined.filtered.pass.vcf.gz
 
 
-### SnpEff 
+### 6. SnpEff - run from snpeff script
 # note - if decide to run on passed samples only, modify in/out files
 echo "Annotating with SnpEff..."
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff
