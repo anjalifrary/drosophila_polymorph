@@ -21,6 +21,14 @@ ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_00
 
 vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
 
+bcftools view \
+    -r 2L,2R,3L,3R,4,X \
+    -Oz \
+    -o "/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.primaryChr.vcf.gz" \
+    ${vcf}
+
+echo "Filtered for primary chr"
+
 # ### 4. Normalize vcfs
 # # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
 # bcftools norm \
@@ -49,7 +57,9 @@ bcftools norm \
     -m +both \
     -Oz \
     -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz \
-    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz
+    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.primaryChr.vcf.gz
+
+echo "normalized"
 
 # filters for biallelic snps (remove indels, multiallelic snps)
 bcftools view \
@@ -59,4 +69,8 @@ bcftools view \
     -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz \
     ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz
 
+echo "filtered for biallelic snps"
+
 bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz
+
+echo "indexed. complete..."
