@@ -10,12 +10,16 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+set -euo pipefail
+
 module load bcftools
+module load gcc/11.4.0
+
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
 # ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 
-vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
+vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
 
 # ### 4. Normalize vcfs
 # # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
@@ -44,15 +48,15 @@ bcftools norm \
     -f ${ref} \
     -m +both \
     -Oz \
-    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.vcf.gz \
-    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz
+    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz \
+    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz
 
 # filters for biallelic snps (remove indels, multiallelic snps)
 bcftools view \
     -v snps \
     -m2 -M2 \
     -Oz \
-    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.biallelic.snpsOnly.vcf.gz \
-    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.vcf.gz
+    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz \
+    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz
 
-bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.biallelic.snpsOnly.vcf.gz
+bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz
