@@ -17,7 +17,7 @@ BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
 
-CANDIDATE_dir=MAF49filter_polyAF
+MAF_dir=MAF49filter_polyAF
 CANDIDATE_id=49_polyAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
@@ -27,11 +27,9 @@ gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowin
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
 jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
 
-ls /scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/bg_sharedOnly_noMAF.txt
-
 
 SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")
-BACKGROUNDS=("bg_speciesSpecific_noMAF" "bg_sharedOnly_noMAF")
+BACKGROUNDS=("bg_speciesSpecific" "bg_sharedOnly")
 
 BG_INDEX=$((SLURM_ARRAY_TASK_ID / 4))
 SUFFIX_INDEX=$((SLURM_ARRAY_TASK_ID % 4))
@@ -44,11 +42,11 @@ SUFFIX=${SUFFICES[$SUFFIX_INDEX]}
 echo "SUFFIX=$SUFFIX"
 echo "BACKGROUND=$BACKGROUND"
 
-background="${BG_dir}/${BACKGROUND}.txt"
-candidate="${CANDIDATE_root}/${CANDIDATE_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
-output="${OUTPUT_root}/${CANDIDATE_dir}/${BACKGROUND}/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
+background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
+candidate="${CANDIDATE_root}/${MAF_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
+output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
 
-mkdir -p "${OUTPUT_root}/${CANDIDATE_dir}/${BACKGROUND}"
+mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}"
 
 echo "bg=$background"
 echo "candidate file=$candidate"

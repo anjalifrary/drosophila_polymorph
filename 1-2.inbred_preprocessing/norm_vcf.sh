@@ -21,6 +21,8 @@ ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_00
 
 vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
 
+
+bcftools index $vcf
 bcftools view \
     -r 2L,2R,3L,3R,4,X \
     -Oz \
