@@ -12,9 +12,31 @@
 
 module load bcftools
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
-ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+# ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 
+vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
 
+# ### 4. Normalize vcfs
+# # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
+# bcftools norm \
+#     -f ${ref} \
+#     -m +both \
+#     -Oz \
+#     -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
+#     ${outdir}/dsim3.signor.combined.raw.vcf.gz
+
+# # filters for biallelic snps (remove indels, multiallelic snps)
+# bcftools view \
+#     -v snps \
+#     -m2 -M2 \
+#     -Oz \
+#     -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
+#     ${outdir}/dsim3.signor.combined.norm.vcf.gz
+
+# bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
+
+# mel DGRP vcf:
 
 ### 4. Normalize vcfs
 # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
@@ -22,15 +44,15 @@ bcftools norm \
     -f ${ref} \
     -m +both \
     -Oz \
-    -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
-    ${outdir}/dsim3.signor.combined.raw.vcf.gz
+    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.vcf.gz \
+    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz
 
 # filters for biallelic snps (remove indels, multiallelic snps)
 bcftools view \
     -v snps \
     -m2 -M2 \
     -Oz \
-    -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
-    ${outdir}/dsim3.signor.combined.norm.vcf.gz
+    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.biallelic.snpsOnly.vcf.gz \
+    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.vcf.gz
 
-bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
+bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.newheader.norm.biallelic.snpsOnly.vcf.gz
