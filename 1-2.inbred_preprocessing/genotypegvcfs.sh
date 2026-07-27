@@ -3,7 +3,7 @@
 #SBATCH -J genotype # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-18:00 # 10 hours
+#SBATCH -t 0-10:00 # 10 hours
 #SBATCH --mem 100G
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.err # Standard error
@@ -34,25 +34,26 @@ CPU=10
 
 echo "Processing Chromosome: ${chr}"
 
-
+tmp=/scratch/ejy4bu/tmp/gatk
+mkdir -p "$tmp"
 
 # fix for separate chr outputs from genomicsdbimport:
 ### Joint Genotyping
-gatk GenotypeGVCFs \
+gatk --java-options "-Xmx${JAVAMEM} -Djava.io.tmpdir=$tmp" GenotypeGVCFs \
     -R ${ref} \
     -V gendb://${outdir}/dsim_genomicsdb_${chr} \
     -O ${outdir}/dsim3.signor.${chr}.raw.vcf.gz
 
 
-# # merge all vcfs: (do outside of array job)
+# # # merge all vcfs: (do outside of array job)
 # bcftools concat \
 #     -Oz \
 #     -o ${outdir}/dsim3.signor.combined.raw.vcf.gz \
-#     ${outdir}/dsim3.signor.2L.raw.vcf.gz \
-#     ${outdir}/dsim3.signor.2R.raw.vcf.gz \
-#     ${outdir}/dsim3.signor.3L.raw.vcf.gz \
-#     ${outdir}/dsim3.signor.3R.raw.vcf.gz \
-#     ${outdir}/dsim3.signor.4.raw.vcf.gz \
-#     ${outdir}/dsim3.signor.X.raw.vcf.gz
+#     ${outdir}/dsim3.signor.sim_2L.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.sim_2R.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.sim_3L.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.sim_3R.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.sim_4.raw.vcf.gz \
+#     ${outdir}/dsim3.signor.sim_X.raw.vcf.gz
 
 # bcftools index ${outdir}/dsim3.signor.combined.raw.vcf.gz
