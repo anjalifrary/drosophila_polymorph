@@ -133,15 +133,23 @@ gatk GenotypeGVCFs \
 # bcftools index ${outdir}/dsim3.signor.combined.raw.vcf.gz
 
 ### 4. Normalize vcfs
-# what should -m flag be?? was -both, should it be -any
+# what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
 bcftools norm \
     -f ${ref} \
-    -m -any \
+    -m +both \
     -Oz \
     -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
     ${outdir}/dsim3.signor.combined.raw.vcf.gz
 
-bcftools index ${outdir}/dsim3.signor.combined.norm.vcf.gz
+# filters for biallelic snps (no indels, multiallelic snps retained)
+bcftools view \
+    -v snps \
+    -m2 -M2 \
+    -Oz \
+    -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
+    ${outdir}/dsim3.signor.combined.norm.vcf.gz
+
+bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
 
 ### 5. Filter variants (used GATK best practices hard filters.. ?)
 echo "Filtering..."
