@@ -46,7 +46,7 @@ background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
 candidate="${CANDIDATE_root}/${MAF_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
 output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_MAF/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
 
-mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}"
+mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_MAF"
 
 echo "bg=$background"
 echo "candidate file=$candidate"
