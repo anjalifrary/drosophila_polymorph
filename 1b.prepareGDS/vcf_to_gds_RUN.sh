@@ -15,17 +15,17 @@ module load gcc/11.4.0 openmpi/4.1.4
 module load R/4.5.0
 
 # # reheader dmel file
-# vcf=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.ann.eff.vcf.gz
+vcf="/project/berglandlab/anjali/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.ann.eff.vcf.gz"
 # bcftools view -h $vcf \
 # > /scratch/ejy4bu/drosophila/inbred/combined_vcf/DRGP2.dm6.header.txt
 
 # # old: ##INFO=<ID=NS,Number=0,Type=Flag,Description="Non-synonymous SNP">
 # # new: ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
 
-# bcftools reheader \
-#     -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DRGP2.dm6.header.txt \
-#     -o /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.reheadered.ann.eff.vcf.gz \
-#     $vcf
+bcftools reheader \
+    -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DRGP2.dm6.header.txt \
+    -o /project/berglandlab/anjali/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.reheadered.ann.eff.vcf.gz \
+    $vcf
 
 # bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.reheadered.ann.eff.vcf.gz
 
