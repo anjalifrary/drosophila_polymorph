@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
 
-MAF_dir=MAF2filter_globalAF
-CANDIDATE_id=2_globalAF
+MAF_dir=MAF1filter_globalAF
+CANDIDATE_id=1_globalAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 # running maf-matching global af 20-49
