@@ -16,7 +16,7 @@ module load R/4.5.0
 module load bcftools
 
 # # reheader dmel file
-vcf="/project/berglandlab/anjali/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.ann.eff.vcf.gz"
+vcf="/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.ann.eff.vcf.gz"
 # bcftools view -h $vcf \
 # > /scratch/ejy4bu/drosophila/inbred/combined_vcf/DRGP2.dm6.header.txt
 
@@ -25,9 +25,12 @@ vcf="/project/berglandlab/anjali/drosophila/inbred/combined_vcf/DGRP2.source_BCM
 
 bcftools reheader \
     -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DRGP2.dm6.header.txt \
-    -o /project/berglandlab/anjali/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.reheadered.ann.eff.vcf.gz \
+    -o /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.reheadered.ann.eff.vcf.gz \
     $vcf
 
 # bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2.source_BCM-HGSC.dm6.final.reheadered.ann.eff.vcf.gz
 
 Rscript 1b.prepareGDS/vcf_to_gds.R
+
+cp /scratch/ejy4bu/drosophila/gds_files/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.reheadered.ann.eff.vcf.gz \
+/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
