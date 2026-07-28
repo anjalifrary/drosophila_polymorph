@@ -50,6 +50,7 @@ echo "finished genotyping"
 bgzip -@ 10 ${outdir}/dsim3.signor.${chr}.raw.vcf
 echo "zipped vcf"
 
+# note: faster to output genotyping to unzipped vcf, then zip afterwards? 
 
 # # # merge all vcfs: (do outside of array job)
 # bcftools concat \
