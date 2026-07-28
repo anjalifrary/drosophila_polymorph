@@ -100,7 +100,7 @@ append_gowinda_summary <- function(results, file, csv_file, filter_col="FDR", th
 
 # csv headers
 # MAF_value | MAF_def | background | classes | statThreshold | N_GOTerms | GO.ids
-out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats_FDR0.05.csv"
+out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats.csv"
 dir.create("/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/")
 
 ### to loop over a single results directory:
@@ -144,10 +144,10 @@ csv <- fread(out_csv)
 
 # class="AB"
 # class="FGOPXY"
-class="ABFGOPXY"
-# class="XY"
-# bg="speciesSpecific_noMAF"
-bg="sharedOnly_noMAF"
+# class="ABFGOPXY"
+class="XY"
+bg="speciesSpecific_MAF"
+# bg="sharedOnly_MAF"
 maf_def="polyAF"
 # maf_def="globalAF"
 
