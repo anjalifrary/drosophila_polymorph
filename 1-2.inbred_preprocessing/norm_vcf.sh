@@ -21,6 +21,8 @@ ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_00
 
 vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
 
+echo "number rows before: "
+bcftools index -n $vcf
 
 bcftools index $vcf
 bcftools view \
@@ -72,6 +74,9 @@ bcftools view \
     ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz
 
 echo "filtered for biallelic snps"
+
+echo "number rows after: "
+bcftools index -n ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz
 
 bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz
 

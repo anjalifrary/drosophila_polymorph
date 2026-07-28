@@ -10,6 +10,8 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+set -euo pipefail
+
 module load bcftools
 module load htslib
 module load gcc/11.4.0
@@ -20,11 +22,11 @@ outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
 
 # not reheadered:
 # cp /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz /scratch/ejy4bu/drosophila/inbred/combined_vcf/
-in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
+in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz"
 
 
 # in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
-out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz"
+out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.ann.eff.vcf.gz"
 
 # file /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz
 # bcftools view -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz | head
@@ -49,11 +51,14 @@ java -Xmx32G \
 echo "Finished annotating"
 echo "Indexing..."
 
-bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.ann.eff.vcf.gz
+bcftools index $out_vcf
 
 echo "Complete"
 
-cp /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.ann.eff.vcf.gz.csi \
+cp ${out_vcf} \
+/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
+
+cp "${out_vcf}.csi" \
 /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
 
 
