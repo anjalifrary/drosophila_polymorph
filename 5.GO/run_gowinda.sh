@@ -42,9 +42,10 @@ SUFFIX=${SUFFICES[$SUFFIX_INDEX]}
 echo "SUFFIX=$SUFFIX"
 echo "BACKGROUND=$BACKGROUND"
 
-background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
+# background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
+background="${BG_dir}/${BACKGROUND}_noMAF.txt"
 candidate="${CANDIDATE_root}/${MAF_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
-output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_MAF/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
+output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_noMAF/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
 
 mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_MAF"
 

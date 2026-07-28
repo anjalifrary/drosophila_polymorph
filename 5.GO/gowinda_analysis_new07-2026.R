@@ -122,7 +122,7 @@ for (file_name in files_list) {
 
 
 ### to inspect a single file:
-file <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/MAF1filter_polyAF/bg_speciesSpecific_MAF/gowinda_AB_1_polyAF.txt"
+file <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/MAF1filter_globalAF/bg_speciesSpecific_MAF/gowinda_AB_1_globalAF.txt"
 results <- read.delim(file, header=FALSE, col.names=cols)
 setDT(results)
 
