@@ -21,7 +21,7 @@ MAF_dir=MAF0.5filter_globalAF
 CANDIDATE_id=0.5_globalAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
-# running maf-matching global af 20-49
+# running noMAF global af 0.5
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
