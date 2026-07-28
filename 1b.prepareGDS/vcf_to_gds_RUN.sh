@@ -13,6 +13,7 @@
 export R_LIBS_USER=~/Rlibs
 module load gcc/11.4.0 openmpi/4.1.4 
 module load R/4.5.0
+module load bcftools
 
 # # reheader dmel file
 vcf="/project/berglandlab/anjali/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.ann.eff.vcf.gz"
