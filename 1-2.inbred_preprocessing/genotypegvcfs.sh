@@ -3,7 +3,7 @@
 #SBATCH -J genotype # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-10:00 # 10 hours
+#SBATCH -t 0-18:00 # 10 hours
 #SBATCH --mem 100G
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.err # Standard error
@@ -25,7 +25,9 @@ mkdir -p ${outdir}
 gvcf_dir="/scratch/ejy4bu/drosophila/inbred/fastq/PRJNA318623"
 
 #  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.vcf.gz | \
-chroms=("sim_2L" "sim_2R" "sim_3L" "sim_3R" "sim_4" "sim_X")
+# chroms=("sim_2L" "sim_2R" "sim_3L" "sim_3R" "sim_4" "sim_X")
+chroms=("sim_2L" "sim_2R" "sim_X")
+
 # chroms=("2L" "2R" "3L" "3R" "4" "X")
 chr=${chroms[$SLURM_ARRAY_TASK_ID]}
 
@@ -42,7 +44,11 @@ mkdir -p "$tmp"
 gatk --java-options "-Xmx${JAVAMEM} -Djava.io.tmpdir=$tmp" GenotypeGVCFs \
     -R ${ref} \
     -V gendb://${outdir}/dsim_genomicsdb_${chr} \
-    -O ${outdir}/dsim3.signor.${chr}.raw.vcf.gz
+    -O ${outdir}/dsim3.signor.${chr}.raw.vcf
+
+echo "finished genotyping"
+bgzip -@ 10 ${outdir}/dsim3.signor.${chr}.raw.vcf
+echo "zipped vcf"
 
 
 # # # merge all vcfs: (do outside of array job)
