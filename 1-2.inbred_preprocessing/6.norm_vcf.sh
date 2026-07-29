@@ -77,10 +77,12 @@ bcftools view \
     ${outdir}/dsim3.signor.combined.norm.vcf.gz
 
 echo "filtered for biallelic snps"
+bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
+echo "indexed. "
 
 echo "number rows after: "
+
 bcftools index -n ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
 
-bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
 
-echo "indexed. complete..."
+echo "complete..."
