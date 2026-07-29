@@ -26,7 +26,7 @@ vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
 echo "number rows before: "
 bcftools index -n $vcf
 
-bcftools index $vcf
+# bcftools index $vcf
 bcftools view \
     -r 2L,2R,3L,3R,4,X \
     -Oz \
