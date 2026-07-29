@@ -26,14 +26,14 @@ vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
 echo "number rows before: "
 bcftools index -n $vcf
 
-# bcftools index $vcf
-bcftools view \
-    -r 2L,2R,3L,3R,4,X \
-    -Oz \
-    -o ${outdir}/dsim3.signor.combined.primaryChr.vcf.gz \
-    ${vcf}
+# # bcftools index $vcf
+# bcftools view \
+#     -r 2L,2R,3L,3R,4,X \
+#     -Oz \
+#     -o ${outdir}/dsim3.signor.combined.primaryChr.vcf.gz \
+#     ${vcf}
 
-echo "Filtered for primary chr"
+# echo "Filtered for primary chr"
 
 # ### 4. Normalize vcfs
 # # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
@@ -63,7 +63,7 @@ bcftools norm \
     -m +both \
     -Oz \
     -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
-    ${outdir}/dsim3.signor.combined.primaryChr.vcf.gz
+    ${outdir}/dsim3.signor.combined.raw.vcf.gz
 
 echo "normalized"
 
@@ -77,6 +77,7 @@ bcftools view \
     ${outdir}/dsim3.signor.combined.norm.vcf.gz
 
 echo "filtered for biallelic snps"
+
 bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
 echo "indexed. "
 
