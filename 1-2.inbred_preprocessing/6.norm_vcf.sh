@@ -67,6 +67,7 @@ bcftools norm \
 
 echo "normalized"
 
+# should i really do this now or figure out how to better filter for it later? 
 # filters for biallelic snps (remove indels, multiallelic snps)
 bcftools view \
     -v snps \
