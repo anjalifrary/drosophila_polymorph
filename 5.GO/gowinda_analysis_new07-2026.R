@@ -202,12 +202,12 @@ gaf <- fread(
     header=FALSE, col.names=c("GO.id", "GO.id", "Gene.ids")
 )
 
-id <- "GO:0045879"
+id <- c("GO:0005615", "GO:0005886", "GO:0032590")
 
 # data.table(
 #     GO.id = id,
 #     Name = Term(id),
-#     Ontology = Ontology(id),
+#     Ontology = Ontology(id), 
 #     Definition = Definition(id)
 # )
 
@@ -221,7 +221,7 @@ inspect_go <- function(go_ids){
         Name = Term(go_id)[1],
         Ontology = Ontology(go_id)[1],
         N_genes = length(genes),
-        Persistence = unique(go_long[GO.id==go_id, persistence])[1],
+        # Persistence = unique(go_long[GO.id==go_id, persistence])[1],
         Definition = Definition(go_id)[1],
         Genes = list(genes)
     )
