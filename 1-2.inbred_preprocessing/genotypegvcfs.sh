@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=0-5
+#SBATCH --array=0-0
 
 
 set -euo pipefail
@@ -44,7 +44,7 @@ mkdir -p "$tmp"
 ### Joint Genotyping
 gatk --java-options "-Xmx${JAVAMEM} -Djava.io.tmpdir=$tmp" GenotypeGVCFs \
     -R ${ref} \
-    -V gendb://${outdir}/dsim_genomicsdb_${chr} \
+    -V gendb:///scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim_genomicsdb_${chr} \
     -O ${outdir}/dsim3.signor.${chr}.raw.vcf
 
 echo "finished genotyping"
