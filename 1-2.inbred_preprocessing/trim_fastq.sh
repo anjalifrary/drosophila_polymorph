@@ -12,6 +12,7 @@
 #SBATCH --array=1-3
 #ijob -A berglandlab -c10 -p standard --mem=40G
 
+# not necessary for signor's unpaired / single-lane fastq
 
 # Load necessary modules
 module load gcc htslib

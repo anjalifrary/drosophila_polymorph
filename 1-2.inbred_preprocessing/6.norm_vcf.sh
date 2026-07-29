@@ -10,17 +10,19 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
+# sbatch --dependency=afterok:17477781 1-2.inbred_preprocessing/6.norm_vcf.sh
+
 set -euo pipefail
 
 module load bcftools
 module load gcc/11.4.0
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
-# ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+# ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 
-vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
-
+# vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
+vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
 echo "number rows before: "
 bcftools index -n $vcf
 
@@ -28,7 +30,7 @@ bcftools index $vcf
 bcftools view \
     -r 2L,2R,3L,3R,4,X \
     -Oz \
-    -o "/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.primaryChr.vcf.gz" \
+    -o ${outdir}/dsim3.signor.combined.primaryChr.vcf.gz \
     ${vcf}
 
 echo "Filtered for primary chr"
@@ -60,8 +62,8 @@ bcftools norm \
     -f ${ref} \
     -m +both \
     -Oz \
-    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz \
-    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.primaryChr.vcf.gz
+    -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
+    ${outdir}/dsim3.signor.combined.primaryChr.vcf.gz
 
 echo "normalized"
 
@@ -70,14 +72,14 @@ bcftools view \
     -v snps \
     -m2 -M2 \
     -Oz \
-    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz \
-    ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz
+    -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
+    ${outdir}/dsim3.signor.combined.norm.vcf.gz
 
 echo "filtered for biallelic snps"
 
 echo "number rows after: "
-bcftools index -n ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz
+bcftools index -n ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
 
-bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz
+bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
 
 echo "indexed. complete..."
