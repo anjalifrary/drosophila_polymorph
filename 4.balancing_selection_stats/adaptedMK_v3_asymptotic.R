@@ -7,6 +7,7 @@ registerDoMC(16)
 # bg_rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/all_quality_variants_MAF5_merge_unfilt.rds")
 
 nrow(bg_rds)
+# run on species-specific bg, sharedOnly bg, and mel bg 
 
 # classed_rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/voi_fromBG_qualVar_ofInterest_MAF5_classed_06-29-2026.rds") # only classes ABFGOPXY
 nrow(classed_rds)
