@@ -13,3 +13,10 @@ if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
         CREATE_INDEX=true
 fi
 # should i remove duplicates or just flag?
+
+
+picard MarkDuplicates \
+    INPUT=sample.sorted.bam \
+    OUTPUT=sample.markdup.bam \
+    METRICS_FILE=sample.metrics.txt \
+    CREATE_INDEX=true

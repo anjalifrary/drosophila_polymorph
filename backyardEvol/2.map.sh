@@ -19,3 +19,14 @@ if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
     samtools index ${SAMPLE_DIR}/bam/${samp_name}.sorted.bam
     echo "finished mapping $samp_name"
 fi
+
+
+bwa mem \
+    -t 8 \
+    reference.fa \
+    sample_R1.trim.fastq.gz \
+    sample_R2.trim.fastq.gz |
+samtools view -b |
+samtools sort -@8 -o sample.sorted.bam
+
+samtools index sample.sorted.bam
