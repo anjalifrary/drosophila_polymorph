@@ -48,3 +48,4 @@ fi
 
 cp $fastq1 "${wd}/fastq/${sampName}/${sampName}_1.fq.gz"
 cp $fastq2 "${wd}/fastq/${sampName}/${sampName}_2.fq.gz"
+

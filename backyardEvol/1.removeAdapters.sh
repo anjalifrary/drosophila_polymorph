@@ -9,19 +9,26 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/trim.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-
-### to Run
-# sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
-# sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
-
-# to test: Dsimu_m_albe_2020_11_01_0092
+#SBATCH --array=0-183%10
 
 set -euo pipefail
 
-module load miniforge && conda activate fastp
+### to Run
 
+MY_DATA="/scratch/ejy4bu/backyardEvolution/fastq/"
+# SAMPLES=($(ls -d ${MY_DATA}*/))
+SAMPLES=("${MY_DATA}"*/)
+
+echo "Samples = ${#SAMPLES[@]}"
+
+SAMPLE_DIR="${SAMPLES[$SLURM_ARRAY_TASK_ID]}"
+
+# to test: Dsimu_m_albe_2020_11_01_0092
 SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
-sampName=$(basename $SAMPLE_DIR)
+
+sampName=$(basename "$SAMPLE_DIR")
+
+echo "Processing sample ${sampName}. (Array task ID: $SLURM_ARRAY_TASK_ID)"
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}_1.fq.gz" ]; then
     echo "no fastq 1 file. "
@@ -34,6 +41,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}_2.fq.gz" ]; then
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then 
+    module load miniforge && conda activate fastp
     echo "trimming sample ${sampName}. "
     fastp \
         --in1 "${SAMPLE_DIR}/${sampName}_1.fq.gz" \
@@ -49,7 +57,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then
     conda deactivate
 fi
 
-echo "trimming complete..."
+echo "complete..."
 
 # https://github.com/OpenGene/fastp#adapters
 ### flag detect_adapter_for_pe 

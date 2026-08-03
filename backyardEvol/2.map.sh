@@ -20,11 +20,11 @@ set -euo pipefail
 # sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
 
 ref_sim="/scratch/ejy4bu/backyardEvolution/references/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.fasta.gz"
+ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.fasta"
 
-# do once:
-bwa index ${ref_sim}
-bwa index ${ref_mel}
+# # do once:
+# bwa index ${ref_sim}
+# bwa index ${ref_mel}
 
 # to test: Dsimu_m_albe_2020_11_01_0092
 
@@ -63,6 +63,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
     echo "mapped and sorted"
     samtools index ${SAMPLE_DIR}/${sampName}.sorted.bam
     echo "indexed"
+    samtools flagstat ${SAMPLE_DIR}/${sampName}.sorted.bam
 fi
 
 echo "complete"
