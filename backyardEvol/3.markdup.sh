@@ -27,6 +27,7 @@ SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
 # sampName=$(basename "$SAMPLE_DIR")
 
 module load picard
+module load samtools
 
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
