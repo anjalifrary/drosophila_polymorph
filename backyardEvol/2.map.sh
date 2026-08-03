@@ -26,12 +26,10 @@ SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
 # SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
 # sampName=$(basename "$SAMPLE_DIR")
 
+# indexed ref must exist in same directory
 ref_sim="/scratch/ejy4bu/backyardEvolution/references/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.fasta"
 
-# # do once:
-# bwa index ${ref_sim}
-# bwa index ${ref_mel}
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then
     echo "no trimmed fastq 1 file. "
