@@ -3,7 +3,7 @@
 #SBATCH -J copy_fastq # A single job name for the array
 #SBATCH --ntasks-per-node=10 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 6:00:00 ### 6 hours
+#SBATCH -t 1:00:00 
 #SBATCH --mem 10G
 #SBATCH -o /scratch/ejy4bu/err_outs/be/copy.%A_%a.out  # Std out
 #SBATCH -e /scratch/ejy4bu/err_outs/be/copy.%A_%a.out  # Std error
