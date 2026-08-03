@@ -24,8 +24,8 @@ if [ ! -d $wd ]; then
   mkdir $wd
 fi
 
-# metadata="/scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv"
-metadata="/scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv"
+metadata="/scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv"
+# metadata="/scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv"
 
 
 sampName=$(tail -n +2 "$metadata" | sed "${SLURM_ARRAY_TASK_ID}q;d" | cut -f1 -d",")
