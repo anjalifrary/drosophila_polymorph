@@ -53,7 +53,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then
     conda deactivate
 else 
     echo "already trimmed " 
-    exit 1
+    exit 0
 fi
 
 echo "complete..."

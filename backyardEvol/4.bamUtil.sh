@@ -51,7 +51,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.clipped.bam" ]; then
     samtools flagstat "${SAMPLE_DIR}/${sampName}.clipped.bam"
 else 
     echo "already clipped " 
-    exit 1
+    exit 0
 fi
 
 echo "complete"

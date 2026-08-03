@@ -45,7 +45,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.markdup.bam" ]; then
     samtools flagstat "${SAMPLE_DIR}/${sampName}.markdup.bam"
 else 
     echo "already markdup'd " 
-    exit 1
+    exit 0
 fi
 
 echo "complete"
