@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
 #SBATCH -J be_trim # A single job name for the array
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=8
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
-#SBATCH --mem 80G
+#SBATCH --mem 20G
 #SBATCH -o /scratch/ejy4bu/err_outs/be/trim.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/be/trim.%A_%a.err # Standard error
 #SBATCH -p standard
