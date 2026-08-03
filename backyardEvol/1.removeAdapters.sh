@@ -11,14 +11,16 @@
 #SBATCH --account berglandlab
 
 
+
 ### to Run
 # sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
 # sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
 
 # to test: Dsimu_m_albe_2020_11_01_0092
 
+set -euo pipefail
 
-module load fastp
+module load miniforge && conda activate fastp
 
 SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
 sampName=$(basename $SAMPLE_DIR)
@@ -44,6 +46,9 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then
         --html "${SAMPLE_DIR}/${sampName}.fastp.html" \
         --detect_adapter_for_pe \
         --thread ${SLURM_CPUS_PER_TASK}
+
+    conda deactivate
+    conda deactivate
 fi
 
 # https://github.com/OpenGene/fastp#adapters
