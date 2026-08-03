@@ -48,6 +48,9 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.clipped.bam" ]; then
     echo "indexing complete"
 
     samtools flagstat "${SAMPLE_DIR}/${sampName}.clipped.bam"
+else 
+    echo "already clipped " 
+    exit 1
 fi
 
 echo "complete"

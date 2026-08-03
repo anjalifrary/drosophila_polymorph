@@ -41,6 +41,9 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.markdup.bam" ]; then
         CREATE_INDEX=true
 
     samtools flagstat "${SAMPLE_DIR}/${sampName}.markdup.bam"
+else 
+    echo "already markdup'd " 
+    exit 1
 fi
 
 echo "complete"

@@ -66,6 +66,9 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
     samtools index ${SAMPLE_DIR}/${sampName}.sorted.bam
     echo "indexed"
     samtools flagstat ${SAMPLE_DIR}/${sampName}.sorted.bam
+else 
+    echo "already mapped & sorted " 
+    exit 1
 fi
 
 echo "complete"
