@@ -22,17 +22,17 @@ trim_job=$(sbatch --parsable \
     ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh)
 
 map_job=$(sbatch --parsable \
-    --dependency=afterok:${trim_job}_%a \
+    --dependency=afterok:${trim_job} \
     --array=1-$(wc -l < ${SAMPLE_LIST})%20 \
     ~/drosophila_polymorph/backyardEvol/2.map.sh)
 
 dup_job=$(sbatch --parsable \
-    --dependency=afterok:${map_job}_%a \
+    --dependency=afterok:${map_job} \
     --array=1-$(wc -l < ${SAMPLE_LIST})%50 \
     ~/drosophila_polymorph/backyardEvol/3.markdup.sh)
 
 clip_job=$(sbatch --parsable \
-    --dependency=afterok:${dup_job}_%a \
+    --dependency=afterok:${dup_job} \
     --array=1-$(wc -l < ${SAMPLE_LIST})%50 \
     ~/drosophila_polymorph/backyardEvol/4.bamUtil.sh)
 
