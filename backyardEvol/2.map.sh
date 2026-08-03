@@ -19,8 +19,8 @@ set -euo pipefail
 # sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
 # sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
 
-ref_sim="/scratch/ejy4bu/backyardEvolution/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-ref_mel="/scratch/ejy4bu/backyardEvolution/dmel-all-chromosome-r6.12.fasta.gz"
+ref_sim="/scratch/ejy4bu/backyardEvolution/references/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.fasta.gz"
 
 # do once:
 bwa index ${ref_sim}
