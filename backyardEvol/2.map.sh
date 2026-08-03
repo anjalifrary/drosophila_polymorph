@@ -16,8 +16,14 @@ module load samtools
 set -euo pipefail
 
 ### to Run
-# sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
-# sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
+# sbatch --array=1-$(wc -l < /scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt)%20 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
+SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
+
+# # to test: Dsimu_m_albe_2020_11_01_0092
+# SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
+# sampName=$(basename "$SAMPLE_DIR")
 
 ref_sim="/scratch/ejy4bu/backyardEvolution/references/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.fasta"
@@ -26,19 +32,14 @@ ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.
 # bwa index ${ref_sim}
 # bwa index ${ref_mel}
 
-# to test: Dsimu_m_albe_2020_11_01_0092
-
-SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
-sampName=$(basename $SAMPLE_DIR)
-
 if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then
     echo "no trimmed fastq 1 file. "
-    exit
+    exit 1
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_2.fq.gz" ]; then
     echo "no trimmed fastq 2 file. "
-    exit
+    exit 1
 fi
 
 if [[ ${sampName} == Dsimu* ]]; then 
@@ -47,7 +48,7 @@ elif [[ ${sampName} == Dmela* ]]; then
     ref=${ref_mel}
 else 
     echo "unrecognized species " 
-    exit 
+    exit 1
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then 

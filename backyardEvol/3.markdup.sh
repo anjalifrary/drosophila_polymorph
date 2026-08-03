@@ -11,34 +11,24 @@
 #SBATCH --account berglandlab
 
 
-# module load gcc/11.4.0 htslib
-# module load sratoolkit/3.1.1
-# module load bwa
-# module load samtools
-module load picard
-# module load gatk
-# module load fastqc
-
 set -euo pipefail
 
 ### to Run
-# sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/sim_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
-# sbatch --array=1-$( wc -l < /scratch/ejy4bu/backyardEvolution/metadata/mel_samps.csv )%10 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
+# sbatch --array=1-$(wc -l < /scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt)%20 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
+SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
 
-# ref_sim="/scratch/ejy4bu/backyardEvolution/references/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-# ref_mel="/scratch/ejy4bu/backyardEvolution/references/dmel-all-chromosome-r6.12.fasta"
+# # to test: Dsimu_m_albe_2020_11_01_0092
+# SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
+# sampName=$(basename "$SAMPLE_DIR")
 
-# to test: Dsimu_m_albe_2020_11_01_0092
-
-SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
-sampName=$(basename $SAMPLE_DIR)
-
-### 4. dedup mark duplicates (GATK)
+module load picard
 
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
     echo "no sorted bam. "
-    exit
+    exit 1
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.markdup.bam" ]; then

@@ -9,35 +9,29 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/trim.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=0-183%10
 
 set -euo pipefail
 
 ### to Run
+# sbatch --array=1-$(wc -l < /scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt)%30 ~/drosophila_polymorph/backyardEvol/1.removeAdapters.sh
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
+SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
 
-MY_DATA="/scratch/ejy4bu/backyardEvolution/fastq/"
-# SAMPLES=($(ls -d ${MY_DATA}*/))
-SAMPLES=("${MY_DATA}"*/)
-
-echo "Samples = ${#SAMPLES[@]}"
-
-SAMPLE_DIR="${SAMPLES[$SLURM_ARRAY_TASK_ID]}"
-
-# to test: Dsimu_m_albe_2020_11_01_0092
-SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
-
-sampName=$(basename "$SAMPLE_DIR")
+# # to test: Dsimu_m_albe_2020_11_01_0092
+# SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
+# sampName=$(basename "$SAMPLE_DIR")
 
 echo "Processing sample ${sampName}. (Array task ID: $SLURM_ARRAY_TASK_ID)"
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}_1.fq.gz" ]; then
     echo "no fastq 1 file. "
-    exit
+    exit 1
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}_2.fq.gz" ]; then
     echo "no fastq 2 file. "
-    exit
+    exit 1
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then 
