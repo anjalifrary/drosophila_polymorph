@@ -51,6 +51,8 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.trimmed_1.fq.gz" ]; then
     conda deactivate
 fi
 
+echo "trimming complete..."
+
 # https://github.com/OpenGene/fastp#adapters
 ### flag detect_adapter_for_pe 
 
