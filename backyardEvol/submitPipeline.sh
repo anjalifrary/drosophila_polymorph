@@ -14,8 +14,8 @@
 set -euo pipefail
 
 
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
 
 trim_job=$(sbatch --parsable \
     --array=1-$(wc -l < ${SAMPLE_LIST})%30 \

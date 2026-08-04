@@ -16,10 +16,11 @@ set -euo pipefail
 ### to Run
 # sbatch --array=1-$(wc -l < /scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt)%10 ~/drosophila_polymorph/backyardEvol/4.bamUtil.sh
 # sbatch --array=1-$(wc -l < /scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt)%20 ~/drosophila_polymorph/backyardEvol/4.bamUtil.sh
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
 SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
+
 
 # # to test: Dsimu_m_albe_2020_11_01_0092
 # SAMPLE_DIR=/scratch/ejy4bu/backyardEvolution/fastq/Dsimu_m_albe_2020_11_01_0092/
