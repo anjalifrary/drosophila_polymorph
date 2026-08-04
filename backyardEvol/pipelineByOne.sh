@@ -4,12 +4,12 @@
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-18:00 # 18 hours
-#SBATCH --mem 50G
+#SBATCH --mem 80G
 #SBATCH -o /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-500%20
+#SBATCH --array=501-1000%20
 
 # 1-500
 # 501-1000
