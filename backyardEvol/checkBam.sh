@@ -60,3 +60,25 @@ echo "Empty files:        $empty"
 echo "Corrupt files:      $corrupt"
 echo "Missing index:      $missingIndex"
 echo "=============================="
+
+if (( $missing + $empty + $corrupt + $missingIndex == 0 )); then
+    echo "All samples passed: $success ..  Copying BAMs..."
+
+    while IFS= read -r sample; do
+        cp "${wd}/${sample}/${sample}.clipped.bam" \
+           /scratch/ejy4bu/backyardEvolution/bam/
+
+        cp "${wd}/${sample}/${sample}.clipped.bam.bai" \
+           /scratch/ejy4bu/backyardEvolution/bam/
+    done < "$SAMPLE_LIST"
+
+    # find "$wd" -name "*.clipped.bam" -exec cp {} /scratch/ejy4bu/backyardEvolution/bam/ \;
+    # find "$wd" -name "*.clipped.bam.bai" -exec cp {} /scratch/ejy4bu/backyardEvolution/bam/ \;
+
+    echo "Copy complete."
+
+    else
+        echo "Errors detected. BAMs were not copied."
+        exit 1
+    fi
+fi
