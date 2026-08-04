@@ -42,6 +42,7 @@ while IFS= read -r sample; do
         echo "MISSING_INDEX: $bam"
         continue
     fi
+    success=$((success+1))
 
 done < "$SAMPLE_LIST"
 
