@@ -10,6 +10,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipeline.%A_%a.err # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
+#SBATCH --array=1-3663%30
 
 set -euo pipefail
 
