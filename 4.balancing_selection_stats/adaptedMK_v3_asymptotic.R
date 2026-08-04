@@ -3,7 +3,6 @@ library(data.table)
 library(doMC)
 registerDoMC(16)
 
-maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
 masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")
 masterBG_speciesSpecific <- fread("/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/noMAFfilter/bg_speciesSpecific_noMAF.txt",
@@ -38,17 +37,27 @@ asymptotic_MKlike_stats <- function(Ps, Pns, SPs, SPns, pseudo=0, min_count=0) {
     SPns <- SPns + pseudo
 
      if (Ps > min_count && Pns > min_count && SPs > min_count && SPns > min_count) {
-        OR <- (Pns * SPs) / (Ps * SPns)
+        alpha <- 1 - (Ps * SPns) / (Pns * SPs)
+        OR <- 1 - alpha 
         data.table(
-            alpha = 1 - 1/OR,
+            alpha = alpha, 
+            OR = OR,
             logOR = log(OR)
         )
     } else {
         data.table(
             alpha = NA_real_,
+            OR = NA_real_,
             logOR = NA_real_
         )
     }
+}
+
+safe_fread <- function(file) {
+    if (!file.exists(file) || file.info(file)$size == 0) {
+        return(data.table(chr=character(), pos=integer()))
+    }
+    fread(file, sep="\t", col.names=c("chr","pos"))
 }
 
 MAF_def = "polyAF"
@@ -56,7 +65,8 @@ MAF_def = "polyAF"
 
 # background="mel/sim"
 background="mel_only"
-
+maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
+# maf_inputs <- c(0.49)
 results <- rbindlist(
     foreach(maf = maf_inputs, .packages="data.table") %dopar% {
         maf_label = maf * 100
@@ -64,14 +74,18 @@ results <- rbindlist(
         bg_dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/"
         cand_dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/"
 
-        bg <- fread(paste0(bg_dir, "MAF", maf_label, "filter_", MAF_def, "/bg_speciesSpecific_", maf_label, "_", MAF_def, ".txt"),
-            sep="\t", col.names=c("chr", "pos"))
-        cand_tsp <- fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_AB_", maf_label, "_", MAF_def, ".txt"),
-            sep="\t", col.names=c("chr", "pos"))
-        cand_conv <- fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_FGOPXY_", maf_label, "_", MAF_def, ".txt"),
-            sep="\t", col.names=c("chr", "pos"))
-        cand_all <- fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_ABFGOPXY_", maf_label, "_", MAF_def, ".txt"),
-            sep="\t", col.names=c("chr", "pos"))            
+        # bg <- fread(paste0(bg_dir, "MAF", maf_label, "filter_", MAF_def, "/bg_speciesSpecific_", maf_label, "_", MAF_def, ".txt"),
+        #     sep="\t", col.names=c("chr", "pos"))
+        bg <- safe_fread(paste0(bg_dir, "MAF", maf_label, "filter_", MAF_def, "/bg_speciesSpecific_", maf_label, "_", MAF_def, ".txt"))
+        # cand_tsp <- fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_AB_", maf_label, "_", MAF_def, ".txt"),
+        #     sep="\t", col.names=c("chr", "pos"))
+        cand_tsp <- safe_fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_AB_", maf_label, "_", MAF_def, ".txt"))
+        # cand_conv <- fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_FGOPXY_", maf_label, "_", MAF_def, ".txt"),
+        #     sep="\t", col.names=c("chr", "pos"))
+        cand_conv <- safe_fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_FGOPXY_", maf_label, "_", MAF_def, ".txt"))
+        # cand_all <- fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_ABFGOPXY_", maf_label, "_", MAF_def, ".txt"),
+        #     sep="\t", col.names=c("chr", "pos")) 
+        cand_all <- safe_fread(paste0(cand_dir, "MAF", maf_label, "filter_", MAF_def, "/candidate_chrpos_ABFGOPXY_", maf_label, "_", MAF_def, ".txt"))
 
         bg_table <- merge(bg, masterBG, by=c("chr", "pos"), all.x=TRUE)
 
@@ -132,6 +146,8 @@ results <- rbindlist(
     }
 )
 
+results <- as.data.table(results)
+
 setcolorder(
     results,
     c(
@@ -145,6 +161,7 @@ setcolorder(
         "SPs",
         "SPns",
         "alpha",
+        "OR",
         "logOR"
     )
 )
@@ -154,115 +171,6 @@ saveRDS(results, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/adapte
 
 # FIGURES 
 
-
-
-
-
-# alpha_beta <- function(Ps, Pns, SPs, SPns, min_count = 0) {
-#     pseudo <- 1
-
-#     # Ps <- Ps + pseudo
-#     # Pns <- Pns + pseudo
-#     SPs <- SPs + pseudo
-#     SPns <- SPns + pseudo
-#     if (Pns > min_count && SPs > min_count && SPns > min_count && Ps > min_count) 
-#     return(1 - (Ps * SPns) / (Pns * SPs))
-#     NA_real_
-# }
-
-
-# count_class <- function(sub_dt, effect_pattern, xy_classes = c("X", "Y")) {
-#     n_normal <- nrow(sub_dt[!classification %in% xy_classes & effect_sim %like% effect_pattern]) 
-#     n_xy     <- nrow(sub_dt[ classification %in% xy_classes & effect_sim %like% effect_pattern]) # /2 stopped dividing by 2 because only 1 of the two rows has a effect_mel; the other has effect_sim
-#     n_normal + n_xy
-# }
-
-# results <- rbindlist(
-#     foreach(gene = genes, .packages = "data.table") %dopar% {
-
-#         dt <- bg_rds[gene_id_mel == gene]
-        
-#         # # mel species-specific background (same for all tests)
-#         mel_Ps  <- dt[!is.na(ref_mel) & is.na(ref_sim) & effect_mel %like% "syn"]
-#         mel_Pns <- dt[!is.na(ref_mel) & is.na(ref_sim) & effect_mel %like% "missense"]
-
-#         # sim species-specific background 
-
-#         # sim-only rows don't have gene_id_mel so added logic to define mel genespace for sim Pn/Ps
-#         # sim_dt <- bg_rds[
-#         #     !is.na(ref_sim) & is.na(ref_mel) &
-#         #     chr == unique(dt$chr) &
-#         #     pos >= min(dt$pos) &
-#         #     pos <= max(dt$pos)
-#         # ]
-
-#         # sim_Ps <- sim_dt[effect_sim %like% "syn"]
-#         # sim_Pns <- sim_dt[effect_sim %like% "missense"]
-
-#         # Ps  <- nrow(sim_Ps) 
-#         # Pns <- nrow(sim_Pns) 
-
-#         # TSP candidates (A+B)
-#         tsp_SPs   <- count_class(dt[classification %in% tsp],        "syn")
-#         tsp_SPns  <- count_class(dt[classification %in% tsp],        "missense")
-#         alpha_tsp <- alpha_beta(Ps, Pns, tsp_SPs, tsp_SPns)
-
-#         # convergent (F,G,O,P,X,Y) 
-#         conv_SPs  <- count_class(dt[classification %in% conv],       "syn")
-#         conv_SPns <- count_class(dt[classification %in% conv],       "missense")
-#         alpha_conv <- alpha_beta(Ps, Pns, conv_SPs, conv_SPns)
-
-#         # all classified together (A+B+F+G+O+P+X+Y)
-#         all_SPs   <- count_class(dt[classification %in% c(tsp,conv)],"syn")
-#         all_SPns  <- count_class(dt[classification %in% c(tsp,conv)],"missense")
-#         alpha_all <- alpha_beta(Ps, Pns, all_SPs, all_SPns)
-
-#         data.table(
-#             gene       = gene,
-#             alpha_tsp  = alpha_tsp,
-#             alpha_conv = alpha_conv,
-#             alpha_all  = alpha_all,
-#             mel_Ps     = Ps,
-#             mel_Pns    = Pns,
-#             # sim_Ps     = Ps,
-#             # sim_Pns    = Pns,
-#             tsp_SPs    = tsp_SPs,
-#             tsp_SPns   = tsp_SPns,
-#             conv_SPs   = conv_SPs,
-#             conv_SPns  = conv_SPns,
-#             all_SPs    = all_SPs,
-#             all_SPns   = all_SPns
-#         )
-#     }
-# )
-
-# results_clean <- results[!is.na(alpha_tsp) | !is.na(alpha_conv) | !is.na(alpha_all)]
-
-# summary(results_clean$alpha_tsp)
-# summary(results_clean$alpha_conv)
-# summary(results_clean$alpha_all)
-
-# table(results$tsp_SPns)
-# table(results$tsp_SPs)
-# table(results$conv_SPns)
-# table(results$conv_SPs)
-
-
-# # saveRDS(results_clean, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/adaptedMK_results_sim_noPseudoCount_06-29-2026.rds")
-# # saveRDS(results_clean, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/adaptedMK_results_sim_1PseudoAll_06-29-2026.rds")
-# # saveRDS(results_clean, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/test/adaptedMK_results_sim_1PseudoSPxOnly_06-29-2026.rds")
-
-# ##############################################################################
-# ### Get Gene List ### 
-# ##############################################################################
-
-# gene_list <- all_df[alpha>0, .(gene, category, alpha, background)]
-# gene_list <- gene_list[category != "ALL"]
-# gene_wide <- dcast(
-#     gene_list,
-#     gene ~ background + category,
-#     value.var = "alpha"
-# )
 
 
 # # candidate files of chr + pos (txt) at /scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/MAFxxfilter_polyAF/candidate_chrpos_AB_xx_polyAF.txt

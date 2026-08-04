@@ -129,7 +129,7 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
 fi
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.markdup.bam" ]; then
-    echo "dedup sample ${sampName}. "
+    echo "mark dup sample ${sampName}. "
     java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
         I="${SAMPLE_DIR}/${sampName}.sorted.bam"  \
         O="${SAMPLE_DIR}/${sampName}.markdup.bam" \
