@@ -14,7 +14,7 @@ set -euo pipefail
 module load samtools
 
 
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
 wd="/scratch/ejy4bu/backyardEvolution/fastq"
 
 
