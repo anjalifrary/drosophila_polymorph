@@ -9,7 +9,17 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-3665%10
+#SBATCH --array=1-500%10
+
+# 1-500
+# 501-1000
+# 1001-1500
+# 1501-2000
+# 2001-2500
+# 2501-3000
+# 3001-3500
+# 3501-3665
+
 
 set -euo pipefail
 
