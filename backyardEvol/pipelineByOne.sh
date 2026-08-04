@@ -13,8 +13,8 @@
 
 set -euo pipefail
 
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 
 sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
 SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
