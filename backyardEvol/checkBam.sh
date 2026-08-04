@@ -20,6 +20,8 @@ wd="/scratch/ejy4bu/backyardEvolution/fastq"
 
 missing=0
 empty=0
+corrupt=0
+missingIndex=0
 success=0
 
 while IFS= read -r sample; do 
@@ -28,18 +30,22 @@ while IFS= read -r sample; do
     bam="${wd}/${sample}/${sample}.clipped.bam"
     if [ ! -f "$bam" ]; then
         echo "MISSING: $bam"
+        missing=$((missing+1))
         continue
     fi
     if [ ! -s "$bam" ]; then
         echo "EMPTY:   $bam"
+        empty=$((empty+1))
         continue
     fi
     if ! samtools quickcheck "$bam"; then
         echo "CORRUPT: $bam"
+        corrupt=$((corrupt+1))
         continue
     fi
     if [ ! -f "${bam}.bai" ]; then
         echo "MISSING_INDEX: $bam"
+        missingIndex=$((missingIndex+1))
         continue
     fi
     success=$((success+1))
@@ -51,4 +57,6 @@ echo "=============================="
 echo "Successful samples: $success"
 echo "Missing files:      $missing"
 echo "Empty files:        $empty"
+echo "Corrupt files:      $corrupt"
+echo "Missing index:      $missingIndex"
 echo "=============================="
