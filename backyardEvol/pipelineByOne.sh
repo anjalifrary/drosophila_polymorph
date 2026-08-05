@@ -3,13 +3,13 @@
 #SBATCH -J be_pipeEach # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-18:00 # 18 hours
+#SBATCH -t 0-6:00 # 6 hours
 #SBATCH --mem 80G
 #SBATCH -o /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1001-1500%20
+#SBATCH --array=1-1000%50
 
 # 1-500
 # 501-1000
@@ -128,17 +128,17 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
     exit 1
 fi
 
-if [ ! -f "${SAMPLE_DIR}/${sampName}.markdup.bam" ]; then
+if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" ]; then
     echo "mark dup sample ${sampName}. "
     java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
         I="${SAMPLE_DIR}/${sampName}.sorted.bam"  \
-        O="${SAMPLE_DIR}/${sampName}.markdup.bam" \
-        M="${SAMPLE_DIR}/${sampName}.markdup.metrics.txt" \
+        O="${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" \
+        M="${SAMPLE_DIR}/${sampName}.sorted.markdup.metrics.txt" \
         CREATE_INDEX=true
 
-    samtools flagstat "${SAMPLE_DIR}/${sampName}.markdup.bam"
+    samtools flagstat "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam"
     
-    if ! samtools quickcheck "${SAMPLE_DIR}/${sampName}.markdup.bam"; then
+    if ! samtools quickcheck "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam"; then
         echo "ERROR: corrupt markdup bam"
         exit 1
     fi
@@ -150,18 +150,18 @@ echo "mark dupes complete"
 
 # 4. soft clipping overlapping reads  
 
-if [ ! -f "${SAMPLE_DIR}/${sampName}.markdup.bam" ]; then
+if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" ]; then
     echo "no markdup'd bam. "
     exit 1
 fi
 
-if [ ! -f "${SAMPLE_DIR}/${sampName}.clipped.bam" ]; then
+if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" ]; then
     module load miniforge && conda activate bamutil
     echo "soft-clip overlapping reads... sample ${sampName}. "
     bam clipOverlap \
-        --in "${SAMPLE_DIR}/${sampName}.markdup.bam" \
-        --out "${SAMPLE_DIR}/${sampName}.clipped.bam" \
-        --stats
+        --in "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" \
+        --out "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" \
+        --stats 2> "${SAMPLE_DIR}/${sampName}.clipOverlapStats.txt"
 
     echo "clipping complete"
     conda deactivate
@@ -169,12 +169,12 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.clipped.bam" ]; then
 
     module load samtools
 
-    samtools index "${SAMPLE_DIR}/${sampName}.clipped.bam"
+    samtools index "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
     echo "indexing complete"
 
-    samtools flagstat "${SAMPLE_DIR}/${sampName}.clipped.bam"
+    samtools flagstat "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
 
-    if ! samtools quickcheck "${SAMPLE_DIR}/${sampName}.clipped.bam"; then
+    if ! samtools quickcheck "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"; then
         echo "ERROR: corrupt clipped bam"
         exit 1
     fi
@@ -186,4 +186,4 @@ echo "complete"
 
 # all done
 
-echo "all steps complete. bam located at ${SAMPLE_DIR}/${sampName}.clipped.bam"
+echo "all steps complete. bam located at ${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
