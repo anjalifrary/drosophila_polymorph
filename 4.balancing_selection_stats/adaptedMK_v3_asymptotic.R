@@ -66,7 +66,7 @@ MAF_def = "polyAF"
 # background="mel/sim"
 background="mel_only"
 maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
-# maf_inputs <- c(0.49)
+# maf_inputs <- c(0.005)
 results <- rbindlist(
     foreach(maf = maf_inputs, .packages="data.table") %dopar% {
         maf_label = maf * 100
@@ -167,7 +167,7 @@ setcolorder(
 )
 
 
-saveRDS(results, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/adaptedMK/asymptotic_MK_longResults_polyAF_speciesSpecificBG.rds")
+saveRDS(results, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/adaptedMK/new_asymptotic_MK_longResults_polyAF_speciesSpecificBG.rds")
 
 # FIGURES 
 
