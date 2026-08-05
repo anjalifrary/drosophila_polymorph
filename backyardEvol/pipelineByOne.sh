@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=501-1000%20
+#SBATCH --array=1001-1500%20
 
 # 1-500
 # 501-1000
