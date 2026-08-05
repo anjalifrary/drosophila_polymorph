@@ -480,3 +480,35 @@ compare_diff_go_sets(AB_terms, AB_terms2, dmGO)
 # heatmap(AB$similarity)
 
 # plot(AB$tree)
+
+library(data.table)
+
+go <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
+dat <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_7-20-2026.rds")
+
+load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/Drosophila_simulans.17_06_2026.nlpTable.Rdata")
+sim_nlp <- nlp 
+rm(nlp)
+sim_nlp[, poly_af_sim := poly_af]
+sim_nlp[, global_af_sim := global_af]
+
+load("/project/berglandlab/multispecies_endemism/data/collectiveAnalysis_version3/Drosophila_melanogaster.10_03_2026.nlpTable.paramask.genmap.busco.Rdata")
+mel_nlp <- nlp
+rm(nlp)   
+mel_nlp[, poly_af_mel := poly_af]
+mel_nlp[, global_af_mel := global_af]
+
+mel_af <- mel_nlp[, .(chr, pos, poly_af_mel, global_af_mel)]
+dat <- merge(dat, mel_af, by=c("chr", "pos"), all.x=T)
+
+sim_af <- sim_nlp[, .(chr, pos, poly_af_sim, global_af_sim)]
+dat <- merge(dat, sim_af, by=c("chr", "pos"), all.x=T)
+
+candidates <- eval(go[classes=="AB"][MAF_value==10][MAF_def=="polyAF"][background=="speciesSpecific_noMAF"][order(FDR)][23,]$GeneListFound)[[1]]
+candidates <- gsub("fbgn", "FBgn", candidates)
+
+View(dat[gene_id_mel%in%candidates][effect_mel%like%"syn"][poly_af_mel>.1])
+View(dat[gene_id_mel%in%candidates][effect_mel%like%"missense"][poly_af_mel>.1])
+
+View(dat[gene_id_mel%in%candidates][effect_mel%like%"syn"][poly_af_sim>.1])
+View(dat[gene_id_mel%in%candidates][effect_mel%like%"missense"][poly_af_sim>.1])
