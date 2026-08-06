@@ -100,7 +100,7 @@ append_gowinda_summary <- function(results, file, csv_file, filter_col="FDR", th
 
 # csv headers
 # MAF_value | MAF_def | background | classes | statThreshold | N_GOTerms | GO.ids
-out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats.csv"
+out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats.8-6-2026.csv"
 dir.create("/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/")
 
 ### to loop over a single results directory:
@@ -146,8 +146,9 @@ class="AB"
 # class="FGOPXY"
 # class="ABFGOPXY"
 # class="XY"
-bg="speciesSpecific_MAF"
+# bg="speciesSpecific_MAF"
 # bg="sharedOnly_MAF"
+bg="melOnly_MAF"
 maf_def="polyAF"
 # maf_def="globalAF"
 
@@ -285,13 +286,20 @@ build_long_gowinda <- function(files, filter_col = "FDR", threshold= 0.05) {
     }), fill = T)
 }
 
+maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
+
 # after building long table: same plots as before
 plot_go_counts <- function(dt, class_name, bg_name, maf_def_name) {
-  counts <- dt[classes == class_name & background == bg_name & MAF_def == maf_def_name,
-                      .N, by = MAF_value]
-    ggplot(counts, aes(x = MAF_value, y = N)) +
+    counts <- dt[classes == class_name & background == bg_name & MAF_def == maf_def_name,
+                        .(N_GOTerms = uniqueN(GO.id)), , by = MAF_value]
+    counts <- merge(data.table(MAF_value = maf_inputs * 100), counts, by = "MAF_value", all.x = TRUE)
+    counts[is.na(N_GOTerms), N_GOTerms := 0]
+
+    ggplot(counts, aes(x = MAF_value, y = N_GOTerms)) +
     geom_point(size = 3) + geom_line() +
-    scale_x_continuous(breaks = unique(counts$MAF_value)) +
+    scale_x_continuous(limits = c(0, 50), breaks = maf_inputs*100) +
+        # breaks = seq(0, 50, 10))+
+        # breaks = unique(counts$MAF_value)) +
     labs(x = "MAF filter (%)", y = "Number of significant GO terms",
          title = paste0(class_name, ", ", bg_name)) +
     theme_classic()
@@ -437,49 +445,7 @@ AB_terms2 <- unique(long_dt[classes=="AB" & background=="sharedOnly_MAF" & MAF_d
 compare_diff_go_sets(AB_terms, AB_terms2, dmGO)
 
 
-
-
-# analyze_gowinda <- function(results, fdr = 0.05, semData = dmGO, ontology = "BP") {
-#     results <- as.data.table(results)
-
-#     sig <- results[
-#         ontology == ontology &
-#         FDR < fdr
-#     ]
-
-#     if (nrow(sig) == 0)
-#         return(NULL)
-
-#     ## parse gene list
-#     sig[, GeneList := strsplit(Genes, ",")]
-
-#     ## semantic similarity
-#     sim <- mgoSim(
-#         sig$GO.id,
-#         sig$GO.id,
-#         semData = semData,
-#         measure = "Wang",
-#         combine = NULL
-#     )
-
-#     hc <- hclust(as.dist(1 - sim))
-
-#     sig[, cluster := cutree(hc, k = 10)]
-
-#     list(
-#         results = sig,
-#         similarity = sim,
-#         tree = hc
-#     )
-# }
-
-# AB <- analyze_gowinda(results_AB)
-
-# View(AB$results)
-
-# heatmap(AB$similarity)
-
-# plot(AB$tree)
+########## in progress: 
 
 library(data.table)
 
@@ -512,3 +478,80 @@ View(dat[gene_id_mel%in%candidates][effect_mel%like%"missense"][poly_af_mel>.1])
 
 View(dat[gene_id_mel%in%candidates][effect_mel%like%"syn"][poly_af_sim>.1])
 View(dat[gene_id_mel%in%candidates][effect_mel%like%"missense"][poly_af_sim>.1])
+
+###########################################################################
+
+### 8/6/2026:
+library(ggplot2)
+library(data.table)
+library(ggnewscale)
+
+
+long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
+
+### 1. inspect gene list and GO terms across different backgrounds / MAF def but within same group
+# let's start with polyAF 
+# melOnly_MAF; speciesSpecfic_MAF; sharedOnly_MAF
+
+# group <- "AB"
+# group <- "ABFGOPXY"
+group <- "FGOPXY"
+maf_def <- "polyAF"
+bg_list <- c("melOnly_MAF", "speciesSpecific_MAF", "sharedOnly_MAF")
+
+go_subset <- long_dt[MAF_def==maf_def]
+
+maf_values <- c(0.5, 1, 2, 5, 10, 15, 20, 25, 30, 40, 49)
+
+go_terms <- go_subset[
+    classes==group & MAF_value%in%maf_values & background%in%bg_list, .(GO.id, Description, ontology, MAF_value, background, GeneListFound)
+]
+
+go_terms
+
+go_terms_perBG <- dcast(
+    unique(go_terms[,.(GO.id, background)]),
+    GO.id ~ background,
+    fun.aggregate = length,
+    value.var = "background"
+)
+
+go_plot <- melt(go_terms_perBG, id.vars = "GO.id")
+go_order <- go_plot[, .(persistence = sum(value)), by = GO.id][order(-persistence), GO.id]
+go_plot[, GO.id := factor(GO.id, levels = go_order)]
+
+ontology_plot <- unique(go_terms[, .(GO.id, ontology)])
+ontology_plot[, GO.id := factor(GO.id, levels = go_order)]
+
+ggplot(go_plot, aes(x=variable, y=GO.id)) + 
+    geom_tile(aes(fill=value)) + 
+    scale_fill_gradient(low = "white", high = "black", guide="none") + 
+    ggnewscale::new_scale_fill() +
+    geom_tile(data = ontology_plot,aes(x="Ontology", y=GO.id, fill=ontology)) +
+    scale_fill_manual(values=c(
+        "BP"="darkgreen",
+        "MF"="steelblue",
+        "CC"="darkred"), name="Ontology") +
+    # geom_text(data=ontology_plot, aes(x=6, label=ontology), size=1.5) + 
+    theme_classic() +
+    labs(x="Background", y = "GO term") + 
+    theme(
+        axis.text.x = element_text(size = 6, angle=20, hjust=1),
+        axis.text.y = element_text(size = 6), 
+        axis.title = element_text(size = 6.5)
+    ) 
+
+### repeat for genes 
+### and calculate semantic similarity metric 
+
+### 2. inspect gene list and GO terms within same background / MAF def but across diff group 
+
+bg = "speciesSpecific_MAF"
+# bg = "melOnly_MAF"
+# bg = "sharedOnly_MAF"
+groups = c("AB", "FGOPXY", "ABFGOPXY")
+maf_def = "polyAF"
+
+### 3. merge on MKish stats to look at specific genes that are significant in both terms
+
+
