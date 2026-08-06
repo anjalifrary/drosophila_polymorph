@@ -27,7 +27,7 @@ success=0
 while IFS= read -r sample; do 
     SAMPLE_DIR="${wd}/${sample}"
     # echo "checking $sample"
-    bam="${wd}/${sample}/${sample}.clipped.bam"
+    bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
     if [ ! -f "$bam" ]; then
         echo "MISSING: $bam"
         missing=$((missing+1))
@@ -65,10 +65,10 @@ if (( $missing + $empty + $corrupt + $missingIndex == 0 )); then
     echo "All samples passed: $success ..  Copying BAMs..."
 
     while IFS= read -r sample; do
-        cp "${wd}/${sample}/${sample}.clipped.bam" \
+        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam" \
            /scratch/ejy4bu/backyardEvolution/bam/
 
-        cp "${wd}/${sample}/${sample}.clipped.bam.bai" \
+        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" \
            /scratch/ejy4bu/backyardEvolution/bam/
     done < "$SAMPLE_LIST"
 
