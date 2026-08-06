@@ -129,20 +129,28 @@ bg_SpeciesSpecific <- merge(bg_SpeciesSpecific, rbind(mel_nlp[,.(chr,pos,global_
 bg_SharedOnly <- merge(bg_SharedOnly, rbind(mel_nlp[,.(chr,pos,global_af,poly_af)], sim_nlp[,.(chr,pos,global_af,poly_af)]),
     by=c("chr","pos"), all.x=TRUE)
 
-getBG_filterByMAF <- function(maf, setting) {
+bg_melOnly <- merge(mel_only, mel_nlp[, .(chr, pos, global_af, poly_af)], by=c("chr", "pos"), all.x=T)
+
+
+
+getBG_filterByMAF <- function(bg, maf, setting) {
     if ((maf <= 0) || (setting%in%c("global", "poly") == FALSE)) stop("invalid params")
     maf_label <- maf * 100
 
-    bg_SharedOnly <- copy(bg_SharedOnly)
-    bg_SpeciesSpecific <- copy(bg_SpeciesSpecific)
+    bg <- copy(bg)
+
+    # bg_SharedOnly <- copy(bg_SharedOnly)
+    # bg_SpeciesSpecific <- copy(bg_SpeciesSpecific)
 
     if (setting=="global") {
-        bg_SharedOnly <- bg_SharedOnly[global_af > maf & global_af < (1 - maf)]
-        bg_SpeciesSpecific <- bg_SpeciesSpecific[global_af > maf & global_af < (1 - maf)]
+        bg <- bg[global_af > maf & global_af < (1 - maf)]
+        # bg_SharedOnly <- bg_SharedOnly[global_af > maf & global_af < (1 - maf)]
+        # bg_SpeciesSpecific <- bg_SpeciesSpecific[global_af > maf & global_af < (1 - maf)]
 
     } else {
-        bg_SharedOnly <- bg_SharedOnly[poly_af > maf & poly_af < (1 - maf)]
-        bg_SpeciesSpecific <- bg_SpeciesSpecific[poly_af > maf & poly_af < (1 - maf)]
+        bg <- bg[poly_af > maf & poly_af < (1 - maf)]
+        # bg_SharedOnly <- bg_SharedOnly[poly_af > maf & poly_af < (1 - maf)]
+        # bg_SpeciesSpecific <- bg_SpeciesSpecific[poly_af > maf & poly_af < (1 - maf)]
     }
 
     dir = paste0("/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/MAF", maf_label, "filter_", setting, "AF/") 
@@ -150,18 +158,18 @@ getBG_filterByMAF <- function(maf, setting) {
     if (!dir.exists(dir)) {
         dir.create(dir, recursive = TRUE)
     }
-    fwrite(unique(bg_SpeciesSpecific[ , .(chr, pos)]), 
-        paste0(dir, "bg_speciesSpecific_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
-    fwrite(unique(bg_SharedOnly[ , .(chr, pos)]), 
-        paste0(dir, "bg_sharedOnly_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
+    fwrite(unique(bg[ , .(chr, pos)]), 
+        paste0(dir, "bg_melOnly_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
+    # fwrite(unique(bg_SharedOnly[ , .(chr, pos)]), 
+    #     paste0(dir, "bg_sharedOnly_", maf_label, "_", setting, "AF.txt"), sep="\t", col.names=FALSE)
 
 }
 
 maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
 for (m in maf_inputs) {
-    getBG_filterByMAF(maf = m, "poly")
-    getBG_filterByMAF(maf = m, "global")
+    getBG_filterByMAF(bg_melOnly, maf = m, "poly")
+    getBG_filterByMAF(bg_melOnly, maf = m, "global")
 }
 
 masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")

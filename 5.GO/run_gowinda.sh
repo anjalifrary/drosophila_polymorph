@@ -4,12 +4,12 @@
 #SBATCH --cpus-per-task=10 # Number of CPU cores per task
 #SBATCH -N 1               # Run on one node
 #SBATCH -t 0-10:00         # 10 hours runtime
-#SBATCH --mem=70G         # Memory per node
+#SBATCH --mem=30G         # Memory per node
 #SBATCH -o /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
-#SBATCH --array=0-7
+#SBATCH --array=0-3
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
 
-MAF_dir=MAF49filter_globalAF
-CANDIDATE_id=49_globalAF
+MAF_dir=MAF49filter_polyAF
+CANDIDATE_id=49_polyAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 # running noMAF global af 0.5, 1, 2, 5
@@ -29,7 +29,8 @@ jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowin
 
 
 SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")
-BACKGROUNDS=("bg_speciesSpecific" "bg_sharedOnly")
+# BACKGROUNDS=("bg_speciesSpecific" "bg_sharedOnly")
+BACKGROUNDS=("bg_melOnly")
 
 BG_INDEX=$((SLURM_ARRAY_TASK_ID / 4))
 SUFFIX_INDEX=$((SLURM_ARRAY_TASK_ID % 4))
@@ -42,12 +43,12 @@ SUFFIX=${SUFFICES[$SUFFIX_INDEX]}
 echo "SUFFIX=$SUFFIX"
 echo "BACKGROUND=$BACKGROUND"
 
-# background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
-background="${BG_dir}/${BACKGROUND}_noMAF.txt"
+background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
+# background="${BG_dir}/noMAFfilter/${BACKGROUND}_noMAF.txt"
 candidate="${CANDIDATE_root}/${MAF_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
-output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_noMAF/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
+output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_MAF/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
 
-mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_noMAF"
+mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_MAF"
 
 echo "bg=$background"
 echo "candidate file=$candidate"
