@@ -17,11 +17,13 @@ BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
 
-MAF_dir=MAF25filter_polyAF
-CANDIDATE_id=25_polyAF
+MAF_dir=MAF20filter_polyAF
+CANDIDATE_id=20_polyAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
-# running noMAF global af 0.5, 1, 2, 5
+# running MAF poly on mel bg 25-49
+# next: global on melOnly bg
+# later run noMAF melOnly bg - poly AND global
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
