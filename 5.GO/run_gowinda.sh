@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
 
-MAF_dir=MAF10filter_polyAF
-CANDIDATE_id=10_polyAF
+MAF_dir=MAF5filter_polyAF
+CANDIDATE_id=5_polyAF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 # running MAF poly on mel bg 25-49
