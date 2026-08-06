@@ -63,22 +63,22 @@ echo "=============================="
 
 if (( $missing + $empty + $corrupt + $missingIndex == 0 )); then
     echo "All samples passed: $success ..  Copying BAMs..."
+    new_dir="/project/berglandlab/anjali/be_flies/bam/"
 
     while IFS= read -r sample; do
-        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam" \
-           /scratch/ejy4bu/backyardEvolution/bam/
+        samp_dir="${new_dir}/${sample}/"
+        mkdir -p "${samp_dir}"
+        echo "copying $sample..."
+        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam" "${samp_dir}"
+        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" "${samp_dir}"
+        cp "${wd}/${sample}/${sample}.fastp.json" "${samp_dir}"
+        cp "${wd}/${sample}/${sample}.fastp.html" "${samp_dir}"
+        cp "${wd}/${sample}/${sample}.sorted.markdup.metrics.txt" "${samp_dir}"
 
-        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" \
-           /scratch/ejy4bu/backyardEvolution/bam/
     done < "$SAMPLE_LIST"
 
-    # find "$wd" -name "*.clipped.bam" -exec cp {} /scratch/ejy4bu/backyardEvolution/bam/ \;
-    # find "$wd" -name "*.clipped.bam.bai" -exec cp {} /scratch/ejy4bu/backyardEvolution/bam/ \;
-
     echo "Copy complete."
-
-    else
-        echo "Errors detected. BAMs were not copied."
-        exit 1
-    fi
+else
+    echo "Errors detected. BAMs were not copied."
+    exit 1
 fi
