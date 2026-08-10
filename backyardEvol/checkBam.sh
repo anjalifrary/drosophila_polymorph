@@ -82,3 +82,31 @@ else
     echo "Errors detected. BAMs were not copied."
     exit 1
 fi
+
+
+# ### remove og fastq files to save space
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# wd="/scratch/ejy4bu/backyardEvolution/fastq"
+
+# > /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+
+# while IFS= read -r sample; do
+#     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
+
+#     if [ -f "$bam" ] && [ -s "$bam" ] && samtools quickcheck "$bam" && [ -f "${bam}.bai" ]; then
+#         echo "${wd}/${sample}/${sample}_1.fq.gz" >> /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+#         echo "${wd}/${sample}/${sample}_2.fq.gz" >> /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+#     fi
+# done < "$SAMPLE_LIST"
+
+# echo "Files marked for deletion:"
+# cat /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+# echo
+# echo "Number of files: $(wc -l < /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt)"
+
+# less /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+
+# # to delete:
+# xargs -d '\n' rm -v < /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+
+# hdquota -s
