@@ -25,6 +25,17 @@ sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
 SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
 echo "Processing ${sampName}"
 
+bam="${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
+
+module load samtools 
+
+if [ -f "$bam" ] && [ -s "$bam" ] && [ -f "${bam}.bai" ] && samtools quickcheck "$bam"; then
+        echo "sample already processed and success."
+        echo "BAM: $bam"
+        echo "Index: ${bam}.bai"
+        exit 0
+fi
+
 
 # 1. remove adapters (trim)
 

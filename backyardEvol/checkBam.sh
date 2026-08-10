@@ -26,7 +26,6 @@ success=0
 
 while IFS= read -r sample; do 
     SAMPLE_DIR="${wd}/${sample}"
-    # echo "checking $sample"
     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
     if [ ! -f "$bam" ]; then
         echo "MISSING: $bam"
@@ -49,6 +48,21 @@ while IFS= read -r sample; do
         continue
     fi
     success=$((success+1))
+    echo "PASSED: $sample"
+
+    echo "Removing intermediates for $sample..."
+
+    rm -f "${wd}/${sample}/${sample}.sorted.bam"
+    rm -f "${wd}/${sample}/${sample}.sorted.bam.bai"
+    rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam"
+    rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam.bai"
+    rm -f "${wd}/${sample}/${sample}.trimmed_1.fq.gz"
+    rm -f "${wd}/${sample}/${sample}.trimmed_2.fq.gz"
+    rm -f "${wd}/${sample}/${sample}_1.fq.gz"
+    rm -f "${wd}/${sample}/${sample}_2.fq.gz"
+
+    echo "Cleanup complete: $sample"
+
 
 done < "$SAMPLE_LIST"
 
