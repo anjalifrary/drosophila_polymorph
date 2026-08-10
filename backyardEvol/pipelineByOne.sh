@@ -11,8 +11,7 @@
 #SBATCH --account berglandlab
 #SBATCH --array=3001-3665%50
 
-# 1-1000
-# 1001-2000
+### need to rerun ~200 samples from 2001-3000... 
 # 2001-3000
 # 3001-3665
 
