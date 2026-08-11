@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=2501-3000%50
+#SBATCH --array=0-20
 
 ### need to rerun ~200 samples from 2001-3000... 
 # trying 2501-3000
@@ -19,7 +19,9 @@
 
 set -euo pipefail
 
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt"
+
 # SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 
 sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")

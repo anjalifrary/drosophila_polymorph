@@ -97,6 +97,18 @@ else
     exit 1
 fi
 
+# ### get missing samples
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# wd="/scratch/ejy4bu/backyardEvolution/fastq"
+
+# > /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+
+# while IFS= read -r sample; do
+#     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
+#     if [ ! -f "$bam" ]; then
+#         echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+#     fi
+# done < "$SAMPLE_LIST"
 
 # ### remove og fastq files to save space
 # SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
