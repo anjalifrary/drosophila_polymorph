@@ -3,13 +3,13 @@
 #SBATCH -J be_pipeEach # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-6:00 # 6 hours
+#SBATCH -t 0-3:00 # 3 hours
 #SBATCH --mem 80G
 #SBATCH -o /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-12
+#SBATCH --array=1-10
 
 ### need to rerun ~200 samples from 2001-3000... 
 # trying 2501-3000
