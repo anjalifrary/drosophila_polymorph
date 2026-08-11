@@ -9,14 +9,14 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/copy.%A_%a.out  # Std error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-10%100
+#SBATCH --array=1-3665%100
 
 set -euo pipefail
 
 new_dir="/project/berglandlab/alan/be_flies/05.bam"
 wd="/scratch/ejy4bu/backyardEvolution/fastq/"
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 
 sample=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
 echo "Processing ${sample}"
