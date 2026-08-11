@@ -9,23 +9,16 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-1
-
-### need to rerun ~200 samples from 2001-3000... 
-# trying 2501-3000
-# next: 2001-2500
-# 2001-3000
-# 3001-3665
+#SBATCH --array=1-3664%1000
 
 set -euo pipefail
 
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt"
-
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt"
 # SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 
-# sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
-sampName="Dsimu_m_feab_2021_09_30_1314"
+sampName=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
+# sampName="Dsimu_m_feab_2021_09_30_1314" # required increased poolSize for clipOverlap, step 4
 SAMPLE_DIR="/scratch/ejy4bu/backyardEvolution/fastq/${sampName}"
 echo "Processing ${sampName}"
 
@@ -157,6 +150,8 @@ fi
 echo "mark dupes complete"
 
 # 4. soft clipping overlapping reads  
+# had to increase poolSize from default 1000000 to 2500000 for "Dsimu_m_feab_2021_09_30_1314": --poolSize 2500000 \
+
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" ]; then
     echo "no markdup'd bam. "
@@ -169,7 +164,6 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" ]; then
     bam clipOverlap \
         --in "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" \
         --out "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" \
-        --poolSize 2500000 \
         --stats 2> "${SAMPLE_DIR}/${sampName}.clipOverlapStats.txt"
     echo "clipping complete"
 
@@ -190,7 +184,5 @@ else
 fi
 
 echo "complete"
-
-# all done
 
 echo "all steps complete. bam located at ${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
