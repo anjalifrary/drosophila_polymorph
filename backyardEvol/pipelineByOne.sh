@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-1
+#SBATCH --array=1-11
 
 ### need to rerun ~200 samples from 2001-3000... 
 # trying 2501-3000
@@ -169,11 +169,12 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" ]; then
     bam clipOverlap \
         --in "${SAMPLE_DIR}/${sampName}.sorted.markdup.bam" \
         --out "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" \
+        --poolSize 2500000 \
         --stats 2> "${SAMPLE_DIR}/${sampName}.clipOverlapStats.txt"
+    echo "clipping complete"
 
     conda deactivate
     conda deactivate
-    echo "clipping complete"
 
     samtools index "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
     echo "indexing complete"
