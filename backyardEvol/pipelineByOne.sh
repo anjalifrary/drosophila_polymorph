@@ -76,7 +76,6 @@ echo "trimming complete..."
 # 2. mapping
 
 module load bwa
-module load samtools
 
 # indexed ref must exist in same directory
 ref_sim="/scratch/ejy4bu/backyardEvolution/references/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
@@ -129,7 +128,6 @@ echo "mapping/index complete"
 # 3. mark duplicates
 
 module load picard
-module load samtools
 
 
 if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.bam" ]; then
@@ -172,11 +170,9 @@ if [ ! -f "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" ]; then
         --out "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam" \
         --stats 2> "${SAMPLE_DIR}/${sampName}.clipOverlapStats.txt"
 
+    conda deactivate
+    conda deactivate
     echo "clipping complete"
-    conda deactivate
-    conda deactivate
-
-    module load samtools
 
     samtools index "${SAMPLE_DIR}/${sampName}.sorted.markdup.clipped.bam"
     echo "indexing complete"
