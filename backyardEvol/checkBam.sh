@@ -75,40 +75,40 @@ echo "Corrupt files:      $corrupt"
 echo "Missing index:      $missingIndex"
 echo "=============================="
 
-if (( $missing + $empty + $corrupt + $missingIndex == 0 )); then
-    echo "All samples passed: $success ..  Copying BAMs..."
-    new_dir="/project/berglandlab/anjali/be_flies/bam/"
+# if (( $missing + $empty + $corrupt + $missingIndex == 0 )); then
+#     echo "All samples passed: $success ..  Copying BAMs..."
+#     new_dir="/project/berglandlab/anjali/be_flies/bam/"
 
-    while IFS= read -r sample; do
-        samp_dir="${new_dir}/${sample}/"
-        mkdir -p "${samp_dir}"
-        echo "copying $sample..."
-        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam" "${samp_dir}"
-        cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" "${samp_dir}"
-        cp "${wd}/${sample}/${sample}.fastp.json" "${samp_dir}"
-        cp "${wd}/${sample}/${sample}.fastp.html" "${samp_dir}"
-        cp "${wd}/${sample}/${sample}.sorted.markdup.metrics.txt" "${samp_dir}"
+#     while IFS= read -r sample; do
+#         samp_dir="${new_dir}/${sample}/"
+#         mkdir -p "${samp_dir}"
+#         echo "copying $sample..."
+#         cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam" "${samp_dir}"
+#         cp "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" "${samp_dir}"
+#         cp "${wd}/${sample}/${sample}.fastp.json" "${samp_dir}"
+#         cp "${wd}/${sample}/${sample}.fastp.html" "${samp_dir}"
+#         cp "${wd}/${sample}/${sample}.sorted.markdup.metrics.txt" "${samp_dir}"
 
-    done < "$SAMPLE_LIST"
+#     done < "$SAMPLE_LIST"
 
-    echo "Copy complete."
-else
-    echo "Errors detected. BAMs were not copied."
-    exit 1
-fi
+#     echo "Copy complete."
+# else
+#     echo "Errors detected. BAMs were not copied."
+#     exit 1
+# fi
 
-# ### get missing samples
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-# wd="/scratch/ejy4bu/backyardEvolution/fastq"
+### get missing samples
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+wd="/scratch/ejy4bu/backyardEvolution/fastq"
 
-# > /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
 
-# while IFS= read -r sample; do
-#     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
-#     if [ ! -f "$bam" ]; then
-#         echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
-#     fi
-# done < "$SAMPLE_LIST"
+while IFS= read -r sample; do
+    bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
+    if [ ! -f "$bam" ]; then
+        echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+    fi
+done < "$SAMPLE_LIST"
 
 # ### remove og fastq files to save space
 # SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
