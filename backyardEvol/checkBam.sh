@@ -97,31 +97,31 @@ echo "=============================="
 #     exit 1
 # fi
 
-# ### get missing samples
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-# wd="/scratch/ejy4bu/backyardEvolution/fastq"
+### get missing samples
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+wd="/scratch/ejy4bu/backyardEvolution/fastq"
 
-# > /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
 
-# while IFS= read -r sample; do
-#     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
-#     if [ ! -f "$bam" ]; then
-#         echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
-#     fi
-# done < "$SAMPLE_LIST"
+while IFS= read -r sample; do
+    bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
+    if [ ! -f "$bam" ]; then
+        echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+    fi
+done < "$SAMPLE_LIST"
 
 # ### remove og fastq files to save space
 # SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
 # wd="/scratch/ejy4bu/backyardEvolution/fastq"
 
-# > /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+# > /scratch/ejy4bu/backyardEvolution/metadata/delete_fastqs.txt
 
 # while IFS= read -r sample; do
 #     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
 
 #     if [ -f "$bam" ] && [ -s "$bam" ] && samtools quickcheck "$bam" && [ -f "${bam}.bai" ]; then
-#         echo "${wd}/${sample}/${sample}_1.fq.gz" >> /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
-#         echo "${wd}/${sample}/${sample}_2.fq.gz" >> /scratch/ejy4bu/backyardEvolution/delete_fastqs.txt
+#         echo "${wd}/${sample}/${sample}_1.fq.gz" >> /scratch/ejy4bu/backyardEvolution/metadata/delete_fastqs.txt
+#         echo "${wd}/${sample}/${sample}_2.fq.gz" >> /scratch/ejy4bu/backyardEvolution/metadata/delete_fastqs.txt
 #     fi
 # done < "$SAMPLE_LIST"
 
