@@ -9,9 +9,11 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/pipe/pipeEach.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=3001-3665%50
+#SBATCH --array=2501-3000%50
 
 ### need to rerun ~200 samples from 2001-3000... 
+# trying 2501-3000
+# next: 2001-2500
 # 2001-3000
 # 3001-3665
 
