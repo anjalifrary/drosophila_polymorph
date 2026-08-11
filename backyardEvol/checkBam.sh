@@ -15,8 +15,8 @@ module load samtools
 
 
 SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-wd="/scratch/ejy4bu/backyardEvolution/fastq"
-
+# wd="/scratch/ejy4bu/backyardEvolution/fastq"
+wd="/project/berglandlab/alan/be_flies/05.bam"
 
 missing=0
 empty=0
@@ -50,18 +50,18 @@ while IFS= read -r sample; do
     success=$((success+1))
     echo "PASSED: $sample"
 
-    echo "Removing intermediates for $sample..."
+    # echo "Removing intermediates for $sample..."
 
-    rm -f "${wd}/${sample}/${sample}.sorted.bam"
-    rm -f "${wd}/${sample}/${sample}.sorted.bam.bai"
-    rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam"
-    rm -f "${wd}/${sample}/${sample}.sorted.markdup.bai"
-    rm -f "${wd}/${sample}/${sample}.trimmed_1.fq.gz"
-    rm -f "${wd}/${sample}/${sample}.trimmed_2.fq.gz"
-    rm -f "${wd}/${sample}/${sample}_1.fq.gz"
-    rm -f "${wd}/${sample}/${sample}_2.fq.gz"
+    # rm -f "${wd}/${sample}/${sample}.sorted.bam"
+    # rm -f "${wd}/${sample}/${sample}.sorted.bam.bai"
+    # rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam"
+    # rm -f "${wd}/${sample}/${sample}.sorted.markdup.bai"
+    # rm -f "${wd}/${sample}/${sample}.trimmed_1.fq.gz"
+    # rm -f "${wd}/${sample}/${sample}.trimmed_2.fq.gz"
+    # rm -f "${wd}/${sample}/${sample}_1.fq.gz"
+    # rm -f "${wd}/${sample}/${sample}_2.fq.gz"
 
-    echo "Cleanup complete: $sample"
+    # echo "Cleanup complete: $sample"
 
 
 done < "$SAMPLE_LIST"
