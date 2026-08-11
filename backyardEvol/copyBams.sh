@@ -15,7 +15,8 @@ set -euo pipefail
 
 new_dir="/project/berglandlab/alan/be_flies/05.bam"
 wd="/scratch/ejy4bu/backyardEvolution/fastq/"
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 
 sample=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
 echo "Processing ${sample}"
