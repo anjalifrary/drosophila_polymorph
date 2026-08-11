@@ -9,14 +9,14 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/be/copy.%A_%a.out  # Std error
 #SBATCH -p standard
 #SBATCH --account berglandlab
-#SBATCH --array=1-3666%100
+#SBATCH --array=1-3664%100
 
 set -euo pipefail
 
 new_dir="/project/berglandlab/alan/be_flies/05.bam"
 wd="/scratch/ejy4bu/backyardEvolution/fastq/"
-# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
+SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/testSamples.txt"
 
 sample=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$SAMPLE_LIST")
 echo "Processing ${sample}"
@@ -33,17 +33,18 @@ mkdir -p ${SAMPLE_DIR}
 
 echo "copying $sample..."
 for file in \
-    "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam" "${SAMPLE_DIR}" \
-    "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" "${SAMPLE_DIR}" \
-    "${wd}/${sample}/${sample}.fastp.json" "${SAMPLE_DIR}" \
-    "${wd}/${sample}/${sample}.fastp.html" "${SAMPLE_DIR}" \
-    "${wd}/${sample}/${sample}.sorted.markdup.metrics.txt" "${SAMPLE_DIR}" \
-    "${wd}/${sample}/${sample}.clipOverlapStats.txt" "${SAMPLE_DIR}"
+    "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"  \
+    "${wd}/${sample}/${sample}.sorted.markdup.clipped.bam.bai" \
+    "${wd}/${sample}/${sample}.fastp.json" \
+    "${wd}/${sample}/${sample}.fastp.html" \
+    "${wd}/${sample}/${sample}.sorted.markdup.metrics.txt" \
+    "${wd}/${sample}/${sample}.clipOverlapStats.txt" 
 do
     if [ ! -f "$file" ]; then
         echo "ERROR: Missing $file"
         exit 1
     fi
+    cp $file "${SAMPLE_DIR}"
 done
 
 echo "copying $sample complete"
