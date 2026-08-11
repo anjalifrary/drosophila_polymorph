@@ -97,18 +97,31 @@ echo "=============================="
 #     exit 1
 # fi
 
-### get missing samples
-SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
-wd="/scratch/ejy4bu/backyardEvolution/fastq"
+# ### get missing samples
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
+# wd="/scratch/ejy4bu/backyardEvolution/fastq"
 
-> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+# > /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
 
-while IFS= read -r sample; do
-    bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
-    if [ ! -f "$bam" ]; then
-        echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
-    fi
-done < "$SAMPLE_LIST"
+# while IFS= read -r sample; do
+#     bam="${wd}/${sample}/${sample}.sorted.markdup.clipped.bam"
+#     if [ ! -f "$bam" ]; then
+#         echo "$sample" >> /scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt
+#     fi
+# done < "$SAMPLE_LIST"
+
+# ### delete incorrect samples
+# SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/missingSamples.txt"
+# wd="/scratch/ejy4bu/backyardEvolution/fastq"
+
+# while IFS= read -r sample; do
+#     rm -f "${wd}/${sample}/${sample}.sorted.bam"
+#     rm -f "${wd}/${sample}/${sample}.sorted.bam.bai"
+#     rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam"
+#     rm -f "${wd}/${sample}/${sample}.sorted.markdup.bai"
+#     rm -f "${wd}/${sample}/${sample}.clipOverlapStats.txt"
+#     ls ${wd}/${sample}/
+# done < "$SAMPLE_LIST"
 
 # ### remove og fastq files to save space
 # SAMPLE_LIST="/scratch/ejy4bu/backyardEvolution/metadata/allSamples.txt"
