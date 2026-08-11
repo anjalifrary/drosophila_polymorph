@@ -55,7 +55,7 @@ while IFS= read -r sample; do
     rm -f "${wd}/${sample}/${sample}.sorted.bam"
     rm -f "${wd}/${sample}/${sample}.sorted.bam.bai"
     rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam"
-    rm -f "${wd}/${sample}/${sample}.sorted.markdup.bam.bai"
+    rm -f "${wd}/${sample}/${sample}.sorted.markdup.bai"
     rm -f "${wd}/${sample}/${sample}.trimmed_1.fq.gz"
     rm -f "${wd}/${sample}/${sample}.trimmed_2.fq.gz"
     rm -f "${wd}/${sample}/${sample}_1.fq.gz"
