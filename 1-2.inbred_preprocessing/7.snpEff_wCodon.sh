@@ -18,15 +18,15 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
 
 # not reheadered:
 # cp /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz /scratch/ejy4bu/drosophila/inbred/combined_vcf/
-in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.vcf.gz"
+in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz"
 
 
 # in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
-out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.biallelic.snpsOnly.ann.eff.vcf.gz"
+out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.vcf.gz"
 
 # file /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz
 # bcftools view -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz | head
