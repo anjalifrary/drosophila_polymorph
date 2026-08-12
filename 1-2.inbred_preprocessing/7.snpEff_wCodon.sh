@@ -18,15 +18,19 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+
 
 # not reheadered:
 # cp /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz /scratch/ejy4bu/drosophila/inbred/combined_vcf/
-in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz"
-
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz"
+in_vcf="${outdir}/dsim3.signor.combined.norm.vcf.gz" 
 
 # in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
-out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.ann.eff.vcf.gz"
+
 
 # file /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz
 # bcftools view -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz | head
@@ -37,12 +41,22 @@ out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.vcf.gz"
 
 # file /project/berglandlab/DGRP_freeze2_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz
 
-echo "Annotating Dm6 vcf with SnpEff..."
+# echo "Annotating Dm6 vcf with SnpEff..."
 
+# java -Xmx32G \
+#     -jar ${SNPEFF}/snpEff.jar ann \
+#     -formatEff \
+#     -v BDGP6.86 \
+#     -stats ${outdir}/snpEff_summary.html \
+#     $in_vcf \
+#     | bgzip -@ 10 -c - > \
+#     $out_vcf
+
+echo "Annotating Dsim3 vcf with SnpEff..."
 java -Xmx32G \
     -jar ${SNPEFF}/snpEff.jar ann \
     -formatEff \
-    -v BDGP6.86 \
+    Dsim_v3.1 \
     -stats ${outdir}/snpEff_summary.html \
     $in_vcf \
     | bgzip -@ 10 -c - > \
