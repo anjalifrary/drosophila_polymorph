@@ -16,12 +16,12 @@ set -euo pipefail
 module load gcc/11.4.0
 module load bcftools
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/test/"
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
 mkdir -p $outdir
 # ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 
-vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
+vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
 # vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
 echo "number records before: "
 bcftools index -n $vcf
