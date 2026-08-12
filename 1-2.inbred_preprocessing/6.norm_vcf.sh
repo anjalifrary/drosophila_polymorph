@@ -13,17 +13,17 @@
 # sbatch --dependency=afterok:17477781 1-2.inbred_preprocessing/6.norm_vcf.sh
 
 set -euo pipefail
-
-module load bcftools
 module load gcc/11.4.0
+module load bcftools
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
-ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-# ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/test/"
+mkdir -p $outdir
+# ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 
-# vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
-vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
-echo "number rows before: "
+vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
+# vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
+echo "number records before: "
 bcftools index -n $vcf
 
 # # bcftools index $vcf
@@ -60,30 +60,31 @@ bcftools index -n $vcf
 # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
 bcftools norm \
     -f ${ref} \
-    -m +both \
+    -m -both \
     -Oz \
-    -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
-    ${outdir}/dsim3.signor.combined.raw.vcf.gz
+    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz \
+    ${vcf}
 
 echo "normalized"
 
-# should i really do this now or figure out how to better filter for it later? 
-# filters for biallelic snps (remove indels, multiallelic snps)
-bcftools view \
-    -v snps \
-    -m2 -M2 \
-    -Oz \
-    -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
-    ${outdir}/dsim3.signor.combined.norm.vcf.gz
+# # should i really do this now or figure out how to better filter for it later? 
+# # filters for biallelic snps (remove indels, multiallelic snps)
+# bcftools view \
+#     -v snps \
+#     -m2 -M2 \
+#     -Oz \
+#     -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
+#     ${outdir}/dsim3.signor.combined.norm.vcf.gz
 
-echo "filtered for biallelic snps"
+# echo "filtered for biallelic snps"
 
-bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
+bcftools index -f ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz
 echo "indexed. "
 
-echo "number rows after: "
-
-bcftools index -n ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
+echo "number records before: "
+bcftools index -n $vcf
+echo "number records after: "
+bcftools index -n ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz
 
 
 echo "complete..."
