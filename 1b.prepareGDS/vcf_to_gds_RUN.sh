@@ -16,7 +16,7 @@ module load R/4.5.0
 module load bcftools
 
 # reheader dmel file
-vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.vcf.gz"
+vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.ann.eff.vcf.gz"
 # bcftools view -h $vcf \
 # > /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt
 

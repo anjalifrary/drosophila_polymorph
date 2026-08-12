@@ -18,28 +18,10 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
+# ### mel:
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-
-
-# not reheadered:
-# cp /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz /scratch/ejy4bu/drosophila/inbred/combined_vcf/
-# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz"
-in_vcf="${outdir}/dsim3.signor.combined.norm.vcf.gz" 
-
-# in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
-# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.vcf.gz"
-out_vcf="${outdir}/dsim3.signor.combined.norm.ann.eff.vcf.gz"
-
-
-# file /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz
-# bcftools view -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz | head
-# file /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz 
-# bcftools view -h /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz | head
-# file $in_vcf
-# bcftools view -h $in_vcf | head
-
-# file /project/berglandlab/DGRP_freeze2_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.ann.eff.vcf.gz"
 
 # echo "Annotating Dm6 vcf with SnpEff..."
 
@@ -51,6 +33,11 @@ out_vcf="${outdir}/dsim3.signor.combined.norm.ann.eff.vcf.gz"
 #     $in_vcf \
 #     | bgzip -@ 10 -c - > \
 #     $out_vcf
+
+### sim:
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+in_vcf="${outdir}/dsim3.signor.combined.norm.filtered.vcf.gz" 
+out_vcf="${outdir}/dsim3.signor.combined.norm.filtered.ann.eff.vcf.gz"
 
 echo "Annotating Dsim3 vcf with SnpEff..."
 java -Xmx32G \
@@ -74,6 +61,26 @@ cp ${out_vcf} \
 
 cp "${out_vcf}.csi" \
 /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
+
+
+
+
+### Junk
+
+# not reheadered:
+# cp /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz /scratch/ejy4bu/drosophila/inbred/combined_vcf/
+
+# in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
+
+
+# file /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz
+# bcftools view -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz | head
+# file /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz 
+# bcftools view -h /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz | head
+# file $in_vcf
+# bcftools view -h $in_vcf | head
+
+# file /project/berglandlab/DGRP_freeze2_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz
 
 
 

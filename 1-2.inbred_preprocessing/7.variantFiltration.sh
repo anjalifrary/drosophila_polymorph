@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH -J norm # A single job name for the array
+#SBATCH -J gatkfilt # A single job name for the array
 #SBATCH --cpus-per-task=10
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
 #SBATCH --mem 100G
-#SBATCH -o /scratch/ejy4bu/err_outs/SRA/norm_vcf.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/SRA/norm_vcf.%A_%a.err # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A_%a.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
