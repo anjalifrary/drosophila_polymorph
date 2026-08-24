@@ -353,8 +353,10 @@ gene_persistence_matrix <- function(dt, go_id, class_name, bg_name, maf_def_name
 dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
+long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
 long_dt <- build_long_gowinda(files_list)
 # saveRDS(long_dt, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
+
 
 View(long_dt)
 View(long_dt[classes=="AB" & background=="speciesSpecific_MAF" & MAF_def == "polyAF", ])
@@ -555,3 +557,5 @@ maf_def = "polyAF"
 ### 3. merge on MKish stats to look at specific genes that are significant in both terms
 
 
+
+### 4. looking at defense GO: GO.id==0006952
