@@ -5,8 +5,8 @@
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
 #SBATCH --mem 100G
-#SBATCH -o /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A_%a.err # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
@@ -16,7 +16,7 @@ module load bcftools
 module load gatk
 module load htslib
 
-# ### mel:
+### mel:
 # ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
 # in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz"
@@ -27,7 +27,7 @@ module load htslib
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
 in_vcf="${outdir}/dsim3.signor.combined.norm.vcf.gz"
-out_vcf="${outdir}/dsim3.signor.combined.norm.filtered.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
 
 ### 5. Filter variants (used GATK best practices hard filters.. ?)
 echo "Filtering..."

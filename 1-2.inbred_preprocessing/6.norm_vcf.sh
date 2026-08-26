@@ -5,8 +5,8 @@
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-10:00 # 10 hours
 #SBATCH --mem 100G
-#SBATCH -o /scratch/ejy4bu/err_outs/SRA/norm_vcf.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/SRA/norm_vcf.%A_%a.err # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/norm_vcf.%A.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/norm_vcf.%A.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
@@ -93,6 +93,9 @@ bcftools view \
 
 vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.vcf.gz"
 echo "Filtered for primary chr"
+
+bcftools index -f $vcf
+
 
 # # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
 bcftools norm \
