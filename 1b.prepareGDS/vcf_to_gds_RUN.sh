@@ -15,20 +15,20 @@ module load gcc/11.4.0 openmpi/4.1.4
 module load R/4.5.0
 module load bcftools
 
-# reheader dmel file
-vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.ann.eff.vcf.gz"
-# bcftools view -h $vcf \
-# > /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt
+# # reheader dmel file
+# vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.ann.eff.vcf.gz"
+# # bcftools view -h $vcf \
+# # > /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt
 
-# old: ##INFO=<ID=NS,Number=0,Type=Flag,Description="Non-synonymous SNP">
-# new: ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
+# # old: ##INFO=<ID=NS,Number=0,Type=Flag,Description="Non-synonymous SNP">
+# # new: ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
 
-bcftools reheader \
-    -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt \
-    -o /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.reheadered.ann.eff.vcf.gz \
-    $vcf
+# bcftools reheader \
+#     -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt \
+#     -o /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.reheadered.ann.eff.vcf.gz \
+#     $vcf
 
-bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.reheadered.ann.eff.vcf.gz
+# bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.reheadered.ann.eff.vcf.gz
 
 Rscript 1b.prepareGDS/vcf_to_gds.R
 

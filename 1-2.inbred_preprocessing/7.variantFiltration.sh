@@ -19,8 +19,9 @@ module load htslib
 # ### mel:
 # ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz"
-# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.vcf.gz"
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.vcf.gz"
+
 
 ### sim
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
