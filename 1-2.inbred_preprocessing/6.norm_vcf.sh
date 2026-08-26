@@ -65,7 +65,7 @@ bcftools norm \
     -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.vcf.gz \
     ${vcf}
 
-echo "normalized"
+echo "normalized with -both flag"
 
 # # should i really do this now or figure out how to better filter for it later? 
 # # filters for biallelic snps (remove indels, multiallelic snps)
