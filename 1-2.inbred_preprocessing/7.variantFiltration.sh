@@ -30,6 +30,8 @@ in_vcf="${outdir}/dsim3.signor.combined.norm.vcf.gz"
 out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
 
 ### 5. Filter variants (used GATK best practices hard filters.. ?)
+echo "Regenerating index via GATK"
+gatk IndexFeatureFile -I "$in_vcf"
 echo "Filtering..."
 gatk VariantFiltration \
     -R ${ref} \
