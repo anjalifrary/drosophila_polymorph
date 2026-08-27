@@ -13,13 +13,29 @@
 set -euo pipefail
 
 module load bcftools
-
-wm_dust="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
-rpt_mask="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
 # gff coord are 0-based, half-open = subtract 1 from the start pos, leave end pos as is 
 # bed coord are 1-based, inclusive 
 
+## sim
+wm_dust="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
+rpt_mask="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
 filter_bed="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/dsim3.repeatMask_wmdust_combined.bed"
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+
+## mel
+rpt_mask="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/dmel-all-chromosome-r6.12.fasta.out.gff"
+wm_dust="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/dmel-all-chromosome-r6.12.fasta.wm.dust.bed"
+filter_bed="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/repeat/dm6.repeatMask_wmdust_combined.bed"
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+
+
+# r1_mel="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel-all-chromosome-r6.12.fasta.gz"
+# r2_mel="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna"
+### chr lengths are the same... so proceeding using these files 
 
 {
     awk 'BEGIN{OFS="\t"} !/^#/ {
@@ -36,9 +52,7 @@ sort -k1,1 -k2,2n > $filter_bed
 
 echo "created bed for filtering"
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
-out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+
 
 echo "filtering vcf"
 bcftools view \
