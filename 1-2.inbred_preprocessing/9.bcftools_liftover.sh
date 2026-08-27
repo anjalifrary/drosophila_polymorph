@@ -131,7 +131,7 @@ chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/l
 # ouput vcf:
 vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
 
-singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
+# singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
 bcftools +liftover \
   -Oz -o $vcf_dm6 \
   $input_vcf_dsim3 -- \
@@ -140,9 +140,11 @@ bcftools +liftover \
   -c $chain_dsim3_dm6 \
   --drop-tags FORMAT/FREQ,FORMAT/AD \
   --write-src
-"
+# "
 
-bcftools index -t "$vcf_dm6"
+bcftools sort "$vcf_dm6" -Oz -o "${vcf_dm6%.vcf.gz}.sorted.vcf.gz"
+
+bcftools index -t "${vcf_dm6%.vcf.gz}.sorted.vcf.gz"
 
 # bcftools view -h $vcf_dm6 \
 # | sed 's/Number=A/Number=./g' > /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/header.txt
