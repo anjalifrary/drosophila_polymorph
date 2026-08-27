@@ -23,14 +23,16 @@ snp_vcf="${outdir}/dsim3.signor/combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
 # out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.indel10filt.snps.vcf.gz"
 # ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
+echo "filtering via SnpGap"
 bcftools filter \
     --SnpGap 10 \
-    "$in_vcf" \
+    $in_vcf \
     -Oz \
-    -o "$gap_vcf"
-
+    -o $gap_vcf
+echo "completed SnpGap filtering"
 bcftools index -t "$gap_vcf"
 
+echo "filtering for snps only"
 bcftools view \
     -v snps \
     "$gap_vcf" \
@@ -38,6 +40,7 @@ bcftools view \
     -o "$snp_vcf"
 
 bcftools index -t "$snp_vcf"
+echo "complete"
 
 
 # genome="${outdir}/dsim3.chrLengths.txt"
