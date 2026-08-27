@@ -20,8 +20,8 @@ SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
 # ### mel:
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.vcf.gz"
-# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.norm.filtered.ann.eff.vcf.gz"
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 # echo "Annotating Dm6 vcf with SnpEff..."
 
@@ -36,8 +36,8 @@ SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
 ### sim:
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-in_vcf="${outdir}/dsim3.signor.combined.norm.filtered.vcf.gz" 
-out_vcf="${outdir}/dsim3.signor.combined.norm.filtered.ann.eff.vcf.gz"
+in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 echo "Annotating Dsim3 vcf with SnpEff..."
 java -Xmx32G \
