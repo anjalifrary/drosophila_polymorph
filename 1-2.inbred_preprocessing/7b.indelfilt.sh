@@ -16,12 +16,18 @@ set -euo pipefail
 module load bcftools
 # module load bedtools
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
-gap_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.vcf.gz"
-snp_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
-# out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.indel10filt.snps.vcf.gz"
-# ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+# ### sim: 
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+# in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
+# gap_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.vcf.gz"
+# snp_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+
+
+### mel:
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.vcf.gz"
+gap_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.vcf.gz"
+snp_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
 
 echo "filtering via SnpGap"
 bcftools filter \

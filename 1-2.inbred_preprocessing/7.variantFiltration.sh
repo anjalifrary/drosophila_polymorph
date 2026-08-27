@@ -47,3 +47,5 @@ gatk VariantFiltration \
     --filter-expression "MQRankSum < -12.5" \
     --filter-name "ReadPosRankSum8" \
     --filter-expression "ReadPosRankSum < -8.0"
+
+echo "complete"

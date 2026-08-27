@@ -1,7 +1,23 @@
-### from alan
+#!/usr/bin/env bash
+#
+#SBATCH -J repeatfilter # A single job name for the array
+#SBATCH --cpus-per-task=10
+#SBATCH -N 1 # on one node
+#SBATCH -t 0-10:00 # 10 hours
+#SBATCH --mem 100G
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/rpt_filt.%A.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/rpt_filt.%A.err # Standard error
+#SBATCH -p standard
+#SBATCH --account berglandlab
+
+set -euo pipefail
+
+module load bcftools
 
 wm_dust="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
 rpt_mask="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
+
+filter_bed="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/dsim3.repeatMask_wmdust_combined.bed"
 
 {
     awk 'BEGIN{OFS="\t"} !/^#/ {
@@ -12,23 +28,24 @@ rpt_mask="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF
         print $1,$4-1,$5,"RepeatMasker"
     }' "$rpt_mask"
 } |
-sort -k1,1 -k2,2n |
-# bedtools merge -i - \
-#     > dsim.repeats_lowcomplexity.bed
+sort -k1,1 -k2,2n > $filter_bed
 
 
+echo "created bed for filtering"
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
-out_vcf="${outdir}//dsim3.signor.combined.norm.gatkfilt.repeatmasked.wmdust.vcf.gz"
+vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
 
+echo "filtering vcf"
 bcftools view \
-    -T ^dsim.repeats_lowcomplexity.bed \
+    -T ^$filter_bed \
     -Oz \
     -o $out_vcf \
     $vcf
 
 bcftools index -t $out_vcf
+echo "completed filtering & indexing"
 
 
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
@@ -43,15 +60,15 @@ bcftools index -t $out_vcf
 # bcftools index -t $out_vcf
 
 
-cat /project/berglandlab/multispecies_endemism/data/repeat_masking_finalresult/dmel-all-chromosome-r6.12.fasta.wm.dust.bed | \
-    awk '{print($0"\twmDust")}' > /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed
+# cat /project/berglandlab/multispecies_endemism/data/repeat_masking_finalresult/dmel-all-chromosome-r6.12.fasta.wm.dust.bed | \
+#     awk '{print($0"\twmDust")}' > /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed
 
-    cat /project/berglandlab/multispecies_endemism/data/repeat_masking_finalresult/dmel-all-chromosome-r6.12.fasta.out.gff | \
-    awk '{print($1"\t"$4"\t"$5"\trepasker") }' >> /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed
-    sed -i 's/-1/0/g' /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed
+#     cat /project/berglandlab/multispecies_endemism/data/repeat_masking_finalresult/dmel-all-chromosome-r6.12.fasta.out.gff | \
+#     awk '{print($1"\t"$4"\t"$5"\trepasker") }' >> /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed
+#     sed -i 's/-1/0/g' /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed
 
-    cat /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed | awk '{
-    if($2<$3) print $0
-    if($3<$2) print $1"\t"$3"\t"$2"\t"$4"flip"
-    }' > /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.flip.bed
+#     cat /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.bed | awk '{
+#     if($2<$3) print $0
+#     if($3<$2) print $1"\t"$3"\t"$2"\t"$4"flip"
+#     }' > /project/berglandlab/alan/be_flies/00.refgenomes/dmel.reps.flip.bed
 
