@@ -17,3 +17,16 @@ R
 #SBATCH -e /scratch/ejy4bu/err_outs/name.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
+
+
+for vcf in \
+"DGRP2.source_BCM-HGSC.dm6.final.vcf.gz" \
+"DGRP2.source_BCM-HGSC.dm6.final.reheadered.vcf.gz" \
+"DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.vcf.gz" \
+"DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz" \
+"DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.vcf.gz"
+do
+    echo "Testing: $vcf"
+    bgzip -t "$vcf"
+    echo "exit status: $?"
+done

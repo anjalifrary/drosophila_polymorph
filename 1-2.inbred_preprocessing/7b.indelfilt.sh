@@ -32,14 +32,19 @@ snp_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.ga
 echo "filtering via SnpGap"
 bcftools filter \
     --SnpGap 10 \
+    --threads 10 \
     $in_vcf \
     -Oz \
     -o $gap_vcf
 echo "completed SnpGap filtering"
+bgzip -t "$gap_vcf"
+echo "passed test"
+
 bcftools index -t "$gap_vcf"
 
 echo "filtering for snps only"
 bcftools view \
+    --threads 10 \
     -v snps \
     "$gap_vcf" \
     -Oz \
