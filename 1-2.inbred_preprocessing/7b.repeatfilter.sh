@@ -16,6 +16,8 @@ module load bcftools
 
 wm_dust="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
 rpt_mask="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
+# gff coord are 0-based, half-open = subtract 1 from the start pos, leave end pos as is 
+# bed coord are 1-based, inclusive 
 
 filter_bed="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/dsim3.repeatMask_wmdust_combined.bed"
 
@@ -29,6 +31,7 @@ filter_bed="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/d
     }' "$rpt_mask"
 } |
 sort -k1,1 -k2,2n > $filter_bed
+# sort by chr then by pos (n=numeric)
 
 
 echo "created bed for filtering"

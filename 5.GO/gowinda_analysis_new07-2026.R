@@ -559,3 +559,85 @@ maf_def = "polyAF"
 
 
 ### 4. looking at defense GO: GO.id==0006952
+
+
+
+### looking at busco genes
+
+load("/scratch/ejy4bu/drosophila/GO/gowinda/Drosophila_melanogaster.11_08_2026.nlpTable.paramask.genmap.busco.repeatmask.wmdust.Rdata")
+
+long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
+
+enriched_genes <- unique(unlist(long_dt$GeneListFound))
+
+enriched_genes <- sub("^fbgn", "FBgn", enriched_genes)
+
+head(enriched_genes)
+
+nlp_busco <- nlp[, .(
+    busco = if (all(is.na(busco))) NA_character_ else unique(na.omit(busco))[1]
+), by = gene]
+
+
+gene_map <- AnnotationDbi::select(
+    org.Dm.eg.db,
+    keys = enriched_genes,
+    keytype = "FLYBASE",
+    columns = c("FLYBASE", "FLYBASECG")
+)
+
+
+gene_map_busco <- merge(
+    gene_map,
+    nlp_busco,
+    by.x = "FLYBASECG",
+    by.y = "gene",
+    all.x = TRUE
+)
+busco_genes <- unique(
+    gene_map_busco[["FLYBASE"]][!is.na(gene_map_busco[["busco"]])]
+)
+long_dt[, n_BUSCOgenes := vapply(
+    GeneListFound,
+    function(x) {
+        genes <- unique(sub("^fbgn", "FBgn", unlist(x)))
+        sum(genes %in% busco_genes)
+    },
+    integer(1)
+)]
+
+saveRDS(long_dt, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.busco.rds")
+
+# repeat for prop of busco genes (n_BUSCO / n_genes found)
+library(stringr)
+
+plot_dt <- long_dt[
+    classes == "AB" &
+    MAF_def == "polyAF" &
+    background == "sharedOnly_MAF" &
+    FDR < 0.05
+]
+
+plot_dt[, prop_BUSCO := n_BUSCOgenes / N_GenesFound]
+
+plot_dt <- plot_dt[order(prop_BUSCO)]
+
+ggplot(
+    plot_dt,
+    aes(
+        x = prop_BUSCO,
+        y = reorder(Description, prop_BUSCO)
+    )
+) +
+    geom_point(size = 2.5) +
+    scale_y_discrete(
+        labels = \(x) stringr::str_wrap(x, width = 45)
+    ) +
+    theme_classic() +
+    labs(
+        x = "Prop of BUSCO genes",
+        y = "GO term"
+    ) +
+    theme(
+        axis.text.y = element_text(size = 4)
+    )
