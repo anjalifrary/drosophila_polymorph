@@ -40,6 +40,7 @@ java -Xmx32G \
 # out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 # echo "Annotating Dsim3 vcf with SnpEff..."
+
 # java -Xmx32G \
 #     -jar ${SNPEFF}/snpEff.jar ann \
 #     -formatEff \

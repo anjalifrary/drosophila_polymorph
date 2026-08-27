@@ -3,6 +3,9 @@ library(data.table)
 library(doMC)
 registerDoMC(16)
 
+# https://github.com/connor122721/SharedPolymorphismsDaphnia/blob/864eda3b218e1bd2880907a651d791165021261e/Figures/Figure_3_Excess_TSPs/Scripts/Neutral_shared_polymorphism_expectation/1.TSP_MasterScript.R#L10
+## for inspo
+
 
 masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")
 masterBG_speciesSpecific <- fread("/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/noMAFfilter/bg_speciesSpecific_noMAF.txt",
