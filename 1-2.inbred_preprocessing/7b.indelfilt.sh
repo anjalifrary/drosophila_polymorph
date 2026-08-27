@@ -18,8 +18,8 @@ module load bcftools
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
 in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
-gap_vcf="${outdir}/dsim3.signor/combined.norm.gatkfilt.snpgap10.vcf.gz"
-snp_vcf="${outdir}/dsim3.signor/combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+gap_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.vcf.gz"
+snp_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
 # out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.indel10filt.snps.vcf.gz"
 # ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
