@@ -103,7 +103,8 @@ singularity shell /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif
 # input_vcf_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/simulans_multisamp_all_chr.vcf
 # input_vcf_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/zenodo_sim.reheadered.vcf
 
-input_vcf_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+input_vcf_dsim3="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 ref_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna
 # ref_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim-mod_v2.fasta
@@ -112,28 +113,28 @@ chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/l
 # chain_dsim2_3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v2_to_dsim_v3.1.chain
 
 # vcf_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dsim3.1.vcf
-vcf_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/dsim3.signor/dsim3.signor.combined.norm.vcf.gz
+# vcf_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/dsim3.signor/dsim3.signor.combined.norm.vcf.gz
 
-# singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
-bcftools +liftover \
-  -Ob -o $vcf_dsim3 \
-  $input_vcf_dsim2 -- \
-  -f $ref_dsim3 \
-  -s $ref_dsim2 \
-  -c $chain_dsim2_3 \
-  --drop-tags FORMAT/FREQ,FORMAT/AD \
-  --write-src
-# "
+# # singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
+# bcftools +liftover \
+#   -Ob -o $vcf_dsim3 \
+#   $input_vcf_dsim2 -- \
+#   -f $ref_dsim3 \
+#   -s $ref_dsim2 \
+#   -c $chain_dsim2_3 \
+#   --drop-tags FORMAT/FREQ,FORMAT/AD \
+#   --write-src
+# # "
 
 # bcftools view $vcf_dsim3 -Ov -o /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dsim3.1.plain.vcf
 ### dsim3.1 -> dm6
 # ouput vcf:
-vcf_dm6=/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.dm6.vcf.gz
+vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
 
 singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
 bcftools +liftover \
-  -Ob -o $vcf_dm6 \
-  $vcf_dsim3 -- \
+  -Oz -o $vcf_dm6 \
+  $input_vcf_dsim3 -- \
   -f $ref_dm6 \
   -s $ref_dsim3 \
   -c $chain_dsim3_dm6 \
@@ -141,17 +142,19 @@ bcftools +liftover \
   --write-src
 "
 
-bcftools view -h $vcf_dm6 \
-| sed 's/Number=A/Number=./g' > /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/header.txt
+bcftools index -t "$vcf_dm6"
 
-bcftools view -H $vcf_dm6 \
-> /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/body.txt
+# bcftools view -h $vcf_dm6 \
+# | sed 's/Number=A/Number=./g' > /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/header.txt
 
-cat /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/header.txt /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/body.txt \
-| bcftools sort -Oz \
--o /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dm6.fixed.vcf.gz
+# bcftools view -H $vcf_dm6 \
+# > /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/body.txt
 
-bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dm6.fixed.vcf.gz
+# cat /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/header.txt /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/body.txt \
+# | bcftools sort -Oz \
+# -o /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dm6.fixed.vcf.gz
+
+# bcftools index /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dm6.fixed.vcf.gz
 
 ##########################################################################################
 # DEST liftover
