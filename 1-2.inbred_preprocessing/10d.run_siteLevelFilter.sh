@@ -11,8 +11,8 @@
 #SBATCH --account=berglandlab
 #SBATCH --array=1-4
 
-# NVAR=3949956
-NVAR=1000
+NVAR=3949956
+# NVAR=1000
 
 CHUNK=$(( (NVAR + 3) / 4 ))
 
@@ -36,6 +36,7 @@ Rscript 10d.siteLevelFilter.R $START $END
 
 
 
+# junk:
 # OUTDIR="/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter"
 
 # NVAR=3949956
@@ -45,10 +46,10 @@ Rscript 10d.siteLevelFilter.R $START $END
 #     > "${OUTDIR}/sim_site_RD.csv"
 
 # for f in \
-#     "${OUTDIR}/site_RD_1_${CHUNK}.csv" \
-#     "${OUTDIR}/site_RD_$((CHUNK+1))_$((2*CHUNK)).csv" \
-#     "${OUTDIR}/site_RD_$((2*CHUNK+1))_$((3*CHUNK)).csv" \
-#     "${OUTDIR}/site_RD_$((3*CHUNK+1))_${NVAR}.csv"
+#     "${OUTDIR}/sim_site_RD_1_${CHUNK}.csv" \
+#     "${OUTDIR}/sim_site_RD_$((CHUNK+1))_$((2*CHUNK)).csv" \
+#     "${OUTDIR}/sim_site_RD_$((2*CHUNK+1))_$((3*CHUNK)).csv" \
+#     "${OUTDIR}/sim_site_RD_$((3*CHUNK+1))_${NVAR}.csv"
 # do
 #     tail -n +2 "$f" >> "${OUTDIR}/sim_site_RD.csv"
 # done

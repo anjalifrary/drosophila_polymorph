@@ -56,9 +56,39 @@ summary(site_rd$sum.RD)
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 outfile <- file.path(
     outdir,
-    paste0("sim_site_RD_", start, "_", end, ".csv")
+    paste0("sim_site_RD_", start, "_", end, "rds")
 )
 
-fwrite(site_rd, outfile)
-
+saveRDS(site_rd, outfile)
 seqClose(array_genofile)
+
+
+####################################
+# combine intermediate files
+# library(data.table)
+
+# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+# files <- list.files(
+#     outdir,
+#     pattern = "^sim_site_RD_[0-9]+_[0-9]+\\.rds$",
+#     full.names = TRUE
+# )
+
+# files <- sort(files)
+
+# print(files)
+
+# site_rd_list <- lapply(
+#     file.path(outdir, files),
+#     readRDS
+# )
+
+# site_rd <- rbindlist(site_rd_list)
+
+# saveRDS(
+#     site_rd,
+#     file.path(outdir, "sim_site_RD.rds")
+# )
+
+# print(site_rd)
+# print(dim(site_rd))
