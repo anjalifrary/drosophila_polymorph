@@ -52,8 +52,8 @@ print(paste0(nvar, " variants"))
 
 
 ### mel:
-OR <- seqGetData(array_genofile, "annotation/FORMAT/OR")
-SR <- seqGetData(array_genofile, "annotation/FORMAT/SR")
+OR <- seqGetData(array_genofile, "annotation/format/OR")
+SR <- seqGetData(array_genofile, "annotation/format/SR")
 sum.RD <- colSums(OR + SR, na.rm = TRUE)
 called.samples <- colSums(!is.na(OR + SR))
 # avg.RD <- colMeans(OR + SR, na.rm = TRUE)
