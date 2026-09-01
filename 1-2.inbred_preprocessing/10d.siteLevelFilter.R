@@ -17,11 +17,11 @@ mel_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/D
 ## sim
 sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
 
-# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"
-# array_genofile <- seqOpen(mel_gds)
+meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"
+array_genofile <- seqOpen(mel_gds)
 
-meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.csv"
-array_genofile <- seqOpen(sim_gds)
+# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.csv"
+# array_genofile <- seqOpen(sim_gds)
 
 
 seqResetFilter(array_genofile)
@@ -56,7 +56,7 @@ summary(site_rd$sum.RD)
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 outfile <- file.path(
     outdir,
-    paste0("sim_site_RD_", start, "_", end, ".rds")
+    paste0("mel_site_RD_", start, "_", end, ".rds")
 )
 
 saveRDS(site_rd, outfile)
@@ -64,7 +64,7 @@ seqClose(array_genofile)
 
 
 ####################################
-# combine intermediate files
+# # combine intermediate files
 # library(data.table)
 
 # outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
@@ -79,7 +79,7 @@ seqClose(array_genofile)
 # print(files)
 
 # site_rd_list <- lapply(
-#     file.path(outdir, files),
+#     files,
 #     readRDS
 # )
 
