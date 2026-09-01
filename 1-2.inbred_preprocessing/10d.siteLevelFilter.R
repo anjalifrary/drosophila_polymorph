@@ -86,7 +86,7 @@ seqClose(array_genofile)
 
 
 ####################################
-# # combine intermediate files
+# # # combine intermediate files
 # library(data.table)
 
 # outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
@@ -102,7 +102,7 @@ seqClose(array_genofile)
 
 # site_rd <- rbindlist(site_rd_list)
 
-# saveRDS(site_rd, file.path(outdir, "sim_site_RD.rds"))
+# saveRDS(site_rd, file.path(outdir, "mel_site_RD_test.rds"))
 
 # print(site_rd)
 # print(dim(site_rd))

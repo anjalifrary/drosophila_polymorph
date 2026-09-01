@@ -11,8 +11,8 @@
 #SBATCH --account=berglandlab
 #SBATCH --array=1-4
 
-# NVAR=3949956 # mel
-# NVAR=2948855 # sim
+# NVAR=3949956 # sim
+NVAR=2948855 # mel
 NVAR=1000 # test
 
 CHUNK=$(( (NVAR + 3) / 4 ))
