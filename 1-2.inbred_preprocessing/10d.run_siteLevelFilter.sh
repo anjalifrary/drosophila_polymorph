@@ -13,7 +13,7 @@
 
 # NVAR=3949956 # sim
 NVAR=2948855 # mel
-NVAR=1000 # test
+# NVAR=1000 # test
 
 CHUNK=$(( (NVAR + 3) / 4 ))
 
