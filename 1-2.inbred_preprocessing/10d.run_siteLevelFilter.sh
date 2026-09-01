@@ -29,7 +29,7 @@ echo "START = ${START}"
 echo "END   = ${END}"
 
 
-cd 1.gds_extract_data/
+cd 1-2.inbred_preprocessing/
 export R_LIBS_USER="/sfs/gpfs/tardis/home/ejy4bu/R/goolf/4.5/"
 module load gcc/11.4.0  openmpi/4.1.4 icu R/4.5.0
 Rscript 10d.siteLevelFilter.R $START $END
