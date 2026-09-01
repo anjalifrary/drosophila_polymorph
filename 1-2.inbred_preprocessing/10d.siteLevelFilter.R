@@ -56,7 +56,7 @@ summary(site_rd$sum.RD)
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 outfile <- file.path(
     outdir,
-    paste0("sim_site_RD_", start, "_", end, "rds")
+    paste0("sim_site_RD_", start, "_", end, ".rds")
 )
 
 saveRDS(site_rd, outfile)
