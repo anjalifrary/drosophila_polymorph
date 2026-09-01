@@ -1,0 +1,64 @@
+# calculate site-level avg RD and sum RD across all samples
+
+args <- commandArgs(trailingOnly = TRUE)
+
+start <- as.integer(args[1])
+end <- as.integer(args[2])
+
+
+library(SeqArray)
+library(SNPRelate)
+library(data.table)
+
+
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+## mel
+mel_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds"
+## sim
+sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
+
+# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"
+# array_genofile <- seqOpen(mel_gds)
+
+meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.csv"
+array_genofile <- seqOpen(sim_gds)
+
+
+seqResetFilter(array_genofile)
+
+seqSetFilter(
+    array_genofile,
+    variant.sel = start:end,
+    verbose = FALSE
+)
+
+variants <- seqGetData(array_genofile, "variant.id")
+nvar <- length(variants)
+print(paste0(nvar, " variants"))
+
+dp <- seqGetData(array_genofile, "annotation/format/DP")
+
+sum.RD <- colSums(dp, na.rm = TRUE)
+called.samples <- colSums(!is.na(dp))
+avg.RD <- sum.RD / called.samples
+
+site_rd <- data.frame(
+    variant.id = variants,
+    sum.RD = sum.RD,
+    avg.RD = avg.RD,
+    called.samples = called.samples
+)
+
+head(site_rd)
+summary(site_rd$avg.RD)
+summary(site_rd$sum.RD)
+
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+outfile <- file.path(
+    outdir,
+    paste0("sim_site_RD_", start, "_", end, ".csv")
+)
+
+fwrite(site_rd, outfile)
+
+seqClose(array_genofile)
