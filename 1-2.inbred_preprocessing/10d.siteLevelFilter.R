@@ -86,23 +86,23 @@ seqClose(array_genofile)
 
 
 ####################################
-# # # combine intermediate files
-# library(data.table)
+# # combine intermediate files
+library(data.table)
 
-# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-# files <- list.files(
-#     outdir,
-#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
-#     full.names = TRUE
-# )
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+files <- list.files(
+    outdir,
+    pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
+    full.names = TRUE
+)
 
-# files <- sort(files)
-# print(files)
-# site_rd_list <- lapply(files, readRDS)
+files <- sort(files)
+print(files)
+site_rd_list <- lapply(files, readRDS)
 
-# site_rd <- rbindlist(site_rd_list)
+site_rd <- rbindlist(site_rd_list)
 
-# saveRDS(site_rd, file.path(outdir, "mel_site_RD_test.rds"))
+saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
 
-# print(site_rd)
-# print(dim(site_rd))
+print(site_rd)
+print(dim(site_rd))
