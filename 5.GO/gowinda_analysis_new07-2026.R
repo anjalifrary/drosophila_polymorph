@@ -496,8 +496,8 @@ long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ont
 # melOnly_MAF; speciesSpecfic_MAF; sharedOnly_MAF
 
 # group <- "AB"
-# group <- "ABFGOPXY"
-group <- "FGOPXY"
+group <- "ABFGOPXY"
+# group <- "FGOPXY"
 maf_def <- "polyAF"
 bg_list <- c("melOnly_MAF", "speciesSpecific_MAF", "sharedOnly_MAF")
 
@@ -559,10 +559,54 @@ maf_def = "polyAF"
 
 
 ### 4. looking at defense GO: GO.id==0006952
+long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
 
+defense <- long_dt[GO.id=="GO:0006952", ]
+defense_genes <- as.data.table(unique(defense[, unlist(GeneListFound)]))
+setnames(defense_genes, "gene_id")
 
+defense_genes[, gene_id := sub("^fbgn", "FBgn", gene_id)]
 
-### looking at busco genes
+library(AnnotationDbi)
+library(org.Dm.eg.db)
+
+gene_info <- AnnotationDbi::select(
+    org.Dm.eg.db,
+    keys = defense_genes$gene_id,
+    keytype = "FLYBASE",
+    columns = c("FLYBASE", "FLYBASECG", "SYMBOL", "GENENAME", "ENTREZID")
+)
+
+gene_info <- setnames(gene_info, "FLYBASE", "gene_id")
+
+### add BUSCO data 
+load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/Drosophila_melanogaster.11_08_2026.nlpTable.paramask.genmap.busco.repeatmask.wmdust.Rdata")
+mel_nlp <- as.data.table(nlp)
+rm(nlp)
+
+# collapse BUSCO to 1 row per gene
+mel_busco <- mel_nlp[ , .( BUSCO = if ( all(is.na(busco)) ) { NA_character_ } else { unique(na.omit(busco))[1] } ), by = gene ]
+
+gene_info <- merge( gene_info, mel_busco, by.x = "FLYBASECG", by.y = "gene", all.x = TRUE )
+defense_genes <- merge(defense_genes, gene_info, by="gene_id")
+
+### add MKish stats 
+
+### get snp counts in mel_only, sim_only, shared
+### add AB counts, FGOPXY counts
+
+### other data 
+# number of candidate SNPs
+# number of shared polymorphisms
+# number of species-specific polymorphisms
+# number of SNPs at each MAF threshold
+# mean/median MAF
+# maximum MAF
+# number of synonymous vs nonsynonymous variants
+# number of variants per codon
+# potentially the number of variants classified as TSP candidates
+
+### 5. looking at busco genes
 
 load("/scratch/ejy4bu/drosophila/GO/gowinda/Drosophila_melanogaster.11_08_2026.nlpTable.paramask.genmap.busco.repeatmask.wmdust.Rdata")
 
