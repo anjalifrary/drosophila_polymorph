@@ -591,6 +591,36 @@ gene_info <- merge( gene_info, mel_busco, by.x = "FLYBASECG", by.y = "gene", all
 defense_genes <- merge(defense_genes, gene_info, by="gene_id")
 
 ### add MKish stats 
+MKish <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/adaptedMK/new_asymptotic_MK_longResults_polyAF_speciesSpecificBG.rds")
+
+def_genes <- merge(defense_genes, MKish, by.x="gene_id", by.y="gene", all.x=T)
+
+### merge on master candidate snps 
+# masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")
+# all_qualVar <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/all_quality_variants_clean.rds") # not classified
+voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/voi_qualVar_ofInterest_07-20-2026.rds")
+subset <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/subset_qualVar_ofInterest_final.rds") # this one has more matching snps
+subset2 <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed.rds")
+snps <- subset2
+def_genelist <- unique(def_genes[, gene_id])
+defense_snps <- snps[gene_id_mel%in%def_genelist, ]
+
+defense_snps <- merge(defense_snps, mel_nlp[, .(chr, pos, global_af, poly_af, nLocales_poly, busco)], by=c("chr", "pos"))
+defense_snps <- merge(defense_snps, defense_genes[, .(gene_id, SYMBOL, GENENAME)], by.x="gene_id_mel", by.y="gene_id")
+
+# reorder cols
+library(dplyr)
+defense_snps <- defense_snps %>% relocate(gene_id_mel, .after=classification)
+defense_snps <- defense_snps %>% relocate(SYMBOL, .after=gene_id_mel)
+defense_snps <- defense_snps %>% relocate(GENENAME, .after=gene_id_mel)
+defense_snps <- defense_snps %>% relocate(GENENAME, .after=SYMBOL)
+defense_snps <- defense_snps %>% relocate(nLocales_poly, .after=aa_alt_sim)
+defense_snps <- defense_snps %>% relocate(global_af, .after=nLocales_poly)
+defense_snps <- defense_snps %>% relocate(poly_af, .after=nLocales_poly)
+
+View(defense_snps[SYMBOL%like%"Drsl", ])
+
+### i'm rly confused and there is a snp in Drsl3 that is in the same codon as another snp so what happened there??? 
 
 ### get snp counts in mel_only, sim_only, shared
 ### add AB counts, FGOPXY counts
