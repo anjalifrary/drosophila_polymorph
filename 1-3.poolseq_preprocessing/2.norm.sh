@@ -16,16 +16,16 @@ module load gcc/11.4.0
 module load bcftools
 
 # ### DEST mel:
-# outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
-# in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.vcf.gz"
-# out_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.vcf.gz"
-# ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
-
-# ### DEST sim:
 outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
-in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz"
-out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.vcf.gz"
-ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.vcf.gz"
+out_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.vcf.gz"
+ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+
+# # ### DEST sim:
+# outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
+# in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz"
+# out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.vcf.gz"
+# ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
 
 bcftools index -f ${in_vcf}
