@@ -32,7 +32,6 @@ snp_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpG
 echo "filtering via SnpGap"
 bcftools filter \
     --SnpGap 10 \
-    -s SnpGap10 \
     --threads 10 \
     $in_vcf \
     -Oz \
@@ -46,7 +45,6 @@ bcftools index -t "$gap_vcf"
 echo "filtering for snps only"
 bcftools view \
     --threads 10 \
-    -i 'FILTER!="SnpGap10"' \
     -v snps \
     "$gap_vcf" \
     -Oz \
