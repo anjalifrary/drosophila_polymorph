@@ -27,7 +27,7 @@ in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03
 # out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.primaryChrs.vcf.gz"
 
 
-
+module purge
 module load bcftools 
 
 # primaryChr="2L,2R,3L,3R,4,X"
