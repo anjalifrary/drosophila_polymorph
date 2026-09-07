@@ -23,11 +23,24 @@ module load bcftools
 # snp_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
 
 
-### mel:
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.vcf.gz"
-gap_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.vcf.gz"
-snp_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+# ### mel:
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.vcf.gz"
+# gap_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.vcf.gz"
+# snp_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+
+# ### DEST mel:
+# outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
+# in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.vcf.gz"
+# gap_vcf="${outdir}/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.snpgap10.vcf.gz"
+# snp_vcf="${outdir}/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.snpgap10.snpsOnly.vcf.gz"
+
+### DEST sim:
+outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
+in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz"
+gap_vcf="${outdir}/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.snpgap10.vcf.gz"
+snp_vcf="${outdir}/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.snpgap10.snpsOnly.vcf.gz"
+
 
 echo "filtering via SnpGap"
 bcftools filter \
