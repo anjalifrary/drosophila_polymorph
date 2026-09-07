@@ -14,30 +14,32 @@
 
 # ### DEST mel:
 # outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
-in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.vcf.gz"
+# in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.vcf.gz"
 # gap_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.snpgap10.vcf.gz"
 # snp_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.snpgap10.snpsOnly.vcf.gz"
 
 # ### DEST sim:
 # outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
-# in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz"
+in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz"
 # gap_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.snpgap10.vcf.gz"
 # snp_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.snpgap10.snpsOnly.vcf.gz"
-# chr_names="${outdir}/renameChr.txt"
-# out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.primaryChrs.vcf.gz"
+chr_names="${outdir}/renameChr.txt"
+out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.primaryChrs.vcf.gz"
 
 
 module purge
 module load bcftools 
 
 # primaryChr="2L,2R,3L,3R,4,X"
-bcftools query -f '%CHROM\n' "$in_vcf" | sort -u
+# bcftools query -f '%CHROM\n' "$in_vcf" | sort -u
 
-# bcftools annotate \
-#     --rename-chrs $chr_names \
-#     -Oz \
-#     -o $out_vcf \
-#     $in_vcf
+bcftools annotate \
+    --rename-chrs $chr_names \
+    -Oz \
+    -o $out_vcf \
+    $in_vcf
+
+bcftools query -f '%CHROM\n' "$out_vcf" | sort -u
 
 
 # bcftools view -h "$in_vcf" | grep '^##contig'
