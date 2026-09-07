@@ -23,8 +23,8 @@ module load bcftools
 
 # ### DEST sim:
 outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/"
-in_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.primaryChrs.vcf.gz"
-out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.primaryChrs.norm.vcf.gz"
+in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz"
+out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.vcf.gz"
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
 
