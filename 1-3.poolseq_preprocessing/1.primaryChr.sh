@@ -1,3 +1,14 @@
+#!/usr/bin/env bash
+#
+#SBATCH -J primaryChr # A single job name for the array
+#SBATCH --cpus-per-task=10
+#SBATCH -N 1 # on one node
+#SBATCH -t 0-10:00 # 10 hours
+#SBATCH --mem 50G
+#SBATCH -o /scratch/ejy4bu/err_outs/dest/primarychr.%A.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/dest/primarychr.%A.err # Standard error
+#SBATCH -p standard
+#SBATCH --account berglandlab
 
 
 
