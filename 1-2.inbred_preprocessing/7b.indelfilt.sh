@@ -16,7 +16,7 @@ set -euo pipefail
 module load bcftools
 # module load bedtools
 
-# ### sim: 
+# # ### sim: 
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
 # in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
 # gap_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.vcf.gz"
@@ -32,6 +32,7 @@ module load bcftools
 echo "filtering via SnpGap"
 bcftools filter \
     --SnpGap 10 \
+    -s SnpGap10 \
     --threads 10 \
     $in_vcf \
     -Oz \
@@ -45,6 +46,7 @@ bcftools index -t "$gap_vcf"
 echo "filtering for snps only"
 bcftools view \
     --threads 10 \
+    -i 'FILTER!="SnpGap10"' \
     -v snps \
     "$gap_vcf" \
     -Oz \
@@ -53,6 +55,7 @@ bcftools view \
 bcftools index -t "$snp_vcf"
 echo "complete"
 
+# bcftools query -f '%FILTER\n' "$snp_vcf" | sort | uniq -c
 
 # genome="${outdir}/dsim3.chrLengths.txt"
 
