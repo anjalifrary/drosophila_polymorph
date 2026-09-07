@@ -17,16 +17,16 @@ module load bcftools
 # module load bedtools
 
 # ### DEST mel:
-# outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
-# in_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.vcf.gz"
-# gap_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.vcf.gz"
-# snp_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.vcf.gz"
+outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
+in_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.vcf.gz"
+gap_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.vcf.gz"
+snp_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.vcf.gz"
 
-### DEST sim:
-outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
-in_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.vcf.gz"
-gap_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.vcf.gz"
-snp_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.vcf.gz"
+# ### DEST sim:
+# outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
+# in_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.vcf.gz"
+# gap_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.vcf.gz"
+# snp_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.vcf.gz"
 
 
 echo "filtering via SnpGap"
