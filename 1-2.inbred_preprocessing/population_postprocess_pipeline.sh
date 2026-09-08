@@ -141,7 +141,7 @@ bcftools norm \
     -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
     ${outdir}/dsim3.signor.combined.raw.vcf.gz
 
-# filters for biallelic snps (no indels, multiallelic snps retained)
+# filters for biallelic snps (no indels, multiallelic snps retained) - skipped this for later processsing during gds filtering
 bcftools view \
     -v snps \
     -m2 -M2 \
