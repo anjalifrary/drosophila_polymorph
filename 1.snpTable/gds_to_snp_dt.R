@@ -21,10 +21,11 @@ library(doMC)
 
 ### INBRED ###
 
-# ### sim - signor -  inbred 
-# out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
-# out_rds <- paste0(out_dir, "dsim3.signor.snp_dt.rds")
-# gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
+### sim - signor -  inbred 
+out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
+filtered_rds <- paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds")
+full_rds <- paste0(out_dir, "dsim3.signor.snp_dt_allEffects.rds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
 
 ### mel - DGRP2 - inbred 
 out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
@@ -42,36 +43,56 @@ filter_effects <- c("synonymous_variant", "missense_variant")
 
 seqResetFilter(gds_file)
 
+# ### this worked on the DGRP gds:
+# dt <- data.table(
+#     chr = seqGetData(gds_file, "chromosome"), 
+#     pos = seqGetData(gds_file, "position"),
+#     nAlleles = seqGetData(gds_file, "$num_allele"),
+#     id = seqGetData(gds_file, "variant.id"),
+#     af = seqGetData(gds_file, "annotation/info/AF"),
+#     maf = seqGetData(gds_file, "annotation/info/MAF"),
+#     n_samps = seqGetData(gds_file, "annotation/info/NS")
+# )
+
+### this worked on the dsim3 signor gds:
 dt <- data.table(
     chr = seqGetData(gds_file, "chromosome"), 
     pos = seqGetData(gds_file, "position"),
     nAlleles = seqGetData(gds_file, "$num_allele"),
-    id = seqGetData(gds_file, "variant.id"),
-    af = seqGetData(gds_file, "annotation/info/AF"),
-    maf = seqGetData(gds_file, "annotation/info/MAF"),
-    n_samps = seqGetData(gds_file, "annotation/info/NS")
+    id = seqGetData(gds_file, "variant.id")
+    # af = seqGetData(gds_file, "annotation/info/AF"),
+    # maf = seqGetData(gds_file, "annotation/info/MAF"),
+    # n_samps = seqGetData(gds_file, "annotation/info/NS")
 )
+
 dt[, count_records := .N, by = .(chr, pos)]
 
-nrow(dt) # signor: 2938460
-summary(dt$af)
-summary(dt$maf)
+nrow(dt) # dgrp: 2938460 #signor: 3905965
+# summary(dt$af)
+# summary(dt$maf)
 
-nrow(dt[maf>0,])
-nrow(dt[af>0 & af<1, ])
-# there are 2630 sites in signor dt that are fixed for ALT allele 
+# nrow(dt[maf>0,])
+# nrow(dt[af>0 & af<1, ])
+# there are 2630 sites in dgrp dt that are fixed for ALT allele 
 
 biallelic_dt <- dt[count_records==1 & nAlleles == 2, ] # gets 1 record per (chr, pos) where records have 2 alleles each
-nrow(biallelic_dt) # signor: 2830779
+nrow(biallelic_dt) # dgrp: 2830779 # 3567947
 
-biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
-nrow(biallelic_dt) # signor: 2828149
+# biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
+# nrow(biallelic_dt) # dgrp: 2828149
 
 seqSetFilter(gds_file, variant.id = biallelic_dt$id)
 
+# now get AF for signor:
+biallelic_dt[, af := (seqGetData(gds_file, "annotation/info/AF"))$data]
+biallelic_dt[, maf := pmin(af, 1-af)]
+
+biallelic_dt <- biallelic_dt[maf >0 & af < 1, ] 
+nrow(biallelic_dt) # signor: 3566589
 variant_ids <- biallelic_dt$id
 
 bin_size <- length(variant_ids) # test on 100 variants first 
+# bin_size <- 100
 bins <- split(seq_along(variant_ids), ceiling(seq_along(variant_ids) / bin_size))
 n_bins <- length(bins)
 
@@ -87,6 +108,13 @@ n_bins <- length(bins)
     alleles_all <- seqGetData(gds_file, "allele")
     allele_split <- tstrsplit(alleles_all, ",")
 
+    ### for signor only:
+    genotypes <- seqGetData(gds_file, "genotype")
+    # extract genotypes for all samples and apply (1, 0, 3=missing... and NAs)
+    n_samps <- apply(genotypes, 3, function(g) {
+        sum(!is.na(g[1, ]) & !is.na(g[2, ]))
+    })
+
     snp.dt1 <- data.table(
         variant.id = bin_ids,
         chr        = biallelic_dt$chr[idx],
@@ -95,7 +123,7 @@ n_bins <- length(bins)
         alt        = allele_split[[2]],
         af         = biallelic_dt$af[idx],
         maf        = biallelic_dt$maf[idx],
-        n_samps    = biallelic_dt$n_samps[idx]
+        n_samps    = n_samps
     )
 
     # EFF, ., String, Predicted effects for this variant.
@@ -117,7 +145,7 @@ n_bins <- length(bins)
     # extract data
     eff_row1[, effect := sub("\\(.*$", "", eff)]
 
-    eff_row1 <- eff_row1[effect%in%(filter_effects)]
+    # eff_row1 <- eff_row1[effect%in%(filter_effects)]
 
     eff_row1[, eff_contents := sub("^[^(]*\\((.*)\\)$", "\\1", eff)]
     eff_split <- tstrsplit(eff_row1$eff_contents, "\\|")
@@ -132,7 +160,7 @@ n_bins <- length(bins)
     eff_row1[, gene_coding      := eff_split[[8]]]  # gene coding "CODING"
     eff_row1[, transcript_id    := eff_split[[9]]]  # transcript like FBtr000000000
     eff_row1[, exon_rank        := eff_split[[10]]] # integer describing position of exon in transcript
-    eff_row1[, genotype         := eff_split[[11]]] # nucleotide
+    eff_row1[, genotype         := eff_split[[11]]] # nucleotide snpEff genotype?
 
     eff_row1[, eff_contents := NULL]
     eff_row1[, eff := NULL]
