@@ -3,6 +3,10 @@ library(data.table)
 library(foreach)
 library(doMC)
 
+######################################################################
+
+# ### Pool seq files ###
+
 out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
 out_csv <- paste0(out_dir, "all_quality_variants_merge_unfilt_500test.csv")
 out_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
@@ -13,6 +17,18 @@ mel_snp_rds <- paste0(out_dir, "species_rdsFiles/mel_filtered_eff_snp_dt.rds")
 mel_snp_dt <- readRDS(mel_snp_rds)
 sim_snp_rds <- paste0(out_dir, "species_rdsFiles/sim_filtered_eff_snp_dt.rds")
 sim_snp_dt <- readRDS(sim_snp_rds)
+
+#######################################################################
+
+### INBRED ###
+out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
+sim_snp_dt <- readRDS(paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds"))
+mel_snp_dt <- readRDS(paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.rds"))
+
+shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
+out_rds <- paste0(out_dir, "dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.rds")
+
+
 
 # ### test on chromosome 2L
 # # filter by 2L chromosome for a smaller subset to test merge on for csv readable
