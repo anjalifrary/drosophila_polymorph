@@ -1,13 +1,15 @@
 library(SeqArray)
 library(data.table)
 
+### this script includes several tests to assess data distribution in RStudio to determine a threshold for filtering on read depth
+
 ### mel
-# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-# mel_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.gds")
-# out_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
-# meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"))
-# genofile <- seqOpen(mel_gds)
-# site_rd <- readRDS(paste0(outdir, "mel_site_RD.rds"))
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+mel_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.gds")
+out_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
+meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"))
+genofile <- seqOpen(mel_gds)
+site_rd <- readRDS(paste0(outdir, "mel_site_RD.rds"))
 
 ### sim
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
@@ -27,6 +29,23 @@ site_rd <- readRDS(paste0(outdir, "sim_site_RD.rds"))
 #     avg.RD <= avg_RD_max
 # ]
 
+gds_ids <- seqGetData(genofile, "variant.id")
+filter <- seqGetData(genofile, "annotation/filter")
+table(filter, useNA = "ifany")
+
+filter_dt <- data.table(variant.id = gds_ids,filter = filter)
+
+nrow(filter_dt)
+nrow(site_rd)
+sum(site_rd$variant.id %in% filter_dt$variant.id)
+
+keep <- merge(
+    site_rd,
+    filter_dt,
+    by = "variant.id",
+    all = FALSE
+)
+
 # sim:
 avg_RD_min <- 3
 avg_RD_max <- 15
@@ -34,7 +53,8 @@ avg_RD_max <- 15
 sum_RD_min <- 500
 sum_RD_max <- 2500
 
-keep <- site_rd[
+keep <- keep[
+    filter == "PASS" &
     avg.RD >= avg_RD_min &
     avg.RD <= avg_RD_max &
     sum.RD >= sum_RD_min & 
