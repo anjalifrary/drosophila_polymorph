@@ -68,6 +68,11 @@ filtered_dt <- unfiltered_dt[, .(
 
 setDT(filtered_dt)
 
+
+### CLEAN UP: already added these columns in snp_dt_merge. 
+###   then go to snp_idCodons to get codon info / strandedness
+
+
 ##### extract amino acids from string formatted like "p.Ser795Ile"
 filtered_dt[, aa_ref_mel := gsub("^p\\.([[:alpha:]]{3}).*", "\\1" , aa_change_mel)]   # Ser
 # filtered_dt[, aa_alt_mel := gsub(".*([[:alpha:]]{3})$", "\\1" , aa_change_mel)]       # Ile
