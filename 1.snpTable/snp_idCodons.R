@@ -14,6 +14,7 @@ cds_fasta <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fas
 
 sim_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.snp_dt_SynMissense.rds")
 gds_file <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
+shared_dt <-readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.rds")
 
 out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/simMap/"
 

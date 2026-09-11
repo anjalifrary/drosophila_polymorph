@@ -99,8 +99,8 @@ setorder(sim_dt, chr, pos)
 sim_dt[, dist_prev_sim := pos - data.table::shift(pos), by = chr]
 sim_dt[, dist_next_sim := data.table::shift(pos, type = "lead") - pos, by = chr]
 
-shared_table <- merge(shared_table, mel_dt[, .(chr, pos, dist_prev_mel, dist_next_mel)], by=c("chr", "pos"))
-shared_table <- merge(shared_table, sim_dt[, .(chr, pos, dist_prev_sim, dist_next_sim)], by=c("chr", "pos"))
+shared_table <- merge(shared_table, mel_dt[, .(chr, pos, dist_prev_mel, dist_next_mel)], by=c("chr", "pos"), all=T)
+shared_table <- merge(shared_table, sim_dt[, .(chr, pos, dist_prev_sim, dist_next_sim)], by=c("chr", "pos"), all=T)
 
 
 unmapped_genes <- unique(
