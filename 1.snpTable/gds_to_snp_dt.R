@@ -115,6 +115,19 @@ n_bins <- length(bins)
         sum(!is.na(g[1, ]) & !is.na(g[2, ]))
     })
 
+    src_chr <- seqGetData(gds_file, "annotation/info/SRC_CHROM")
+    src_pos <- seqGetData(gds_file, "annotation/info/SRC_POS")
+
+    # src_ref_alt is list with length 2 for ALL snps so extracting pair for each snp :
+    src_ref_alt <- seqGetData(gds_file, "annotation/info/SRC_REF_ALT")
+    ref_src <- src_ref_alt$data[seq(1, length(src_ref_alt$data), by = 2)]
+    alt_src <- src_ref_alt$data[seq(2, length(src_ref_alt$data), by = 2)]
+
+    # flip = if strand was flipped; swapped = if ref and alt were swapped
+    flip <- seqGetData(gds_file, "annotation/info/FLIP")
+    swap <- seqGetData(gds_file, "annotation/info/SWAP")
+    ### end signor specific code ^
+
     snp.dt1 <- data.table(
         variant.id = bin_ids,
         chr        = biallelic_dt$chr[idx],
@@ -124,7 +137,15 @@ n_bins <- length(bins)
         af         = biallelic_dt$af[idx],
         maf        = biallelic_dt$maf[idx],
         n_samps    = n_samps
+        ,
+        chr_src    = src_chr,
+        pos_src    = src_pos,
+        ref_src    = ref_src,
+        alt_src    = alt_src,
+        flip       = flip,
+        swap       = swap
     )
+
 
     # EFF, ., String, Predicted effects for this variant.
     # Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_Change| 

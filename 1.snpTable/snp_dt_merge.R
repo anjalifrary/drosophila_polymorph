@@ -102,6 +102,37 @@ sim_dt[, dist_next_sim := data.table::shift(pos, type = "lead") - pos, by = chr]
 shared_table <- merge(shared_table, mel_dt[, .(chr, pos, dist_prev_mel, dist_next_mel)], by=c("chr", "pos"))
 shared_table <- merge(shared_table, sim_dt[, .(chr, pos, dist_prev_sim, dist_next_sim)], by=c("chr", "pos"))
 
+
+unmapped_genes <- unique(
+    shared_table[!is.na(variant.id_mel) & is.na(gene_id_fbgn), gene_mel]
+)
+
+cg_keys <- AnnotationDbi::keys(
+    org.Dm.eg.db,
+    keytype = "FLYBASECG"
+)
+
+unmapped_cg <- intersect(unmapped_genes, cg_keys)
+
+length(unmapped_genes)
+length(unmapped_cg)
+cg_map <- AnnotationDbi::select(
+    org.Dm.eg.db,
+    keys = unmapped_cg,
+    keytype = "FLYBASECG",
+    columns = c("FLYBASECG", "FLYBASE")
+)
+
+cg_map <- as.data.table(cg_map)
+
+setnames(
+    cg_map,
+    c("FLYBASECG", "FLYBASE"),
+    c("gene_mel", "gene_id_fbgn")
+)
+
+cg_map <- unique(cg_map[, .(gene_mel, gene_id_fbgn)])
+
 message("saving rds to ", out_rds)
 saveRDS(shared_table, out_rds)
 

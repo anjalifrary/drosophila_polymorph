@@ -12,7 +12,7 @@
 
 
 ### in bash:
-# liftover_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.vcf.gz"
+lifted_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.vcf.gz"
 # CHROM = dm6
 # POS = dm6
 # REF / ALT = dm6
@@ -27,6 +27,12 @@
 #   -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/SRC_CHROM\t%INFO/SRC_POS\t%INFO/SRC_REF_ALT\t%INFO/FLIP\t%INFO/SWAP\t%INFO/EFF\n' \
 #   "$liftover_vcf"
 
+bcftools query \
+    -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/SRC_CHROM\t%INFO/SRC_POS\t%INFO/SRC_REF_ALT\t%INFO/FLIP\t%INFO/SWAP\n' \
+    "$lifted_vcf" \
+    > /scratch/ejy4bu/anjali/drosophila/inbred/snpDT/simMap/liftover_map.tsv
+
+    
 sim_gff="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/ncbi_dataset/data/GCF_016746395.2/GCF_016746395.2_Prin_Dsim_3.1_genomic.gff"
 
 ### gff format:
