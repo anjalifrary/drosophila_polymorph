@@ -689,6 +689,18 @@ shifted_overlap <- overlap[
 ]
 
 
+filtered_dt[
+    codon_id_dm6_mel %in% shifted_overlap$codon_id_mel,
+    keep_mel := "OVERLAP"
+]
+
+filtered_dt[
+    codon_id_dm6_sim %in% shifted_overlap$codon_id_sim,
+    keep_sim := "OVERLAP"
+]
+
+
+
 ### inspecting # snps per codons
 
 mel_pos <- filtered_dt[
