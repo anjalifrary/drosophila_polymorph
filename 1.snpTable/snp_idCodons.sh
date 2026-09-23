@@ -47,3 +47,5 @@ old_fna="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/d
 new_fna="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/ncbi_dataset/data/GCF_016746395.2/GCF_016746395.2_Prin_Dsim_3.1_genomic.fna"
 
 cds_fasta="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim//GCF_016746395.2_Prin_Dsim_3.1_cds_genomic.fna"
+
+/scratch/ejy4bu/drosophila/DEST_remake/vcfs/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz
