@@ -3,6 +3,8 @@ library(data.table)
 library(foreach)
 library(doMC)
 
+### to run after snp_idCodons
+
 ######################################################################
 
 # ### Pool seq files ###

@@ -6,7 +6,11 @@ library(data.table)
     # GTF annotation file - make sure I'm using the right one
     # GO gene sets
 
+# pool seq OLD
 dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_6-29-26/"
+
+# inbred
+dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/"
 
 # ### background snps
 # rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/all_quality_variants_MAF5_clean.rds")

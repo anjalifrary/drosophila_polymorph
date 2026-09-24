@@ -3,13 +3,14 @@ library(ggplot2)
 library(foreach)
 
 # voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
-voi <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
+# voi <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
+voi <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
 
-load("/scratch/ejy4bu/drosophila/geographic_clines/xtx_c2.Rdata")
+load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/xtx_c2.Rdata")
 xtx <- xc
 rm(xc)
 
-load("/scratch/ejy4bu/drosophila/geographic_clines/Drosophila_melanogaster.10_03_2026.nlpTable.Fst.Rdata")
+load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/Drosophila_melanogaster.11_08_2026.nlpTable.paramask.genmap.busco.repeatmask.wmdust.Rdata")
 mel_nlp <- nlp  
 rm(nlp)
 load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/Drosophila_simulans.17_06_2026.nlpTable.Rdata")
@@ -19,9 +20,25 @@ rm(nlp)
 rm(var)
 cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
 var <- voi[classification%in%(cand_classes)]
-var <- merge(var, xtx[, .(chr, pos, col, XtXst)], by.y=c("chr", "pos"), by.x=c("chr_dm6", "pos_dm6"), all.x=T)
+var <- merge(var, xtx[, .(chr, pos, XtXst)], by.y=c("chr", "pos"), by.x=c("chr_dm6", "pos_dm6"), all.x=T)
 var[classification%in%c("A", "B"), class:="tsp"]
 var[classification%in%c("F", "G", "O", "P", "X", "Y"), class:="conv"]
+
+var <- merge(var, mel_nlp[, .(chr, pos, nLocales_poly)],
+    by.x=c("chr_dm6", "pos_dm6"), by.y=c("chr", "pos"), all.x=T)
+setnames(var, "nLocales_poly", "nLocales_poly_mel")
+
+var <- merge(var, sim_nlp[, .(chr, pos, nLocales_poly)], 
+    by.x=c("chr_dm6", "pos_dm6"), by.y=c("chr", "pos"),  all.x=T)
+setnames(var, "nLocales_poly", "nLocales_poly_sim")
+
+
+age <- fread("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/AlleleAges.VA.cm_GEVA.txt")
+age[,chr:=tstrsplit(id, "\\.")[[1]]]
+age[,pos:=position]
+
+var <- merge(var, age[, .(chr, pos, PostMode, PostMean, PostMedian)], by.y=c("chr", "pos"), by.x=c("chr_dm6", "pos_dm6"), all.x=T)
+
 
 ggplot(data=var, aes(x=class, y=XtXst)) + geom_boxplot()
 ggplot(data=var, aes(x=classification, y=XtXst)) + geom_boxplot()
@@ -41,12 +58,6 @@ anova(lm(XtXst ~ class, data=var[!is.na(XtXst)]))
 summary(lm(XtXst ~ class, data = var[!is.na(XtXst)]))
 
 ### age from geva - mel-only age estimates 
-
-age <- fread("/scratch/ejy4bu/drosophila/AlleleAges.VA.cm_GEVA.txt")
-age[,chr:=tstrsplit(id, "\\.")[[1]]]
-age[,pos:=position]
-
-var <- merge(var, age[, .(chr, pos, PostMode, PostMean, PostMedian)], by.y=c("chr", "pos"), by.x=c("chr_dm6", "pos_dm6"), all.x=T)
 
 anova(lm(PostMean ~ class, data = var[!is.na(PostMean)]))
 
