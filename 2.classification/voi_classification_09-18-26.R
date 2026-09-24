@@ -20,7 +20,7 @@ shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2
 # 2 codons have opposite strandedness:
 #   3L:18870748:18870750
 #   3R:21866692:21866694
-
+filtered_dt <- shared_dt
 filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
     keep_mel := "oppStrnd"
 ]
@@ -38,7 +38,6 @@ filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:218
 filtered_dt[keep_mel=="OVERLAP", samePos := "OVERLAP"]
 filtered_dt[keep_sim=="OVERLAP", samePos := "OVERLAP"]
 
-copy_filtered_dt <- filtered_dt # safe copy 
 
 ### mel cols:
 mel_cols <- c(
@@ -95,20 +94,52 @@ new_dt[, .N, by = codon_id_dm6][, table(N)]
 new_dt[is.na(tsp_samePos), .N, by = codon_id_dm6][, table(N)]
 new_dt[!is.na(tsp_samePos), .N, by = codon_id_dm6][, table(N)]
 
-View(new_dt[is.na(tsp_samePos), .N, by = codon_id_dm6])
-# get the list of these codons where only 1 codon id dm6 but is not same pos and remove... 
+# View(new_dt[is.na(tsp_samePos), .N, by = codon_id_dm6])
+# # get the list of these codons where only 1 codon id dm6 but is not same pos and remove... 
+
+# remove_codons <- new_dt[
+#     is.na(tsp_samePos),
+#     .N,
+#     by = codon_id_dm6
+# ][N == 1, codon_id_dm6]
+
+# length(remove_codons)
+# new_dt <- new_dt[!(codon_id_dm6 %in% remove_codons)]
 ### then classify!!!
 
-# filtered_dt[, samePos := as.character(tsp_samePos)]
+tsp_map <- new_dt[
+    ,
+    .(
+        pos_mel = snp_pos_in_codon_mel[!is.na(snp_pos_in_codon_mel)][1],
+        pos_sim = snp_pos_in_codon_sim[!is.na(snp_pos_in_codon_sim)][1]
+    ),
+    by = codon_id_dm6
+]
 
-# filtered_dt[, tsp_samePos := NULL] 
+tsp_map[, samePos := pos_mel == pos_sim]
 
+new_dt[
+    tsp_map,
+    on = "codon_id_dm6",
+    tsp_samePos := i.samePos
+]
 
-
-# table(shared$same_position,useNA="ifany")
-
-
-
+# check everything:
+table(tsp_map$samePos, useNA = "ifany")
+table(new_dt$tsp_samePos, useNA="ifany")
+new_dt[
+     ,
+     .(
+         N_rows = .N,
+         n_mel = sum(!is.na(variant.id_mel)),
+         n_sim = sum(!is.na(variant.id_sim))
+     ),
+     by = .(codon_id_dm6, tsp_samePos)
+ ][
+     ,
+     .N,
+     by = .(tsp_samePos, N_rows, n_mel, n_sim)
+ ][order(tsp_samePos, N_rows, n_mel, n_sim)]
 
 
 
@@ -137,48 +168,21 @@ count_shared <- function(mel, sim){
     )
 }
 
-class_dt <- filtered_dt[samePos == "FALSE" | samePos == "TRUE"]
-class_dt <- class_dt[keep_mel=="TRUE" | keep_sim == "TRUE"]
+new_dt[, samePos := NULL]
+setnames(new_dt, "tsp_samePos", "samePos")
+
+class_dt <- new_dt[samePos == "FALSE" | samePos == "TRUE"]
+nrow(class_dt)==nrow(new_dt) # should be TRUE
+
+class_dt <- class_dt[keep_mel=="TRUE" | keep_sim == "TRUE"] # should not remove any rows... 
 
 class_dt[, codon_id_dm6  := fifelse(
     !is.na(codon_id_dm6_mel),
     codon_id_dm6_mel,
     codon_id_dm6_sim)]
 
-# get codon & amino acid pairs for mel and sim: 
 
-class_dt[, codon_pair_mel := mapply(get_pair,codon_ref_mel, codon_alt_mel, SIMPLIFY=F)]
-class_dt[, codon_pair_sim := mapply(get_pair,codon_ref_sim, codon_alt_sim, SIMPLIFY=F)]
-
-class_dt[, aa_pair_mel := mapply(get_pair, aa_ref_mel, aa_alt_mel, SIMPLIFY=F)]
-class_dt[, aa_pair_sim := mapply(get_pair, aa_ref_sim, aa_alt_sim, SIMPLIFY=F)]
-
-
-### get codon & amino acid counts:
-class_dt[, c("total_codons", "shared_codons","Nshared_codons") :=
-    transpose(
-        mapply(count_shared, codon_pair_mel, codon_pair_sim, SIMPLIFY = FALSE)
-    )]
-
-# amino acids:
-class_dt[, c("total_aa", "shared_aa", "Nshared_aa") :=
-    transpose(
-        mapply(count_shared, aa_pair_mel, aa_pair_sim, SIMPLIFY = FALSE)
-    )]
-
-class_dt[, mel_aa := lengths(lapply(aa_pair_mel, function(x) unique(na.omit(x))))]
-class_dt[, sim_aa := lengths(lapply(aa_pair_sim, function(x) unique(na.omit(x))))]
-
-class_dt[, class_key := paste(
-    samePos,
-    total_codons,
-    shared_codons,
-    total_aa,
-    shared_aa,
-    mel_aa,
-    sim_aa,
-    sep = "_"
-)]
+### retaining the same lettering scheme from the first analysis:
 class_map <- c(
 
     # same site
@@ -212,6 +216,291 @@ class_map <- c(
     "FALSE_4_0_2_2_2_2" = "X",
     "FALSE_4_0_1_1_1_1" = "Y"
 )
+
+# split into same and diff site within codon snps:
+same_site <- class_dt[samePos == TRUE]
+diff_site <- class_dt[samePos == FALSE]
+
+same_site[, .N, by = codon_id_dm6][, table(N)] # all 1
+diff_site[, .N, by = codon_id_dm6][, table(N)] # all 2
+
+### same site classification:
+
+same_site[, codon_pair_mel := mapply(get_pair, codon_ref_mel, codon_alt_mel, SIMPLIFY=F)]
+same_site[, codon_pair_sim := mapply(get_pair, codon_ref_sim, codon_alt_sim, SIMPLIFY=F)]
+
+same_site[, aa_pair_mel := mapply(get_pair, aa_ref_mel, aa_alt_mel, SIMPLIFY=F)]
+same_site[, aa_pair_sim := mapply(get_pair, aa_ref_sim, aa_alt_sim, SIMPLIFY=F)]
+
+### get codon & amino acid counts:
+same_site[, c("total_codons", "shared_codons","Nshared_codons") :=
+    transpose(mapply(count_shared, codon_pair_mel, codon_pair_sim, SIMPLIFY = FALSE))]
+
+same_site[, c("total_aa", "shared_aa", "Nshared_aa") :=
+    transpose(mapply(count_shared, aa_pair_mel, aa_pair_sim, SIMPLIFY = FALSE))]
+
+same_site[, mel_aa := lengths(lapply(aa_pair_mel, function(x) unique(na.omit(x))))]
+same_site[, sim_aa := lengths(lapply(aa_pair_sim, function(x) unique(na.omit(x))))]
+
+same_site[, class_key := paste(
+    samePos,
+    total_codons,
+    shared_codons,
+    total_aa,
+    shared_aa,
+    mel_aa,
+    sim_aa,
+    sep = "_"
+)]
+same_site[, classification := unname(class_map[class_key])]
+
+### stopped here... 
+### diff site:
+diff_codons <- diff_site[
+    ,
+    .(
+        codon_ref_mel = codon_ref_mel[!is.na(codon_ref_mel)][1],
+        codon_alt_mel = codon_alt_mel[!is.na(codon_alt_mel)][1],
+        aa_ref_mel    = aa_ref_mel[!is.na(aa_ref_mel)][1],
+        aa_alt_mel    = aa_alt_mel[!is.na(aa_alt_mel)][1],
+
+        codon_ref_sim = codon_ref_sim[!is.na(codon_ref_sim)][1],
+        codon_alt_sim = codon_alt_sim[!is.na(codon_alt_sim)][1],
+        aa_ref_sim    = aa_ref_sim[!is.na(aa_ref_sim)][1],
+        aa_alt_sim    = aa_alt_sim[!is.na(aa_alt_sim)][1]
+    ),
+    by = codon_id_dm6
+]
+diff_codons[, codon_pair_mel := mapply(get_pair, codon_ref_mel, codon_alt_mel, SIMPLIFY=F)]
+diff_codons[, codon_pair_sim := mapply(get_pair, codon_ref_sim, codon_alt_sim, SIMPLIFY=F)]
+
+diff_codons[, aa_pair_mel := mapply(get_pair, aa_ref_mel, aa_alt_mel, SIMPLIFY=F)]
+diff_codons[, aa_pair_sim := mapply(get_pair, aa_ref_sim, aa_alt_sim, SIMPLIFY=F)]
+
+### get codon & amino acid counts:
+diff_codons[, c("total_codons", "shared_codons","Nshared_codons") :=
+    transpose(mapply(count_shared, codon_pair_mel, codon_pair_sim, SIMPLIFY = FALSE))]
+
+diff_codons[, c("total_aa", "shared_aa", "Nshared_aa") :=
+    transpose(mapply(count_shared, aa_pair_mel, aa_pair_sim, SIMPLIFY = FALSE))]
+
+diff_codons[, mel_aa := lengths(lapply(aa_pair_mel, function(x) unique(na.omit(x))))]
+diff_codons[, sim_aa := lengths(lapply(aa_pair_sim, function(x) unique(na.omit(x))))]
+
+diff_codons[
+    ,
+    .N,
+    by = .(
+        total_codons,
+        shared_codons,
+        Nshared_codons,
+        total_aa,
+        shared_aa,
+        Nshared_aa,
+        mel_aa,
+        sim_aa
+    )
+][order(
+    total_codons,
+    shared_codons,
+    total_aa,
+    shared_aa,
+    mel_aa,
+    sim_aa
+)]
+
+diff_codons[, class_key := paste(
+    FALSE,
+    total_codons,
+    shared_codons,
+    total_aa,
+    shared_aa,
+    mel_aa,
+    sim_aa,
+    sep = "_"
+)]
+diff_codons[, classification := unname(class_map[class_key])]
+
+
+### merge same_site and diff_codons back to final_dt
+class_lookup <- rbindlist(
+    list(
+        same_site[, .(codon_id_dm6, classification)],
+        diff_codons[, .(codon_id_dm6, classification)]
+    ),
+    use.names = TRUE
+)
+
+# make sure each codon has only one classification
+class_lookup[, .N, by = codon_id_dm6][N > 1]
+
+final_dt <- new_dt[
+    class_lookup,
+    on = "codon_id_dm6",
+    classification := i.classification
+]
+table(final_dt$classification, useNA = "ifany")
+
+final_dt[
+    !is.na(classification),
+    .N,
+    by = classification
+][order(classification)]
+
+saveRDS(final_dt, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.rds")
+
+sharedOnly <- final_dt[!is.na(classification)]
+saveRDS(sharedOnly, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.rds")
+
+candidates <- final_dt[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
+saveRDS(candidates, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
+
+
+class_table <- rbindlist(
+    list(
+        same_site[, .(
+            Classification = classification,
+            same_pos = TRUE,
+            total_codons,
+            shared_codons,
+            Nshared_codons,
+            total_aa,
+            shared_aa,
+            Nshared_aa,
+            mel_aa,
+            sim_aa
+        )],
+        diff_codons[, .(
+            Classification = classification,
+            same_pos = FALSE,
+            total_codons,
+            shared_codons,
+            Nshared_codons,
+            total_aa,
+            shared_aa,
+            Nshared_aa,
+            mel_aa,
+            sim_aa
+        )]
+    ),
+    use.names = TRUE
+)
+
+class_table <- class_table[
+    ,
+    .(
+        Count = .N,
+        same_pos = same_pos[1],
+        total_codons = total_codons[1],
+        shared_codons = shared_codons[1],
+        Nshared_codons = Nshared_codons[1],
+        total_aa = total_aa[1],
+        shared_aa = shared_aa[1],
+        Nshared_aa = Nshared_aa[1],
+        mel_aa = mel_aa[1],
+        sim_aa = sim_aa[1]
+    ),
+    by = Classification
+]
+
+setorder(class_table, Classification)
+
+class_table[, `Convergent/Divergent` := fifelse(
+    Classification %in% c("A", "B", "F", "G", "O", "P", "X", "Y"),
+    "Convergent",
+    "Divergent"
+)]
+
+class_table[, `Shared/Independent` := fifelse(
+    Classification %in% c("A", "B"),
+    "Either",
+    "Independent"
+)]
+setcolorder(
+    class_table,
+    c(
+        "Classification",
+        "Count",
+        "same_pos",
+        "total_codons",
+        "shared_codons",
+        "Nshared_codons",
+        "total_aa",
+        "shared_aa",
+        "Nshared_aa",
+        "mel_aa",
+        "sim_aa",
+        "Convergent/Divergent",
+        "Shared/Independent"
+    )
+)
+
+csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.classification.csv"
+
+fwrite(class_table, csv_class)
+
+message("classification table written to: ", csv_class)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# get codon & amino acid pairs for mel and sim: 
+
+class_dt[, codon_pair_mel := mapply(get_pair,codon_ref_mel, codon_alt_mel, SIMPLIFY=F)]
+class_dt[, codon_pair_sim := mapply(get_pair,codon_ref_sim, codon_alt_sim, SIMPLIFY=F)]
+
+class_dt[, aa_pair_mel := mapply(get_pair, aa_ref_mel, aa_alt_mel, SIMPLIFY=F)]
+class_dt[, aa_pair_sim := mapply(get_pair, aa_ref_sim, aa_alt_sim, SIMPLIFY=F)]
+
+
+
+
+
+
+
+
+
+### get codon & amino acid counts:
+class_dt[, c("total_codons", "shared_codons","Nshared_codons") :=
+    transpose(
+        mapply(count_shared, codon_pair_mel, codon_pair_sim, SIMPLIFY = FALSE)
+    )]
+
+# amino acids:
+class_dt[, c("total_aa", "shared_aa", "Nshared_aa") :=
+    transpose(
+        mapply(count_shared, aa_pair_mel, aa_pair_sim, SIMPLIFY = FALSE)
+    )]
+
+class_dt[, mel_aa := lengths(lapply(aa_pair_mel, function(x) unique(na.omit(x))))]
+class_dt[, sim_aa := lengths(lapply(aa_pair_sim, function(x) unique(na.omit(x))))]
+
 
 same_site <- class_dt[samePos == "TRUE"]
 diff_site <- class_dt[samePos == "FALSE"]

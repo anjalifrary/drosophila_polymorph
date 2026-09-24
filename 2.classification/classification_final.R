@@ -29,7 +29,8 @@ candidate_rds <- paste0("/project/berglandlab/anjali/drosophila_polymorphism/cla
 # function to get an 'unordered' set for codon and amino acid comparison (ordering by alphabetization)
 get_pair <- function(ref,alt) {
     if(is.na(ref) | is.na(alt)) return(NA_character_)
-    sort(c(ref,alt)) # returns a vector
+    # sort(c(ref,alt)) # returns a vector
+    sort(toupper(c(ref, alt)))
 }
 
 # classify <- function(mel, sim) {
