@@ -165,7 +165,10 @@ p_vals <- c(
     0.30
 )
 
-var_filt <- var[nLocales_poly_mel>0 & nLocales_poly_sim>0]
+var_filt <- var[
+    nLocales_poly_mel > 0 & 
+    nLocales_poly_sim > 0
+]
 
 plot_dt <- rbindlist(lapply(p_vals, function(p) {
 
@@ -175,11 +178,18 @@ plot_dt <- rbindlist(lapply(p_vals, function(p) {
        id.vars = "class",
        measure.vars = c("lower_tail", "upper_tail"),
        variable.name = "tail",
-       value.name = "prop")[, `:=`(p = p)]
+       value.name = "prop")[, `:=`
+       (p = p,
+       prop_norm = prop / p
+       )]
 }))
 
-ggplot(plot_dt, aes(x = class, y = prop, fill = tail)) +
+ggplot(plot_dt, aes(x = class, y = prop_norm, fill = tail)) +
   geom_col(position = "dodge") +
-  facet_wrap(~p, labeller = label_both)
+  facet_wrap(~p, labeller = label_both) +
+  geom_hline(
+        yintercept = 1,
+        linetype = "dashed"
+    )
 
 
