@@ -20,7 +20,8 @@ SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
 ### mel:
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+
+in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
 out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 echo "Annotating Dm6 vcf with SnpEff..."
