@@ -16,25 +16,25 @@ module load bcftools
 # bed coord are 0-based, half-open 
 # gff coord are 1-based, inclusive = subtract 1 from the start pos, leave end pos as is 
 
-# ## sim
-# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+## sim
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
 
-# wm_dust="${outdir}/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
-# rpt_mask="${outdir}/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
-# filter_bed="${outdir}/repeat/dsim3.repeatMask_wmdust_combined.bed"
+wm_dust="${outdir}/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
+rpt_mask="${outdir}/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
+filter_bed="${outdir}/repeat/dsim3.repeatMask_wmdust_combined.bed"
 
-# vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
-# out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
 
-## mel
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+# ## mel
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
 
-rpt_mask="${outdir}/repeat/dmel-all-chromosome-r6.12.fasta.out.gff"
-wm_dust="${outdir}/repeat/dmel-all-chromosome-r6.12.fasta.wm.dust.bed"
-filter_bed="${outdir}/repeat/dm6.repeatMask_wmdust_combined.bed"
+# rpt_mask="${outdir}/repeat/dmel-all-chromosome-r6.12.fasta.out.gff"
+# wm_dust="${outdir}/repeat/dmel-all-chromosome-r6.12.fasta.wm.dust.bed"
+# filter_bed="${outdir}/repeat/dm6.repeatMask_wmdust_combined.bed"
 
-vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
-out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+# vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
 
 
 # r1_mel="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel-all-chromosome-r6.12.fasta.gz"
