@@ -4,7 +4,7 @@ library(ggplot2)
 # old - see plots_mean_nlp-xtx-age.R
 
 geva <- fread("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/AlleleAges.VA.cm_GEVA.txt")
-
+geva <- fread("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/AlleleAges.VA.cm_GEVA.txt")
 
 rds_file <- paste0("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed.rds")
 shared_dt <- readRDS(rds_file)
@@ -22,7 +22,8 @@ setnames(geva, "position", "pos")
 
 shared_dt <- merge(
     shared_dt, geva[, .(chr, pos, PostMedian, PostMode)],
-    by = c("chr", "pos"),
+    by.x = c("chr_dm6", "pos_dm6"),
+    by.y = c("chr", "pos"),
     all.x=T
 )
 
@@ -39,7 +40,7 @@ sum(!is.na(shared_dt$PostMedian))
 # # table(subset_table$classification, useNA = "ifany")
 # fwrite(subset_table, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_classed_age_test500.csv")
 
-plot_dt <- shared_dt[!is.na(PostMedian)]
+plot_dt <- shared_dt[!is.na(PostMedian) & !is.na(classification)]
 
 plot <- ggplot(plot_dt, aes(x = classification, y = PostMedian, color=classification)) + 
     geom_point(alpha=0.7) + 
@@ -99,7 +100,7 @@ plot <- ggplot(plot_dt, aes(x = classification, y = PostMedian, color=classifica
     annotate(
         "label",
         x = "T",
-        y = max(plot_dt$PostMode) * 0.95,
+        y = max(plot_dt$PostMedian) * 0.95,
         label = "Blue = Convergent\nRed = Divergent",
         fill = "white",
         color = "black",
@@ -280,3 +281,27 @@ ggsave(
     width = 8, height=6,
     dpi=300
 )
+
+
+### mean age:
+
+plot_dt[
+    classification %in% c("A", "B"),
+    group := "TSP"
+]
+
+plot_dt[
+    classification %in% c("F", "G", "O", "P", "X", "Y"),
+    group := "conv"
+]
+
+mean_age_group <- plot_dt[
+    !is.na(group) & !is.na(PostMedian),
+    .(
+        n = .N,
+        mean_age = mean(PostMedian)
+    ),
+    by = group
+]
+
+mean_age_group

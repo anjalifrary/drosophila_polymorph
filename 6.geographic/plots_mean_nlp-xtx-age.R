@@ -19,7 +19,7 @@ rm(nlp)
 rm(var)
 cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
 var <- voi[classification%in%(cand_classes)]
-var <- merge(var, xtx[, .(chr, pos, col, XtXst)], by=c("chr", "pos"), all.x=T)
+var <- merge(var, xtx[, .(chr, pos, col, XtXst)], by.y=c("chr", "pos"), by.x=c("chr_dm6", "pos_dm6"), all.x=T)
 var[classification%in%c("A", "B"), class:="tsp"]
 var[classification%in%c("F", "G", "O", "P", "X", "Y"), class:="conv"]
 
@@ -46,7 +46,7 @@ age <- fread("/scratch/ejy4bu/drosophila/AlleleAges.VA.cm_GEVA.txt")
 age[,chr:=tstrsplit(id, "\\.")[[1]]]
 age[,pos:=position]
 
-var <- merge(var, age[, .(chr, pos, PostMode, PostMean, PostMedian)], by=c("chr", "pos"), all.x=T)
+var <- merge(var, age[, .(chr, pos, PostMode, PostMean, PostMedian)], by.y=c("chr", "pos"), by.x=c("chr_dm6", "pos_dm6"), all.x=T)
 
 anova(lm(PostMean ~ class, data = var[!is.na(PostMean)]))
 
@@ -90,8 +90,8 @@ ggplot(data = plot_dt, aes(x=class, y=mean_age)) + geom_point(size=3) +
 ########################################################3
 # mean nlp vs class(ification)
 
-spp = "mel"
-# spp = "sim"
+# spp = "mel"
+spp = "sim"
 
 nlp <- paste0("nLocales_poly_", spp)
 
@@ -154,7 +154,7 @@ p_vals <- c(
     0.30
 )
 
-var_filt <- var[nLocales_poly_mel>10 & nLocales_poly_sim>10]
+var_filt <- var[nLocales_poly_mel>0 & nLocales_poly_sim>0]
 
 plot_dt <- rbindlist(lapply(p_vals, function(p) {
 

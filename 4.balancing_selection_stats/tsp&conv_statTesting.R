@@ -59,3 +59,31 @@ plot_dt <- tsp_conv[!is.na(PostMean) & classification%in%c("A", "B", "F", "G", "
 ggplot(data = plot_dt, aes(x=classification, y=mean_age)) + geom_point(size=3) +
     geom_errorbar(aes(ymin = mean_age - stderr_age, ymax = mean_age + stderr_age), width = 0.2)
 
+plot_dt[classification%in%c("A", "B"), group := "TSP"]
+plot_dt[classification%in%c("F", "G", "O", "P", "X", "Y"), group := "CONV"]
+
+
+plot_dt_group <- tsp_conv[
+    !is.na(PostMean) &
+    classification %in% c("A", "B", "F", "G", "O", "P", "X", "Y")
+][
+    ,
+    .(
+        mean_age = mean(PostMean),
+        stderr_age = sd(PostMean) / sqrt(.N),
+        n = .N
+    ),
+    by = .(
+        group = fifelse(
+            classification %in% c("A", "B"),
+            "TSP",
+            "CONV"
+        )
+    )
+]
+plot_dt_group[, group := factor(group, levels = c("TSP", "CONV"))]
+
+
+ggplot(data = plot_dt_group, aes(x=group, y=mean_age)) + geom_point(size=3) +
+    geom_errorbar(aes(ymin = mean_age - stderr_age, ymax = mean_age + stderr_age), width = 0.2)
+
