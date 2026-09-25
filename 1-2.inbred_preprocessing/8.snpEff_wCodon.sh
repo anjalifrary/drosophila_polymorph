@@ -34,16 +34,16 @@ out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.ga
 # bcftools index -n "${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 
-echo "Annotating Dm6 vcf with SnpEff..."
+# echo "Annotating Dm6 vcf with SnpEff..."
 
-java -Xmx32G \
-    -jar ${SNPEFF}/snpEff.jar ann \
-    -formatEff \
-    -v BDGP6.86 \
-    -stats ${outdir}/snpEff_summary.html \
-    $in_vcf \
-    | bgzip -@ 10 -c - > \
-    $out_vcf
+# java -Xmx32G \
+#     -jar ${SNPEFF}/snpEff.jar ann \
+#     -formatEff \
+#     -v BDGP6.86 \
+#     -stats ${outdir}/snpEff_summary.html \
+#     $in_vcf \
+#     | bgzip -@ 10 -c - > \
+#     $out_vcf
 
 # ### sim:
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
