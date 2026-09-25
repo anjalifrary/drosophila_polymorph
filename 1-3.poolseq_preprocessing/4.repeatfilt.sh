@@ -18,19 +18,20 @@ module load bcftools
 
 ## sim
 outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
-
-wm_dust="${outdir}/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
-rpt_mask="${outdir}/repeat/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
-filter_bed="${outdir}/repeat/dsim3.repeatMask_wmdust_combined.bed"
+repdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/repeat/"
+wm_dust="${repdir}/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.wm.dust.bed"
+rpt_mask="${repdir}/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna.out.gff"
+filter_bed="${repdir}/dsim3.repeatMask_wmdust_combined.bed"
 
 vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.vcf.gz"
 out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
 
 # ## mel
 # outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
+# repdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/repeat/"
 
-# rpt_mask="${outdir}/repeat/dmel-all-chromosome-r6.12.fasta.out.gff"
-# wm_dust="${outdir}/repeat/dmel-all-chromosome-r6.12.fasta.wm.dust.bed"
+# rpt_mask="${repdir}/dmel-all-chromosome-r6.12.fasta.out.gff"
+# wm_dust="${repdir}/dmel-all-chromosome-r6.12.fasta.wm.dust.bed"
 # filter_bed="${outdir}/repeat/dm6.repeatMask_wmdust_combined.bed"
 
 # vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.vcf.gz"
