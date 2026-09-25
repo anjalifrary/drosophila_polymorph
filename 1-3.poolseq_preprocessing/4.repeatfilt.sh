@@ -33,7 +33,7 @@ repdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/repeat/"
 
 rpt_mask="${repdir}/dmel-all-chromosome-r6.12.fasta.out.gff"
 wm_dust="${repdir}/dmel-all-chromosome-r6.12.fasta.wm.dust.bed"
-filter_bed="${outdir}/repeat/dm6.repeatMask_wmdust_combined.bed"
+filter_bed="${repdir}/dm6.repeatMask_wmdust_combined.bed"
 
 vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.vcf.gz"
 out_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
