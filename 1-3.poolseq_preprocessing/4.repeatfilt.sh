@@ -71,6 +71,11 @@ bcftools view \
 bcftools index -t $out_vcf
 echo "completed filtering & indexing"
 
+echo "number records before: "
+bcftools index -n $vcf
+echo "number records after: "
+bcftools index -n $out_vcf
+
 
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
 # vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.vcf.gz"
