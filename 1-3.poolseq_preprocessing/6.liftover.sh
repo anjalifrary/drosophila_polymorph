@@ -104,7 +104,8 @@ singularity shell /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif
 # input_vcf_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/zenodo_sim.reheadered.vcf
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-input_vcf_dsim3="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+# input_vcf_dsim3="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 ref_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna
 # ref_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim-mod_v2.fasta
@@ -129,7 +130,8 @@ chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/l
 # bcftools view $vcf_dsim3 -Ov -o /project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dsim3.1.plain.vcf
 ### dsim3.1 -> dm6
 # ouput vcf:
-vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
+# vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
+vcf_dm6="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
 
 # singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
 bcftools +liftover \
