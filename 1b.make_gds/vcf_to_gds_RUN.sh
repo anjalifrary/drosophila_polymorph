@@ -30,7 +30,7 @@ module load bcftools
 
 # bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.reheadered.ann.eff.vcf.gz
 
-Rscript 1b.prepareGDS/vcf_to_gds.R
+Rscript 1b.make_GDS/vcf_to_gds.R
 
 # cp /scratch/ejy4bu/drosophila/gds_files/DGRP2.source_BCM-HGSC.dm6.final.norm.ann.eff.gds \
 # /project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/
