@@ -57,7 +57,7 @@ echo "Indexing..."
 
 bcftools index $out_vcf
 
-# echo "Complete"
+echo "Complete"
 
 # cp ${out_vcf} \
 # /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/

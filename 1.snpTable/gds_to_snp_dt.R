@@ -5,6 +5,20 @@ library(doMC)
 
 ######################################################################
 # ### Pool seq files ###
+
+# mel: 
+out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/"
+full_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
+filtered_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.rds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds")
+
+# sim:
+out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/"
+full_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_allEffects.rds")
+filtered_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.rds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds")
+
+### old:
 # out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
 # out_rds <- paste0(out_dir, "sim_eff_snp_dt.rds")
 # if(!file.exists(out_rds)) file.create(out_rds)
@@ -21,17 +35,17 @@ library(doMC)
 
 ### INBRED ###
 
-### sim - signor -  inbred 
-out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
-filtered_rds <- paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds")
-full_rds <- paste0(out_dir, "dsim3.signor.snp_dt_allEffects.rds")
-gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
+# ### sim - signor -  inbred 
+# out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
+# filtered_rds <- paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds")
+# full_rds <- paste0(out_dir, "dsim3.signor.snp_dt_allEffects.rds")
+# gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
 
-### mel - DGRP2 - inbred 
-out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
-filtered_rds <- paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.rds")
-full_rds <- paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_allEffects.rds")
-gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
+# ### mel - DGRP2 - inbred 
+# out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
+# filtered_rds <- paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.rds")
+# full_rds <- paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_allEffects.rds")
+# gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
 
 
 
@@ -84,15 +98,15 @@ nrow(biallelic_dt) # dgrp: 2830779 # 3567947
 seqSetFilter(gds_file, variant.id = biallelic_dt$id)
 
 # now get AF for signor:
-biallelic_dt[, af := (seqGetData(gds_file, "annotation/info/AF"))$data]
-biallelic_dt[, maf := pmin(af, 1-af)]
+# biallelic_dt[, af := (seqGetData(gds_file, "annotation/info/AF"))$data]
+# biallelic_dt[, maf := pmin(af, 1-af)]
 
-biallelic_dt <- biallelic_dt[maf >0 & af < 1, ] 
+# biallelic_dt <- biallelic_dt[maf >0 & af < 1, ] 
 nrow(biallelic_dt) # signor: 3566589
 variant_ids <- biallelic_dt$id
 
-bin_size <- length(variant_ids) # test on 100 variants first 
-# bin_size <- 100
+# bin_size <- length(variant_ids) # test on 100 variants first 
+bin_size <- 100
 bins <- split(seq_along(variant_ids), ceiling(seq_along(variant_ids) / bin_size))
 n_bins <- length(bins)
 
