@@ -13,7 +13,7 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-BG_dir=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/
+BG_dir=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/
 
