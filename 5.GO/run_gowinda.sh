@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/
 
-MAF_dir=MAF15filter_AF
-CANDIDATE_id=15_AF
+MAF_dir=MAF10filter_AF
+CANDIDATE_id=10_AF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
