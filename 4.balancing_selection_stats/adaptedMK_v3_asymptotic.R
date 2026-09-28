@@ -36,8 +36,8 @@ asymptotic_MKlike_stats <- function(Ps, Pns, SPs, SPns, pseudo=0, min_count=0) {
     }
 }
 MAF_def = "seqAlleleFreq"
-background = "mel_only"
-spp="maf_mel"
+background = "sim_only"
+spp="maf_sim"
 # maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 maf_inputs <- c(0.005)
 
@@ -45,10 +45,10 @@ results <- rbindlist(
     foreach(maf = maf_inputs, .packages="data.table", spp=spp) %dopar% {
         maf_label = maf * 100
 
-        bg_table <- shared_dt[!is.na(spp) & spp >= maf]
-        tsp_table <- shared_dt[!is.na(spp) & spp >= maf & classification%in%tsp]
-        conv_table <- shared_dt[!is.na(spp) & spp >= maf & classification%in%conv]
-        both_table <- shared_dt[!is.na(spp) & spp >= maf & classification%in%c(tsp, conv)]
+        bg_table <- shared_dt[!is.na(get(spp)) & get(spp) >= maf]
+        tsp_table <- shared_dt[!is.na(get(spp)) & get(spp) >= maf & classification%in%tsp]
+        conv_table <- shared_dt[!is.na(get(spp)) & get(spp) >= maf & classification%in%conv]
+        both_table <- shared_dt[!is.na(get(spp)) & get(spp) >= maf & classification%in%c(tsp, conv)]
 
         setindex(bg_table, gene_id_fbgn)
         genes <- unique(na.omit(bg_table$gene_id_fbgn))
@@ -56,20 +56,22 @@ results <- rbindlist(
         maf_results <- rbindlist(lapply(genes, function(gene) {
             bg_dt <- bg_table[gene_id_fbgn == gene]
 
-            Ps <- nrow(bg_dt[!is.na(ref_mel) & is.na(ref_sim_dm6) & effect_mel %like% "syn" ])
-            Pns <- nrow(bg_dt[!is.na(ref_mel) & is.na(ref_sim_dm6) & effect_mel %like% "missense"])
+            # Ps <- nrow(bg_dt[!is.na(ref_mel) & is.na(ref_sim_dm6) & effect_mel %like% "syn" ])
+            # Pns <- nrow(bg_dt[!is.na(ref_mel) & is.na(ref_sim_dm6) & effect_mel %like% "missense"])
 
-            # Ps <- nrow(bg_dt[is.na(ref_mel) & !is.na(ref_sim_dm6) & effect_sim %like% "syn" ])
-            # Pns <- nrow(bg_dt[is.na(ref_mel) & !is.na(ref_sim_dm6) & effect_sim %like% "missense"])
+            # sim only:
+            Ps <- nrow(bg_dt[is.na(ref_mel) & !is.na(ref_sim_dm6) & effect_sim %like% "syn" ])
+            Pns <- nrow(bg_dt[is.na(ref_mel) & !is.na(ref_sim_dm6) & effect_sim %like% "missense"])
 
             get_SP <- function(candidate_dt){
                 cand_dt <- candidate_dt[gene_id_fbgn == gene]
 
-                SPs <- nrow(cand_dt[effect_mel %like% "syn"])
-                SPns <- nrow(cand_dt[effect_mel %like% "missense"])
+                # SPs <- nrow(cand_dt[effect_mel %like% "syn"])
+                # SPns <- nrow(cand_dt[effect_mel %like% "missense"])
                 
-                # SPs <- nrow(cand_dt[effect_sim %like% "syn"])
-                # SPns <- nrow(cand_dt[effect_sim %like% "missense"])
+                # sim only:
+                SPs <- nrow(cand_dt[effect_sim %like% "syn"])
+                SPns <- nrow(cand_dt[effect_sim %like% "missense"])
 
                 asymptotic_MKlike_stats(Ps, Pns, SPs, SPns)[, ':=' (
                     Ps = Ps,
@@ -130,10 +132,10 @@ setcolorder(
 )
 
 # mel bg
-saveRDS("/project/berglandlab/anjali/drosophila_polymorphism/inbred/geneLevel_analysis/MKish/asymptotic_MK_longResults_melBG.rds")
+saveRDS(results, "/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/geneLevel_analysis/MKish/asymptotic_MK_longResults_melBG.rds")
 
 # sim bg
-saveRDS("/project/berglandlab/anjali/drosophila_polymorphism/inbred/geneLevel_analysis/MKish/asymptotic_MK_longResults_simBG.rds")
+saveRDS(results, "/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/geneLevel_analysis/MKish/asymptotic_MK_longResults_simBG.rds")
 
 
 

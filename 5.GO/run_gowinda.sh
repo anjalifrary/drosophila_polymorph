@@ -13,17 +13,14 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-BG_dir=/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/
-CANDIDATE_root=/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/
-OUTPUT_root=/scratch/ejy4bu/drosophila/GO/gowinda/results
+BG_dir=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/
+CANDIDATE_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/candidateFiles/
+OUTPUT_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/
 
-MAF_dir=MAF49filter_globalAF
-CANDIDATE_id=49_globalAF
+MAF_dir=MAF49filter_AF
+CANDIDATE_id=49_AF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
-# running MAF poly on mel bg 5-49
-# next: global on melOnly bg
-# later run noMAF melOnly bg - poly AND global
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
@@ -31,8 +28,8 @@ jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowin
 
 
 SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")
-# BACKGROUNDS=("bg_speciesSpecific" "bg_sharedOnly")
-BACKGROUNDS=("bg_melOnly")
+BACKGROUNDS=("bg_speciesSpecific" "bg_sharedOnly")
+# BACKGROUNDS=("bg_melOnly")
 
 BG_INDEX=$((SLURM_ARRAY_TASK_ID / 4))
 SUFFIX_INDEX=$((SLURM_ARRAY_TASK_ID % 4))

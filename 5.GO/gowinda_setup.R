@@ -1,4 +1,7 @@
+library(SeqArray)
 library(data.table)
+library(doMC)
+registerDoMC(16)
 
 # requires four files:
     # background snps in .txt file of chr | pos
@@ -7,15 +10,103 @@ library(data.table)
     # GO gene sets
 
 # pool seq OLD
-dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_6-29-26/"
+# dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_6-29-26/"
 
 # inbred
 dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/"
 
-# ### background snps
-# rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/all_quality_variants_MAF5_clean.rds")
-# total_snp <- unique(rds[, .(chr, pos)])
-# fwrite(total_snp, paste0(dir, "background_all_snps.txt"), sep="\t", col.names=FALSE)
+rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
+
+
+### get background and candidate files per MAF threshold
+
+tsp <- c("A", "B")
+conv <- c("F", "G", "O", "P", "X", "Y")
+
+masterCandidates <- rds[classification %in%c(tsp, conv)]
+# saveRDS(masterCandidates, paste0(dir, "inbred.masterCandidateFile.rds"))
+
+maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
+
+# maf_inputs <- c(0.30)
+
+foreach(maf = maf_inputs, .packages="data.table") %dopar% {
+    maf_label = maf*100
+
+    bg_SpeciesSpecific <- rds[
+        ((!is.na(variant.id_mel) & maf_mel > maf) | 
+        (!is.na(variant.id_sim) & maf_sim > maf)) 
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+
+    bg_SharedOnly <- rds[
+        (!is.na(classification) & 
+        (is.na(maf_mel) | maf_mel > maf) & 
+        (is.na(maf_sim) | maf_sim > maf))
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+
+    candidate_chrpos_AB <- rds[
+        (classification%in%tsp & 
+        (is.na(maf_mel) | maf_mel > maf) & 
+        (is.na(maf_sim) | maf_sim > maf))
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+    candidate_chrpos_FGOPXY <- rds[
+        (classification%in%conv & 
+        (is.na(maf_mel) | maf_mel > maf) & 
+        (is.na(maf_sim) | maf_sim > maf))
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+    candidate_chrpos_ABFGOPXY <- rds[
+        (classification%in%c(tsp,conv) & 
+        (is.na(maf_mel) | maf_mel > maf) & 
+        (is.na(maf_sim) | maf_sim > maf))
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+    candidate_chrpos_XY <- rds[
+        (classification%in%c("X", "Y") & 
+        (is.na(maf_mel) | maf_mel > maf) & 
+        (is.na(maf_sim) | maf_sim > maf))
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+
+    cand_dir <- paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/")
+    bg_dir <- paste0(dir, "backgroundFiles/MAF", maf_label, "filter_AF/")
+    if (!dir.exists(cand_dir)) {
+        dir.create(cand_dir, recursive = TRUE)
+    }
+
+    if (!dir.exists(bg_dir)) {
+        dir.create(bg_dir, recursive = TRUE)
+    }
+    
+    fwrite(bg_SharedOnly[, .(chr_dm6, pos_dm6)], 
+        paste0(dir, "backgroundFiles/MAF", maf_label, "filter_AF/bg_sharedOnly_", maf_label, "_", "AF.txt"),
+        sep="\t", col.names=FALSE)
+    
+    fwrite(bg_SpeciesSpecific[, .(chr_dm6, pos_dm6)], 
+        paste0(dir, "backgroundFiles/MAF", maf_label, "filter_AF/bg_speciesSpecific_", maf_label, "_", "AF.txt"),
+        sep="\t", col.names=FALSE)
+
+    fwrite(candidate_chrpos_AB[, .(chr_dm6, pos_dm6)],
+        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_AB_", maf_label, "_", "AF.txt"),
+        sep="\t", col.names=FALSE)
+
+    fwrite(candidate_chrpos_ABFGOPXY[, .(chr_dm6, pos_dm6)],
+        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_ABFGOPXY_", maf_label, "_", "AF.txt"),
+        sep="\t", col.names=FALSE)
+
+    fwrite(candidate_chrpos_FGOPXY[, .(chr_dm6, pos_dm6)],
+        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_FGOPXY_", maf_label, "_", "AF.txt"),
+        sep="\t", col.names=FALSE)
+
+    fwrite(candidate_chrpos_XY[, .(chr_dm6, pos_dm6)],
+        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_XY_", maf_label, "_", "AF.txt"),
+        sep="\t", col.names=FALSE)
+}
+
+
 
 ### DO ONCE
 
@@ -64,20 +155,22 @@ fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ont
 
 ### building background from snps with 1 polymorphic site per codon 
 # includes single-species and both-species polymorphic codons
-rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/all_quality_variants_clean.rds")
+# rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/noMAFfilter/all_quality_variants_clean.rds")
+
+rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
 
 rds[, `:=`(
-  codon_ref_use = fifelse(!is.na(codon_ref_mel), codon_ref_mel, codon_ref_sim),
-  nt_ref_use = fifelse(!is.na(ref_mel), ref_mel, ref_sim)
+#   codon_ref_use = fifelse(!is.na(codon_ref_mel), codon_ref_mel, codon_ref_sim),
+  nt_ref_use = fifelse(!is.na(ref_mel), ref_mel, ref_sim_dm6)
 )]
 
-rds[, strand := fifelse(
-  nt_ref_use == toupper(substr(codon_ref_use, regexpr("[A-Z]", codon_ref_use), 1)), "forward", "reverse"
-)]
+# rds[, strand := fifelse(
+#   nt_ref_use == toupper(substr(codon_ref_use, regexpr("[A-Z]", codon_ref_use), 1)), "forward", "reverse"
+# )]
 
-rds[strand == "forward", codon_start_pos := pos - (regexpr("[A-Z]", codon_ref_use) - 1)]
-rds[strand == "reverse", codon_start_pos := pos + (regexpr("[A-Z]", codon_ref_use) - 1)]
-rds[, c("codon_ref_use", "nt_ref_use", "strand") := NULL]
+# rds[strand == "forward", codon_start_pos := pos - (regexpr("[A-Z]", codon_ref_use) - 1)]
+# rds[strand == "reverse", codon_start_pos := pos + (regexpr("[A-Z]", codon_ref_use) - 1)]
+# rds[, c("codon_ref_use", "nt_ref_use", "strand") := NULL]
 # setkey(filtered_dt, chr, pos)
 
 mel_only <- rds[!is.na(ref_mel)]
