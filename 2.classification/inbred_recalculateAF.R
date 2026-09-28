@@ -3,23 +3,34 @@ library(data.table)
 library(SeqArray)
 
 candidate_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
+merged_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.rds")
+shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.rds")
+
 mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
 sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
 
+# snp_dt <- candidate_dt 
+# snp_dt <- merged_dt
+snp_dt <- shared_dt
+
 ### mel:
 
-candidate_dt[, `:=`(
+snp_dt[, `:=`(
     af_mel_old  = af_mel,
     maf_mel_old = maf_mel,
     n_samps_mel_old = n_samps_mel
 )]
 
+mel_candidates <- snp_dt[
+    !is.na(variant.id_mel), .(chr_dm6, pos_dm6)
+]
+
 seqResetFilter(mel_gds)
 
 seqSetFilterPos(
     mel_gds,
-    chr = candidate_dt$chr_dm6,
-    pos = candidate_dt$pos_dm6
+    chr = mel_candidates$chr_dm6,
+    pos = mel_candidates$pos_dm6
 )
 
 mel_freq_dt <- data.table(
@@ -30,7 +41,7 @@ mel_freq_dt <- data.table(
 
 mel_freq_dt[, maf_mel := pmin(af_mel, 1 - af_mel)]
 
-candidate_dt[
+snp_dt[
     mel_freq_dt,
     on = .(chr_dm6, pos_dm6),
     `:=`(
@@ -39,14 +50,22 @@ candidate_dt[
     )
 ]
 
-candidate_dt[, .(
+snp_dt[
+    is.na(variant.id_mel),
+    `:=`(
+        af_mel = NA_real_,
+        maf_mel = NA_real_
+    )
+]
+
+snp_dt[, .(
     n = .N,
     n_af = sum(!is.na(af_mel)),
     n_maf = sum(!is.na(maf_mel)),
     n_old_af = sum(!is.na(af_mel_old))
 )]
 
-candidate_dt[
+snp_dt[
     !is.na(af_mel_old) & !is.na(af_mel),
     .(
         classification,
@@ -61,15 +80,13 @@ candidate_dt[
 
 ### sim:
 
-candidate_dt[, `:=`(
+snp_dt[, `:=`(
     af_sim_old = af_sim,
     maf_sim_old = maf_sim,
     n_samps_sim_old = n_samps_sim
 )]
 
-sim_candidates <- candidate_dt[
-    !is.na(ref_sim_dm6) & !is.na(alt_sim_dm6)
-]
+sim_candidates <- snp_dt[!is.na(variant.id_sim), .(chr_dm6, pos_dm6)]
 
 seqResetFilter(sim_gds)
 
@@ -95,7 +112,7 @@ sim_freq_dt <- data.table(
 
 sim_freq_dt[, maf_sim := pmin(af_sim, 1 - af_sim)]
 
-candidate_dt[
+snp_dt[
     sim_freq_dt,
     on = .(chr_dm6, pos_dm6),
     `:=`(
@@ -103,15 +120,22 @@ candidate_dt[
         maf_sim = i.maf_sim
     )
 ]
+snp_dt[
+    is.na(variant.id_sim),
+    `:=`(
+        af_sim = NA_real_,
+        maf_sim = NA_real_
+    )
+]
 
-candidate_dt[, .(
+snp_dt[, .(
     n = .N,
     n_af = sum(!is.na(af_sim)),
     n_maf = sum(!is.na(maf_sim)),
     n_old_af = sum(!is.na(af_sim_old))
 )]
 
-candidate_dt[
+snp_dt[
     !is.na(af_sim_old) & !is.na(af_sim),
     .(
         classification,
@@ -124,4 +148,11 @@ candidate_dt[
     )
 ][1:20]
 
-saveRDS(candidate_dt,"/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.MAF.rds")
+# candidate table:
+# saveRDS(snp_dt,"/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.MAF.rds")
+
+# merged:
+# saveRDS(snp_dt,"/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
+
+# shared:
+# saveRDS(snp_dt,"/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.MAF.rds")
