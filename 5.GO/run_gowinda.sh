@@ -9,7 +9,7 @@
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab
-#SBATCH --array=0-3
+#SBATCH --array=0-7
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
@@ -17,8 +17,8 @@ BG_dir=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/backgroundFiles/
 CANDIDATE_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/
 
-MAF_dir=MAF25filter_AF
-CANDIDATE_id=25_AF
+MAF_dir=MAF49filter_AF
+CANDIDATE_id=49_AF
 
 #maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
