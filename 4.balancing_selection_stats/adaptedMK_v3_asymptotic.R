@@ -172,6 +172,11 @@ setcolorder(
 
 saveRDS(results, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/adaptedMK/new_asymptotic_MK_longResults_polyAF_speciesSpecificBG.rds")
 
+
+### INBRED: 
+candidate_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
+
+
 # FIGURES 
 
 

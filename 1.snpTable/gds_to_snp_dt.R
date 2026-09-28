@@ -81,7 +81,9 @@ dt <- data.table(
 
 dt[, count_records := .N, by = .(chr, pos)]
 
-nrow(dt) # dgrp: 2938460 #signor: 3905965
+nrow(dt) 
+# dgrp: 2938460 #signor: 3905965
+# dest sim: 4362135
 # summary(dt$af)
 # summary(dt$maf)
 
@@ -90,7 +92,7 @@ nrow(dt) # dgrp: 2938460 #signor: 3905965
 # there are 2630 sites in dgrp dt that are fixed for ALT allele 
 
 biallelic_dt <- dt[count_records==1 & nAlleles == 2, ] # gets 1 record per (chr, pos) where records have 2 alleles each
-nrow(biallelic_dt) # dgrp: 2830779 # 3567947
+nrow(biallelic_dt) # dgrp: 2830779 # signor: 3567947 # dest sim: 3810589
 
 # biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
 # nrow(biallelic_dt) # dgrp: 2828149
@@ -105,8 +107,8 @@ seqSetFilter(gds_file, variant.id = biallelic_dt$id)
 nrow(biallelic_dt) # signor: 3566589
 variant_ids <- biallelic_dt$id
 
-# bin_size <- length(variant_ids) # test on 100 variants first 
-bin_size <- 100
+bin_size <- length(variant_ids) # test on 100 variants first 
+# bin_size <- 100
 bins <- split(seq_along(variant_ids), ceiling(seq_along(variant_ids) / bin_size))
 n_bins <- length(bins)
 
@@ -167,12 +169,19 @@ n_bins <- length(bins)
     # (10) Exon_Rank  | Genotype [ | ERRORS | WARNINGS ] )'
     
     eff_all <- seqGetData(gds_file, "annotation/info/EFF")
+    ann_all <- seqGetData(gds_file, "annotation/info/ANN")
+    
     annotated_ids <- seqGetData(gds_file, "variant.id") # keep only annotated variants
     
     eff_dt <- data.table(
         variant.id = rep(annotated_ids, times = eff_all$length),
         eff = eff_all$data
     )
+    ann_dt <- data.table(
+        variant.id = rep(annotated_ids, times = ann_all$length), 
+        ann = ann_all$data
+    )
+    
     # keep highest priority snpEff annotation:
     eff_dt[, effect_order := seq_len(.N), by = variant.id]
     eff_row1 <- eff_dt[effect_order == 1, ]
