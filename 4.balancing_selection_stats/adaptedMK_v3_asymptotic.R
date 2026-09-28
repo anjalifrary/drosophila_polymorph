@@ -7,6 +7,138 @@ registerDoMC(16)
 ## for inspo
 
 
+### INBRED: 
+shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
+
+tsp <- c("A", "B")
+conv <- c("F", "G", "O", "P", "X", "Y")
+
+asymptotic_MKlike_stats <- function(Ps, Pns, SPs, SPns, pseudo=0, min_count=0) {
+    Ps <- Ps + pseudo
+    Pns <- Pns + pseudo
+    SPs <- SPs + pseudo
+    SPns <- SPns + pseudo
+
+     if (Ps > min_count && Pns > min_count && SPs > min_count && SPns > min_count) {
+        alpha <- 1 - (Ps * SPns) / (Pns * SPs)
+        OR <- 1 - alpha 
+        data.table(
+            alpha = alpha, 
+            OR = OR,
+            logOR = log(OR)
+        )
+    } else {
+        data.table(
+            alpha = NA_real_,
+            OR = NA_real_,
+            logOR = NA_real_
+        )
+    }
+}
+MAF_def = "seqAlleleFreq"
+background = "mel_only"
+spp="maf_mel"
+# maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
+maf_inputs <- c(0.005)
+
+results <- rbindlist(
+    foreach(maf = maf_inputs, .packages="data.table", spp=spp) %dopar% {
+        maf_label = maf * 100
+
+        bg_table <- shared_dt[!is.na(spp) & spp >= maf]
+        tsp_table <- shared_dt[!is.na(spp) & spp >= maf & classification%in%tsp]
+        conv_table <- shared_dt[!is.na(spp) & spp >= maf & classification%in%conv]
+        both_table <- shared_dt[!is.na(spp) & spp >= maf & classification%in%c(tsp, conv)]
+
+        setindex(bg_table, gene_id_fbgn)
+        genes <- unique(na.omit(bg_table$gene_id_fbgn))
+
+        maf_results <- rbindlist(lapply(genes, function(gene) {
+            bg_dt <- bg_table[gene_id_fbgn == gene]
+
+            Ps <- nrow(bg_dt[!is.na(ref_mel) & is.na(ref_sim_dm6) & effect_mel %like% "syn" ])
+            Pns <- nrow(bg_dt[!is.na(ref_mel) & is.na(ref_sim_dm6) & effect_mel %like% "missense"])
+
+            # Ps <- nrow(bg_dt[is.na(ref_mel) & !is.na(ref_sim_dm6) & effect_sim %like% "syn" ])
+            # Pns <- nrow(bg_dt[is.na(ref_mel) & !is.na(ref_sim_dm6) & effect_sim %like% "missense"])
+
+            get_SP <- function(candidate_dt){
+                cand_dt <- candidate_dt[gene_id_fbgn == gene]
+
+                SPs <- nrow(cand_dt[effect_mel %like% "syn"])
+                SPns <- nrow(cand_dt[effect_mel %like% "missense"])
+                
+                # SPs <- nrow(cand_dt[effect_sim %like% "syn"])
+                # SPns <- nrow(cand_dt[effect_sim %like% "missense"])
+
+                asymptotic_MKlike_stats(Ps, Pns, SPs, SPns)[, ':=' (
+                    Ps = Ps,
+                    Pns = Pns, 
+                    SPs = SPs, 
+                    SPns = SPns
+                )] 
+            }
+            rbind(
+            get_SP(tsp_table)[, ':=' (
+                    gene=gene, 
+                    MAF=maf, 
+                    group="TSP",
+                    background=background,
+                    MAF_def=MAF_def
+                )],
+            get_SP(conv_table)[, ':=' (
+                    gene=gene, 
+                    MAF=maf, 
+                    group="CONV",
+                    background=background,
+                    MAF_def=MAF_def
+                )],
+            get_SP(both_table)[, ':=' (
+                    gene=gene, 
+                    MAF=maf, 
+                    group="BOTH",
+                    background=background,
+                    MAF_def=MAF_def
+                )]
+            )
+
+        })
+        )
+        maf_results
+
+    }
+)
+
+results <- as.data.table(results)
+
+setcolorder(
+    results,
+    c(
+        "gene",
+        "MAF",
+        "group",
+        "background",
+        "MAF_def",
+        "Ps",
+        "Pns",
+        "SPs",
+        "SPns",
+        "alpha",
+        "OR",
+        "logOR"
+    )
+)
+
+# mel bg
+saveRDS("/project/berglandlab/anjali/drosophila_polymorphism/inbred/geneLevel_analysis/MKish/asymptotic_MK_longResults_melBG.rds")
+
+# sim bg
+saveRDS("/project/berglandlab/anjali/drosophila_polymorphism/inbred/geneLevel_analysis/MKish/asymptotic_MK_longResults_simBG.rds")
+
+
+
+
+########### OLD:
 masterCandidates <- readRDS("/scratch/ejy4bu/drosophila/GO/gowinda/candidateFiles/masterCandidateFile.rds")
 masterBG_speciesSpecific <- fread("/scratch/ejy4bu/drosophila/GO/gowinda/backgroundFiles/noMAFfilter/bg_speciesSpecific_noMAF.txt",
     sep="\t", col.names=c("chr", "pos"))
@@ -171,10 +303,6 @@ setcolorder(
 
 
 saveRDS(results, "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/adaptedMK/new_asymptotic_MK_longResults_polyAF_speciesSpecificBG.rds")
-
-
-### INBRED: 
-candidate_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
 
 
 # FIGURES 
