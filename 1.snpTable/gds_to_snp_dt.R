@@ -83,7 +83,7 @@ dt[, count_records := .N, by = .(chr, pos)]
 
 nrow(dt) 
 # dgrp: 2938460 #signor: 3905965
-# dest sim: 4362135
+# dest sim: 4362135; dest mel: 37549202
 # summary(dt$af)
 # summary(dt$maf)
 
@@ -92,7 +92,7 @@ nrow(dt)
 # there are 2630 sites in dgrp dt that are fixed for ALT allele 
 
 biallelic_dt <- dt[count_records==1 & nAlleles == 2, ] # gets 1 record per (chr, pos) where records have 2 alleles each
-nrow(biallelic_dt) # dgrp: 2830779 # signor: 3567947 # dest sim: 3810589
+nrow(biallelic_dt) # dgrp: 2830779 # signor: 3567947 # dest sim: 3810589 ; dest mel: 27302084
 
 # biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
 # nrow(biallelic_dt) # dgrp: 2828149
@@ -124,25 +124,25 @@ n_bins <- length(bins)
     alleles_all <- seqGetData(gds_file, "allele")
     allele_split <- tstrsplit(alleles_all, ",")
 
-    ### for signor only:
-    genotypes <- seqGetData(gds_file, "genotype")
-    # extract genotypes for all samples and apply (1, 0, 3=missing... and NAs)
-    n_samps <- apply(genotypes, 3, function(g) {
-        sum(!is.na(g[1, ]) & !is.na(g[2, ]))
-    })
+    # ### for signor only:
+    # genotypes <- seqGetData(gds_file, "genotype")
+    # # extract genotypes for all samples and apply (1, 0, 3=missing... and NAs)
+    # n_samps <- apply(genotypes, 3, function(g) {
+    #     sum(!is.na(g[1, ]) & !is.na(g[2, ]))
+    # })
 
-    src_chr <- seqGetData(gds_file, "annotation/info/SRC_CHROM")
-    src_pos <- seqGetData(gds_file, "annotation/info/SRC_POS")
+    # src_chr <- seqGetData(gds_file, "annotation/info/SRC_CHROM")
+    # src_pos <- seqGetData(gds_file, "annotation/info/SRC_POS")
 
-    # src_ref_alt is list with length 2 for ALL snps so extracting pair for each snp :
-    src_ref_alt <- seqGetData(gds_file, "annotation/info/SRC_REF_ALT")
-    ref_src <- src_ref_alt$data[seq(1, length(src_ref_alt$data), by = 2)]
-    alt_src <- src_ref_alt$data[seq(2, length(src_ref_alt$data), by = 2)]
+    # # src_ref_alt is list with length 2 for ALL snps so extracting pair for each snp :
+    # src_ref_alt <- seqGetData(gds_file, "annotation/info/SRC_REF_ALT")
+    # ref_src <- src_ref_alt$data[seq(1, length(src_ref_alt$data), by = 2)]
+    # alt_src <- src_ref_alt$data[seq(2, length(src_ref_alt$data), by = 2)]
 
-    # flip = if strand was flipped; swapped = if ref and alt were swapped
-    flip <- seqGetData(gds_file, "annotation/info/FLIP")
-    swap <- seqGetData(gds_file, "annotation/info/SWAP")
-    ### end signor specific code ^
+    # # flip = if strand was flipped; swapped = if ref and alt were swapped
+    # flip <- seqGetData(gds_file, "annotation/info/FLIP")
+    # swap <- seqGetData(gds_file, "annotation/info/SWAP")
+    # ### end signor specific code ^
 
     snp.dt1 <- data.table(
         variant.id = bin_ids,
@@ -153,13 +153,13 @@ n_bins <- length(bins)
         af         = biallelic_dt$af[idx],
         maf        = biallelic_dt$maf[idx],
         n_samps    = n_samps
-        ,
-        chr_src    = src_chr,
-        pos_src    = src_pos,
-        ref_src    = ref_src,
-        alt_src    = alt_src,
-        flip       = flip,
-        swap       = swap
+        # ,
+        # chr_src    = src_chr,
+        # pos_src    = src_pos,
+        # ref_src    = ref_src,
+        # alt_src    = alt_src,
+        # flip       = flip,
+        # swap       = swap
     )
 
 
@@ -181,6 +181,13 @@ n_bins <- length(bins)
         variant.id = rep(annotated_ids, times = ann_all$length), 
         ann = ann_all$data
     )
+    ann_dt[, effect_order := seq_len(.N), by = variant.id]
+    ann_row1 <- ann_dt[effect_order==1, ]
+    ann_row1[, ann_contents := sub("^[^(]*\\((.*)\\)$", "\\1", ann)]
+    ann_split <- tstrsplit(ann_row1$ann_contents, "\\|")
+
+    ann_row1[, gene_id_fbgn := ann_split[[5]]]
+
     
     # keep highest priority snpEff annotation:
     eff_dt[, effect_order := seq_len(.N), by = variant.id]
@@ -211,6 +218,7 @@ n_bins <- length(bins)
     eff_row1[, effect_order := NULL]
 
     snp_dt <- merge(snp.dt1, eff_row1, by = "variant.id", all.x=T)
+    snp_dt <- merge(snp_dt, ann_row1[, .(variant.id, gene_id_fbgn)], by = "variant.id", all.x=T)
     filtered_dt <- snp_dt[effect%in%(filter_effects)]
 
     saveRDS(snp_dt, full_rds)

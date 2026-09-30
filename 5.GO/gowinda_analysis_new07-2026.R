@@ -100,12 +100,13 @@ append_gowinda_summary <- function(results, file, csv_file, filter_col="FDR", th
 
 # csv headers
 # MAF_value | MAF_def | background | classes | statThreshold | N_GOTerms | GO.ids
-out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats.8-6-2026.csv"
-dir.create("/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/")
+# out_csv <- "/scratch/ejy4bu/drosophila/GO/gowinda/gowindaRunsStats/gowindaStats.8-6-2026.csv"
+out_csv <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/gowindaRunsStats/gowindaStats.9-28-2026.csv"
+dir.create("/scratch/ejy4bu/drosophila/inbred/GO/gowinda/gowindaRunsStats/")
 
 ### to loop over a single results directory:
 
-dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/"
+dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
 for (file_name in files_list) {
@@ -147,10 +148,11 @@ class="AB"
 # class="ABFGOPXY"
 # class="XY"
 # bg="speciesSpecific_MAF"
-# bg="sharedOnly_MAF"
-bg="melOnly_MAF"
-maf_def="polyAF"
+bg="sharedOnly_MAF"
+# bg="melOnly_MAF"
+# maf_def="polyAF"
 # maf_def="globalAF"
+maf_def="AF"
 
 csv <- as.data.table(csv)
 
@@ -286,7 +288,7 @@ build_long_gowinda <- function(files, filter_col = "FDR", threshold= 0.05) {
     }), fill = T)
 }
 
-maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
+maf_inputs <- c(0.0, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
 # after building long table: same plots as before
 plot_go_counts <- function(dt, class_name, bg_name, maf_def_name) {
@@ -350,10 +352,10 @@ gene_persistence_matrix <- function(dt, go_id, class_name, bg_name, maf_def_name
 }
 
 # to use:
-dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/results/"
+dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
-long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
+# long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
 long_dt <- build_long_gowinda(files_list)
 # saveRDS(long_dt, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
 
@@ -715,3 +717,15 @@ ggplot(
     theme(
         axis.text.y = element_text(size = 4)
     )
+
+
+    ### 9/29/26
+long_dt[sapply(GeneListFound, function(x) "fbgn0011274" %in% x)]
+FB
+long_dt[sapply(GeneListFound, function(x) "fbgn0010385" %in% x)]
+
+
+drsl_genes <- c("FBgn0283461", "FBgn0052279", "FBgn0052283", "FBgn0052282", "FBgn0035434")
+drsl <- long_dt[
+  sapply(GeneListFound, function(x) any(tolower(drsl_genes) %in% tolower(x)))
+]
