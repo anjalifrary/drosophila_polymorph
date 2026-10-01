@@ -1,10 +1,15 @@
 library(data.table)
 library(ggplot2)
 library(foreach)
-
+### old 
 # voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
 # voi <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
+
+### inbred:
 voi <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
+
+### poolseq:
+voi <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.candidatesABFGOPXY.classed.rds")
 
 load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/xtx_c2.Rdata")
 xtx <- xc
@@ -101,8 +106,8 @@ ggplot(data = plot_dt, aes(x=class, y=mean_age)) + geom_point(size=3) +
 ########################################################3
 # mean nlp vs class(ification)
 
-# spp = "mel"
-spp = "sim"
+spp = "mel"
+# spp = "sim"
 
 nlp <- paste0("nLocales_poly_", spp)
 
@@ -166,8 +171,8 @@ p_vals <- c(
 )
 
 var_filt <- var[
-    nLocales_poly_mel > 0 & 
-    nLocales_poly_sim > 0
+    nLocales_poly_mel > 20 & 
+    nLocales_poly_sim > 20
 ]
 
 plot_dt <- rbindlist(lapply(p_vals, function(p) {
