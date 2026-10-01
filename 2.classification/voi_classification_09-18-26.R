@@ -8,33 +8,76 @@ library(doMC)
 ######################################################################
 
 # ### Pool seq files ###
+shared_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+
+final_dt_save <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.bothMelSim.classed.rds"
+sharedOnly_dt <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.classed.rds"
+candidates_dt <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.candidatesABFGOPXY.classed.rds"
+
+csv_class <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.classification.csv"
+
 
 #######################################################################
 
 
 ### INBRED ###
 
-shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+# shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+# csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.classification.csv"
 
 ### filter for tsp_samePos TRUE or FALSE (ignore NAs)
 # now filtered_dt contains only codons where there is 1 (valid) snp in both species 
 
-# 2 codons have opposite strandedness:
-#   3L:18870748:18870750
-#   3R:21866692:21866694
+
+# ### inbred only:
+
+# # 2 codons have opposite strandedness:
+# #   3L:18870748:18870750
+# #   3R:21866692:21866694
+# filtered_dt <- shared_dt
+# filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
+#     keep_mel := "oppStrnd"
+# ]
+# filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
+#     keep_sim := "oppStrnd"
+# ]
+# filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
+#     keep_mel := "oppStrnd"
+# ]
+# filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
+#     keep_sim := "oppStrnd"
+# ]
+
+
 filtered_dt <- shared_dt
-filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
-    keep_mel := "oppStrnd"
-]
-filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
-    keep_sim := "oppStrnd"
-]
-filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
-    keep_mel := "oppStrnd"
-]
-filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
-    keep_sim := "oppStrnd"
-]
+
+### pool seq: look for opposite strand codons:
+filtered_dt[, codon_id_dm6  := fifelse(
+    !is.na(codon_id_dm6_mel),
+    codon_id_dm6_mel,
+    codon_id_dm6_sim)]
+
+# realized I filtered for opp codons earlier but missed some... 
+opp_codons <- filtered_dt[
+    ,
+    .(
+        has_plus  = any(strand_mel == "+" | strand_sim == "+", na.rm = TRUE),
+        has_minus = any(strand_mel == "-" | strand_sim == "-", na.rm = TRUE)
+    ),
+    by = codon_id_dm6
+][has_plus & has_minus, codon_id_dm6]
+
+filtered_dt[codon_id_dm6%in%opp_codons, `:=` (keep_mel = "oppStrnd", keep_sim ="oppStrnd")]
+
+# opp_strand <- filtered_dt[
+#     keep_mel=="TRUE" & keep_sim=="TRUE" &
+#     !is.na(codon_id_dm6_mel) &
+#     !is.na(codon_id_dm6_sim) &
+#     !is.na(strand_mel) &
+#     !is.na(strand_sim) &
+#     strand_mel != strand_sim
+# ]
+# filtered_dt[codon_id_dm6_mel%in%opp_strand$codon_id_dm6_mel, `:=` (keep_mel="oppStrnd", keep_sim="oppStrnd")]
 
 
 filtered_dt[keep_mel=="OVERLAP", samePos := "OVERLAP"]
@@ -52,8 +95,8 @@ mel_cols <- c(
     "aa_ref_mel", "aa_alt_mel", 
     "gene_mel", "gene_id_fbgn_fromGFF", 
     "transcript_id_mel", 
-    "n_samps_mel", 
-    "af_mel", "maf_mel", 
+    # "n_samps_mel", 
+    # "af_mel", "maf_mel", 
     "effect_mel", 
     "strand_mel"
 )
@@ -69,8 +112,8 @@ sim_cols <- c(
     "aa_ref_sim", "aa_alt_sim",
     "gene_sim",
     "transcript_id_sim",
-    "n_samps_sim", 
-    "af_sim", "maf_sim",
+    # "n_samps_sim", 
+    # "af_sim", "maf_sim",
     "effect_sim", 
     "flip", "swap", 
     "strand_sim"
@@ -87,14 +130,10 @@ new_dt <- new_dt[keep_sim == "TRUE" | is.na(keep_sim)]
 new_dt[, tsp_samePos := snp_pos_in_codon_mel == snp_pos_in_codon_sim]
 
 
-new_dt[, codon_id_dm6  := fifelse(
-    !is.na(codon_id_dm6_mel),
-    codon_id_dm6_mel,
-    codon_id_dm6_sim)]
 
 new_dt[, .N, by = codon_id_dm6][, table(N)]
-new_dt[is.na(tsp_samePos), .N, by = codon_id_dm6][, table(N)]
-new_dt[!is.na(tsp_samePos), .N, by = codon_id_dm6][, table(N)]
+new_dt[is.na(tsp_samePos), .N, by = codon_id_dm6][, table(N)] # mixture of diffPos snps and species-specific sites 
+new_dt[!is.na(tsp_samePos), .N, by = codon_id_dm6][, table(N)] # all the samePos sites (all TRUE), so all 1 codon only... good!
 
 # View(new_dt[is.na(tsp_samePos), .N, by = codon_id_dm6])
 # # get the list of these codons where only 1 codon id dm6 but is not same pos and remove... 
@@ -129,6 +168,8 @@ new_dt[
 # check everything:
 table(tsp_map$samePos, useNA = "ifany")
 table(new_dt$tsp_samePos, useNA="ifany")
+
+
 new_dt[
      ,
      .(
@@ -142,7 +183,12 @@ new_dt[
      .N,
      by = .(tsp_samePos, N_rows, n_mel, n_sim)
  ][order(tsp_samePos, N_rows, n_mel, n_sim)]
-
+#  tsp_samePos N_rows n_mel n_sim       N
+#         <lgcl>  <int> <int> <int>   <int>
+# 1:       FALSE      2     1     1  174353 --- diffPos
+# 2:        TRUE      1     1     1  126095 --- samePos
+# 3:          NA      1     0     1  276734 --- simOnly
+# 4:          NA      1     1     0 2682971 --- melOnly
 
 
 get_pair <- function(ref,alt) {
@@ -256,7 +302,6 @@ same_site[, class_key := paste(
 )]
 same_site[, classification := unname(class_map[class_key])]
 
-### stopped here... 
 ### diff site:
 diff_codons <- diff_site[
     ,
@@ -323,6 +368,8 @@ diff_codons[, class_key := paste(
 )]
 diff_codons[, classification := unname(class_map[class_key])]
 
+View(same_site)
+View(diff_codons)
 
 ### merge same_site and diff_codons back to final_dt
 class_lookup <- rbindlist(
@@ -349,13 +396,23 @@ final_dt[
     by = classification
 ][order(classification)]
 
-saveRDS(final_dt, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.rds")
+### POOLSEQ
+saveRDS(final_dt, final_dt_save)
 
 sharedOnly <- final_dt[!is.na(classification)]
-saveRDS(sharedOnly, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.rds")
+saveRDS(sharedOnly, sharedOnly_dt)
 
 candidates <- final_dt[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
-saveRDS(candidates, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
+saveRDS(candidates, candidates_dt)
+
+# ### INBRED:
+# saveRDS(final_dt, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.rds")
+
+# sharedOnly <- final_dt[!is.na(classification)]
+# saveRDS(sharedOnly, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.rds")
+
+# candidates <- final_dt[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
+# saveRDS(candidates, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
 
 
 class_table <- rbindlist(
@@ -437,7 +494,6 @@ setcolorder(
     )
 )
 
-csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.classification.csv"
 
 fwrite(class_table, csv_class)
 
