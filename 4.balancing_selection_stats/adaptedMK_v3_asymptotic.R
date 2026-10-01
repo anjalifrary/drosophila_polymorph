@@ -10,6 +10,9 @@ registerDoMC(16)
 ### INBRED: 
 shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
 
+### POOL-SEQ:
+shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.bothMelSim.classed.rds")
+
 tsp <- c("A", "B")
 conv <- c("F", "G", "O", "P", "X", "Y")
 
