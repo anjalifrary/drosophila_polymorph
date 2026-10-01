@@ -7,16 +7,23 @@ library(doMC)
 
 # ### Pool seq files ###
 
-out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-out_csv <- paste0(out_dir, "all_quality_variants_merge_unfilt_500test.csv")
-out_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
-if(!file.exists(out_csv)) file.create(out_csv)
-if(!file.exists(out_rds)) file.create(out_rds)
+out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/"
+out_rds <- paste0(out_dir, "dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.rds")
+sim_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.rds")
+mel_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.rds")
 
-mel_snp_rds <- paste0(out_dir, "species_rdsFiles/mel_filtered_eff_snp_dt.rds")
-mel_snp_dt <- readRDS(mel_snp_rds)
-sim_snp_rds <- paste0(out_dir, "species_rdsFiles/sim_filtered_eff_snp_dt.rds")
-sim_snp_dt <- readRDS(sim_snp_rds)
+
+
+# out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
+# out_csv <- paste0(out_dir, "all_quality_variants_merge_unfilt_500test.csv")
+# out_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
+# if(!file.exists(out_csv)) file.create(out_csv)
+# if(!file.exists(out_rds)) file.create(out_rds)
+
+# mel_snp_rds <- paste0(out_dir, "species_rdsFiles/mel_filtered_eff_snp_dt.rds")
+# mel_snp_dt <- readRDS(mel_snp_rds)
+# sim_snp_rds <- paste0(out_dir, "species_rdsFiles/sim_filtered_eff_snp_dt.rds")
+# sim_snp_dt <- readRDS(sim_snp_rds)
 
 #######################################################################
 
@@ -138,6 +145,6 @@ saveRDS(shared_table, out_rds)
 
 message("complete. ", nrow(shared_table), " variants written.")
 
-subset_table <- shared_table[1:500, ]
-fwrite(subset_table, out_csv)
-message("saved first 500 rows to csv at ", out_csv)
+# subset_table <- shared_table[1:500, ]
+# fwrite(subset_table, out_csv)
+# message("saved first 500 rows to csv at ", out_csv)

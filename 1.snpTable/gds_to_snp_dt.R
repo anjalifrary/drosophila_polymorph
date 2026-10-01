@@ -107,13 +107,13 @@ seqSetFilter(gds_file, variant.id = biallelic_dt$id)
 nrow(biallelic_dt) # signor: 3566589
 variant_ids <- biallelic_dt$id
 
-bin_size <- length(variant_ids) # test on 100 variants first 
-# bin_size <- 100
+# bin_size <- length(variant_ids) # test on 100 variants first 
+bin_size <- 1000000
 bins <- split(seq_along(variant_ids), ceiling(seq_along(variant_ids) / bin_size))
 n_bins <- length(bins)
 
-# result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning tables... 
-    i = 1
+result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning tables... 
+    # i = 1
 
     message("Bin ", i , "/", n_bins)
     idx <- bins[[i]]
@@ -151,8 +151,9 @@ n_bins <- length(bins)
         ref        = allele_split[[1]],
         alt        = allele_split[[2]],
         af         = biallelic_dt$af[idx],
-        maf        = biallelic_dt$maf[idx],
-        n_samps    = n_samps
+        maf        = biallelic_dt$maf[idx]
+        # ,
+        # n_samps    = n_samps
         # ,
         # chr_src    = src_chr,
         # pos_src    = src_pos,
@@ -168,27 +169,25 @@ n_bins <- length(bins)
     # (5) Amino_Acid_length | Gene_Name | Transcript_BioType | Gene_Coding | Transcript_ID | 
     # (10) Exon_Rank  | Genotype [ | ERRORS | WARNINGS ] )'
     
-    eff_all <- seqGetData(gds_file, "annotation/info/EFF")
-    ann_all <- seqGetData(gds_file, "annotation/info/ANN")
-    
     annotated_ids <- seqGetData(gds_file, "variant.id") # keep only annotated variants
-    
-    eff_dt <- data.table(
-        variant.id = rep(annotated_ids, times = eff_all$length),
-        eff = eff_all$data
-    )
+
+    ann_all <- seqGetData(gds_file, "annotation/info/ANN")
     ann_dt <- data.table(
         variant.id = rep(annotated_ids, times = ann_all$length), 
         ann = ann_all$data
     )
     ann_dt[, effect_order := seq_len(.N), by = variant.id]
     ann_row1 <- ann_dt[effect_order==1, ]
-    ann_row1[, ann_contents := sub("^[^(]*\\((.*)\\)$", "\\1", ann)]
-    ann_split <- tstrsplit(ann_row1$ann_contents, "\\|")
-
+    # ann_row1[, ann_contents := sub("^[^(]*\\((.*)\\)$", "\\1", ann)]
+    ann_split <- tstrsplit(ann_row1$ann, "\\|")
     ann_row1[, gene_id_fbgn := ann_split[[5]]]
 
-    
+    eff_all <- seqGetData(gds_file, "annotation/info/EFF")
+
+    eff_dt <- data.table(
+        variant.id = rep(annotated_ids, times = eff_all$length),
+        eff = eff_all$data
+    )  
     # keep highest priority snpEff annotation:
     eff_dt[, effect_order := seq_len(.N), by = variant.id]
     eff_row1 <- eff_dt[effect_order == 1, ]
@@ -217,16 +216,28 @@ n_bins <- length(bins)
     eff_row1[, eff := NULL]
     eff_row1[, effect_order := NULL]
 
-    snp_dt <- merge(snp.dt1, eff_row1, by = "variant.id", all.x=T)
-    snp_dt <- merge(snp_dt, ann_row1[, .(variant.id, gene_id_fbgn)], by = "variant.id", all.x=T)
-    filtered_dt <- snp_dt[effect%in%(filter_effects)]
+    # snp_dt <- merge(snp.dt1, eff_row1, by = "variant.id", all.x=T)
+    # snp_dt <- merge(snp_dt, ann_row1[, .(variant.id, gene_id_fbgn)], by = "variant.id", all.x=T)
+    # filtered_dt <- snp_dt[effect%in%(filter_effects)]
 
-    saveRDS(snp_dt, full_rds)
-    saveRDS(filtered_dt, filtered_rds)
-    seqClose(gds_file)
+    bin_table <- merge(snp.dt1, eff_row1, by="variant.id")
+    bin_table <- merge(bin_table, ann_row1[, .(variant.id, gene_id_fbgn)], by="variant.id", all.x=T)
 
+    rm(eff_all, ann_all, eff_dt, ann_dt, eff_row1, ann_row1,
+        eff_split, ann_split, snp.dt1, alleles_all, allele_split)
 
-# }
+    gc()
+    bin_table
+
+}
+# return(result)
+
+filtered_dt <- result[effect%in%(filter_effects)]
+
+saveRDS(result, full_rds)
+saveRDS(filtered_dt, filtered_rds)
+seqClose(gds_file)
+
 
 ####################################################################
 
