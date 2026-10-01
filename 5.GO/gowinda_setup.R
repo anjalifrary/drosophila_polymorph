@@ -50,31 +50,48 @@ foreach(maf = maf_inputs, .packages="data.table") %dopar% {
         (is.na(maf_sim) | maf_sim > maf))
         , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
     ]
+    
+    candidate_chrpos_AB <- bg_SpeciesSpecific[
+        (classification%in%tsp )
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+    candidate_chrpos_FGOPXY <- bg_SpeciesSpecific[
+        (classification%in%conv )
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+    candidate_chrpos_ABFGOPXY <- bg_SpeciesSpecific[
+        classification%in%c(tsp,conv) 
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
+    candidate_chrpos_XY <- bg_SpeciesSpecific[
+        (classification%in%c("X", "Y"))
+        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    ]
 
-    candidate_chrpos_AB <- rds[
-        (classification%in%tsp & 
-        (is.na(maf_mel) | maf_mel > maf) & 
-        (is.na(maf_sim) | maf_sim > maf))
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    ]
-    candidate_chrpos_FGOPXY <- rds[
-        (classification%in%conv & 
-        (is.na(maf_mel) | maf_mel > maf) & 
-        (is.na(maf_sim) | maf_sim > maf))
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    ]
-    candidate_chrpos_ABFGOPXY <- rds[
-        (classification%in%c(tsp,conv) & 
-        (is.na(maf_mel) | maf_mel > maf) & 
-        (is.na(maf_sim) | maf_sim > maf))
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    ]
-    candidate_chrpos_XY <- rds[
-        (classification%in%c("X", "Y") & 
-        (is.na(maf_mel) | maf_mel > maf) & 
-        (is.na(maf_sim) | maf_sim > maf))
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    ]
+    # candidate_chrpos_AB <- bg_SpeciesSpecific[
+    #     (classification%in%tsp & 
+    #     (is.na(maf_mel) | maf_mel > maf) & 
+    #     (is.na(maf_sim) | maf_sim > maf))
+    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    # ]
+    # candidate_chrpos_FGOPXY <- rds[
+    #     (classification%in%conv & 
+    #     (is.na(maf_mel) | maf_mel > maf) & 
+    #     (is.na(maf_sim) | maf_sim > maf))
+    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    # ]
+    # candidate_chrpos_ABFGOPXY <- rds[
+    #     (classification%in%c(tsp,conv) & 
+    #     (is.na(maf_mel) | maf_mel > maf) & 
+    #     (is.na(maf_sim) | maf_sim > maf))
+    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    # ]
+    # candidate_chrpos_XY <- rds[
+    #     (classification%in%c("X", "Y") & 
+    #     (is.na(maf_mel) | maf_mel > maf) & 
+    #     (is.na(maf_sim) | maf_sim > maf))
+    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    # ]
 
     cand_dir <- paste0(dir, "candidateFiles/MAF", maf_label, "filter_polyAF/")
     bg_dir <- paste0(dir, "backgroundFiles/MAF", maf_label, "filter_polyAF/")
