@@ -24,10 +24,10 @@ CANDIDATE_root=/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/candidateFiles/
 OUTPUT_root=/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/results/
 
 # change for poly / global:
-MAF_dir=MAF25filter_polyAF
-CANDIDATE_id=25_AF
+MAF_dir=MAF30filter_polyAF
+CANDIDATE_id=30_AF
 
-#maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, .  0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
+#maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, . 0.30, 0.40, 0.49)
 
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
