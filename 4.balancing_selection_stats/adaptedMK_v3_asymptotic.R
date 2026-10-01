@@ -11,7 +11,7 @@ registerDoMC(16)
 shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
 
 ### POOL-SEQ:
-shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.bothMelSim.classed.rds")
+shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.bothMelSim.classed.maf.nlp.xtx.geva.rds")
 
 tsp <- c("A", "B")
 conv <- c("F", "G", "O", "P", "X", "Y")
@@ -38,9 +38,9 @@ asymptotic_MKlike_stats <- function(Ps, Pns, SPs, SPns, pseudo=0, min_count=0) {
         )
     }
 }
-MAF_def = "seqAlleleFreq"
-background = "sim_only"
-spp="maf_sim"
+MAF_def = "poly_af_mel"
+background = "mel_only"
+spp="poly_af_mel"
 # maf_inputs <- c(0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 maf_inputs <- c(0.005)
 

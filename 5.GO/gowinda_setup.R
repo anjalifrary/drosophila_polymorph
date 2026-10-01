@@ -14,9 +14,11 @@ registerDoMC(16)
 
 # inbred
 dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/"
-
 rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
 
+# poolseq NEW
+dir <- "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/"
+rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.bothMelSim.classed.maf.nlp.xtx.geva.rds")
 
 ### get background and candidate files per MAF threshold
 
@@ -24,7 +26,7 @@ tsp <- c("A", "B")
 conv <- c("F", "G", "O", "P", "X", "Y")
 
 masterCandidates <- rds[classification %in%c(tsp, conv)]
-# saveRDS(masterCandidates, paste0(dir, "inbred.masterCandidateFile.rds"))
+# saveRDS(masterCandidates, paste0(dir, "poolseq.masterCandidateFile.rds"))
 
 maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
 
@@ -32,6 +34,9 @@ maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.4
 
 foreach(maf = maf_inputs, .packages="data.table") %dopar% {
     maf_label = maf*100
+    # ran for both poly and global !!!change the directory names below before write files!!!
+    maf_mel <- rds[, poly_af_mel]
+    maf_sim <- rds[, poly_af_sim]
 
     bg_SpeciesSpecific <- rds[
         ((!is.na(variant.id_mel) & maf_mel > maf) | 
@@ -71,8 +76,8 @@ foreach(maf = maf_inputs, .packages="data.table") %dopar% {
         , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
     ]
 
-    cand_dir <- paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/")
-    bg_dir <- paste0(dir, "backgroundFiles/MAF", maf_label, "filter_AF/")
+    cand_dir <- paste0(dir, "candidateFiles/MAF", maf_label, "filter_polyAF/")
+    bg_dir <- paste0(dir, "backgroundFiles/MAF", maf_label, "filter_polyAF/")
     if (!dir.exists(cand_dir)) {
         dir.create(cand_dir, recursive = TRUE)
     }
@@ -82,27 +87,27 @@ foreach(maf = maf_inputs, .packages="data.table") %dopar% {
     }
     
     fwrite(bg_SharedOnly[, .(chr_dm6, pos_dm6)], 
-        paste0(dir, "backgroundFiles/MAF", maf_label, "filter_AF/bg_sharedOnly_", maf_label, "_", "AF.txt"),
+        paste0(bg_dir, "/bg_sharedOnly_", maf_label, "_", "AF.txt"),
         sep="\t", col.names=FALSE)
     
     fwrite(bg_SpeciesSpecific[, .(chr_dm6, pos_dm6)], 
-        paste0(dir, "backgroundFiles/MAF", maf_label, "filter_AF/bg_speciesSpecific_", maf_label, "_", "AF.txt"),
+        paste0(bg_dir, "/bg_speciesSpecific_", maf_label, "_", "AF.txt"),
         sep="\t", col.names=FALSE)
 
     fwrite(candidate_chrpos_AB[, .(chr_dm6, pos_dm6)],
-        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_AB_", maf_label, "_", "AF.txt"),
+        paste0(cand_dir, "/candidate_chrpos_AB_", maf_label, "_", "AF.txt"),
         sep="\t", col.names=FALSE)
 
     fwrite(candidate_chrpos_ABFGOPXY[, .(chr_dm6, pos_dm6)],
-        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_ABFGOPXY_", maf_label, "_", "AF.txt"),
+        paste0(cand_dir, "/candidate_chrpos_ABFGOPXY_", maf_label, "_", "AF.txt"),
         sep="\t", col.names=FALSE)
 
     fwrite(candidate_chrpos_FGOPXY[, .(chr_dm6, pos_dm6)],
-        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_FGOPXY_", maf_label, "_", "AF.txt"),
+        paste0(cand_dir, "/candidate_chrpos_FGOPXY_", maf_label, "_", "AF.txt"),
         sep="\t", col.names=FALSE)
 
     fwrite(candidate_chrpos_XY[, .(chr_dm6, pos_dm6)],
-        paste0(dir, "candidateFiles/MAF", maf_label, "filter_AF/candidate_chrpos_XY_", maf_label, "_", "AF.txt"),
+        paste0(cand_dir, "/candidate_chrpos_XY_", maf_label, "_", "AF.txt"),
         sep="\t", col.names=FALSE)
 }
 
