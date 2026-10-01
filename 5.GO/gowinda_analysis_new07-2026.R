@@ -650,7 +650,7 @@ enriched_genes <- sub("^fbgn", "FBgn", enriched_genes)
 
 head(enriched_genes)
 
-nlp_busco <- nlp[, .(
+nlp_busco <- mel_nlp[, .(
     busco = if (all(is.na(busco))) NA_character_ else unique(na.omit(busco))[1]
 ), by = gene]
 
