@@ -20,7 +20,7 @@ table(final_dt$class_plot, useNA = "ifany")
 library(ggplot2)
 
 class_counts <- final_dt[
-    !is.na(class_plot),
+    !is.na(class_plot) & classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y"),
     .N,
     by = class_plot
 ]
