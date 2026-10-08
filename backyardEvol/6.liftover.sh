@@ -13,7 +13,7 @@ ref_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dm
 chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain
 
 # ouput vcf:
-vcf_dm6="${outdir}/sim_be.r6.12.norm.filtered.repeatmasked.eff.biallelicSNP.fixedPloidy.dm6.vcf.gz"
+vcf_dm6="/scratch/ejy4bu/backyardEvolution/liftedOver/sim_be.r6.12.norm.filtered.repeatmasked.eff.biallelicSNP.fixedPloidy.dm6.vcf.gz"
 
 bcftools +liftover \
   -Oz -o $vcf_dm6 \
