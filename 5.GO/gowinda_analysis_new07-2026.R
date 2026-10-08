@@ -353,6 +353,7 @@ gene_persistence_matrix <- function(dt, go_id, class_name, bg_name, maf_def_name
 
 # to use:
 dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/"
+dir <- "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
 # long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
@@ -729,3 +730,36 @@ drsl_genes <- c("FBgn0283461", "FBgn0052279", "FBgn0052283", "FBgn0052282", "FBg
 drsl <- long_dt[
   sapply(GeneListFound, function(x) any(tolower(drsl_genes) %in% tolower(x)))
 ]
+### 10/7
+poolseq_gene_list <- as.data.table(unique(poolseq_long_dt[MAF_value>5, unlist(GeneListFound)]))
+inbred_gene_list <- as.data.table(unique(inbred_long_dt[MAF_value>5, unlist(GeneListFound)]))
+
+shared_gene_list <- as.data.table(intersect(
+  poolseq_gene_list$V1,
+  inbred_gene_list$V1
+))
+setnames(shared_gene_list, "V1", "gene_id")
+
+shared_gene_list[, gene_id := sub("^fbgn", "FBgn", gene_id)]
+
+library(AnnotationDbi)
+library(org.Dm.eg.db)
+
+gene_info <- AnnotationDbi::select(
+    org.Dm.eg.db,
+    keys = shared_gene_list$gene_id,
+    keytype = "FLYBASE",
+    columns = c("FLYBASE", "FLYBASECG", "SYMBOL", "GENENAME", "ENTREZID")
+)
+
+gene_info <- setnames(gene_info, "FLYBASE", "gene_id")
+
+
+load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/Drosophila_melanogaster.11_08_2026.nlpTable.paramask.genmap.busco.repeatmask.wmdust.Rdata")
+mel_nlp <- as.data.table(nlp)
+rm(nlp)
+
+# collapse BUSCO to 1 row per gene
+mel_busco <- mel_nlp[ , .( BUSCO = if ( all(is.na(busco)) ) { NA_character_ } else { unique(na.omit(busco))[1] } ), by = gene ]
+
+gene_info <- merge( gene_info, mel_busco, by.x = "FLYBASECG", by.y = "gene", all.x = TRUE )
