@@ -107,3 +107,86 @@
     return(nlp)
 
   }
+
+
+  ### adding poly af and global af to my mel snp dt
+library(SeqArray)
+library(data.table)
+
+mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds")
+genofile <- mel_gds
+
+snp.dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
+
+seqResetFilter(genofile)
+af_chunk <- function(ids) {
+  seqSetFilter(genofile, variant.id = ids, verbose = FALSE)
+  vid <- seqGetData(genofile, "variant.id")
+  ad  <- seqGetData(genofile, "annotation/format/AD")
+  dp  <- seqGetData(genofile, "annotation/format/DP")
+
+  freq <- ad$data[, seq(2, ncol(ad$data), by = 2)] / dp   # alt only
+  freq[dp == 0] <- NA
+  ok <- !is.na(freq); freq[!ok] <- 0
+
+  popf <- rowsum(freq, pop) / rowsum(ok * 1, pop)          # pops x variants
+  poly <- popf > 0 & popf < 1
+
+  data.table(id        = vid,
+             global_af = colMeans(popf, na.rm = TRUE),
+             poly_af   = colSums(popf * poly, na.rm = TRUE) / colSums(poly, na.rm = TRUE))
+}
+
+chunks <- split(snp.dt$variant.id, ceiling(seq_along(snp.dt$variant.id) / 50000))
+af.dt  <- rbindlist(lapply(chunks, af_chunk))
+snp.dt <- merge(snp.dt, af.dt, by = "id", all.x = TRUE)
+
+
+
+
+
+pop <- factor(sub("_\\d{4}-\\d{2}-\\d{2}$", "", seqGetData(genofile, "sample.id")))
+
+
+sample_ids <- seqGetData(genofile, "sample.id")
+samps <- data.table(
+    sample = sample_ids,
+    pop = sub("_\\d{4}-\\d{2}-\\d{2}$", "", sample_ids)
+)
+pop_f <- factor(samps$pop)
+
+
+seqSetFilter(
+    genofile,
+    variant.id = snp.dt$id,
+    sample.id = samps$sample
+)
+
+ad <- seqGetData(genofile, "annotation/format/AD")
+dp <- seqGetData(genofile, "annotation/format/DP")
+dim(ad$data)
+dim(dp)
+
+table(ad$length)
+sum(ad$length)
+ncol(ad$data)
+
+sum(ad$length) == ncol(ad$data)
+
+ad_variant <- rep(
+    seq_along(ad$length),
+    ad$length
+)
+length(ad_variant)
+ncol(ad$data)
+dp_with_ad <- dp[, ad_variant, drop = FALSE]
+
+dim(ad$data)
+dim(dp_with_ad)
+
+freq <- ad$data / dp_with_ad
+
+freq[dp_with_ad == 0] <- NA_real_
+
+seqClose(mel_gds)
+seqClose(genofile)

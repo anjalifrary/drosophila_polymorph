@@ -118,7 +118,9 @@ input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.n
 ref_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna
 # ref_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim-mod_v2.fasta
 ref_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
-chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain
+# chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain
+chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/liftover/liftover.dsim3.dm6.chain
+
 # chain_dsim2_3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v2_to_dsim_v3.1.chain
 
 # vcf_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/simulans_multisamp_all_chr_dsim3.1.vcf
@@ -139,22 +141,42 @@ chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/l
 ### dsim3.1 -> dm6
 # ouput vcf:
 # vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
-vcf_dm6="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
+vcf_dm6="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.new.vcf.gz"
 
-input_no_acaf="${input_vcf_dsim3%.vcf.gz}.noACAF.vcf.gz"
+bcftools view -h \
+  "$input_vcf_dsim3" \
+  | sed -E 's/(##INFO=<ID=(AF|AC),Number=)\./\1A/' \
+  > /scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/liftover_fix.header.txt
 
-bcftools annotate \
-    -x INFO/AC,INFO/AF \
-    -Oz \
-    -o "$input_no_acaf" \
-    "$input_vcf_dsim3"
+input_vcf_dsim3_reheadered="${input_vcf_dsim3%.vcf.gz}.reheadered.vcf.gz"
 
-bcftools index -t "$input_no_acaf"
+bcftools reheader \
+  -h /scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/liftover_fix.header.txt \
+  -o "$input_vcf_dsim3_reheadered" \
+  "$input_vcf_dsim3"
+
+bcftools index -t "$input_vcf_dsim3_reheadered"
+
+# should show number = A
+bcftools view -h \
+  "$input_vcf_dsim3_reheadered" \
+  | grep -E '^##INFO=<ID=(AF|AC),'
+
+# input_no_acaf="${input_vcf_dsim3%.vcf.gz}.noACAF.vcf.gz"
+# # ,INFO/AF
+# bcftools annotate \
+#     -x INFO/AC \
+#     -Oz \
+#     -o "$input_no_acaf" \
+#     "$input_vcf_dsim3"
+
+# bcftools index -t "$input_no_acaf"
+
 
 # singularity exec /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif bash -c "
 bcftools +liftover \
   -Oz -o $vcf_dm6 \
-  $input_no_acaf -- \
+  $input_vcf_dsim3_reheadered -- \
   -f $ref_dm6 \
   -s $ref_dsim3 \
   -c $chain_dsim3_dm6 \
