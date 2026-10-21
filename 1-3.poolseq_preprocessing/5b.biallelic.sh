@@ -5,8 +5,8 @@
 #SBATCH -N 1                    # on one node
 #SBATCH -t 0-10:00              # 10 hours
 #SBATCH --mem 80G
-#SBATCH -o /scratch/ejy4bu/err_outs/SRA/snpeff.%A_%a.out # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/SRA/snpeff.%A_%a.err # Standard error
+#SBATCH -o /scratch/ejy4bu/err_outs/SRA/norm.%A_%a.out # Standard output
+#SBATCH -e /scratch/ejy4bu/err_outs/SRA/norm.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH --account berglandlab_standard
 
