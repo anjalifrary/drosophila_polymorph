@@ -118,7 +118,7 @@ input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.n
 ref_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna
 # ref_dsim2=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim-mod_v2.fasta
 ref_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
-# chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain
+# chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain # old - issue on 3R inversion
 chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/liftover/liftover.dsim3.dm6.chain
 
 # chain_dsim2_3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v2_to_dsim_v3.1.chain
