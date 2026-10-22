@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH -J snpeff               # A single job name for the array
+#SBATCH -J norm               # A single job name for the array
 #SBATCH --ntasks-per-node=10    # one core
 #SBATCH -N 1                    # on one node
 #SBATCH -t 0-10:00              # 10 hours
@@ -18,10 +18,17 @@ module load gcc/11.4.0
 
 
 ## mel:
-outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
-in_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
-out_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.vcf.gz"
-ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+# outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
+# in_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+# out_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.vcf.gz"
+# ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+
+
+### sim:
+outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
+out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.merged.vcf.gz"
+ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
 
 echo "Input records:"
