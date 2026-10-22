@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/gowinda/gowinda.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
-#SBATCH --account=berglandlab
+#SBATCH --account=berglandlab_standard
 #SBATCH --array=0-7
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/

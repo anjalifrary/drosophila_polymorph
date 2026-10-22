@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/GDS/sampleFilt.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/GDS/sampleFil.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
-#SBATCH --account=berglandlab
+#SBATCH --account=berglandlab_standard
 #SBATCH --array=1-4
 
 # NVAR=3949956 # sim

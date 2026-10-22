@@ -8,9 +8,9 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/zip.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/zip.%A_%a.err # Standard error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 #SBATCH --array=1-184
-#ijob -A berglandlab -c10 -p standard --mem=40G
+#ijob -A berglandlab_standard -c10 -p standard --mem=40G
 
 module load gcc htslib
 

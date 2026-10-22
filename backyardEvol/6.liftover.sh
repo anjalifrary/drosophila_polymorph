@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/liftover/liftover.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/liftover/liftover.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
-#SBATCH --account=berglandlab
+#SBATCH --account=berglandlab_standard
 
 module load apptainer/1.5.0
 module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.5.0

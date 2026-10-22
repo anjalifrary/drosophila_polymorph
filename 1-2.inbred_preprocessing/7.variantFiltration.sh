@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/filt_vcf.%A.err # Standard error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 
 
 module load gcc/11.4.0

@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/postpipeline.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/postpipeline.%A_%a.err # Standard error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 
 ### OLD VERSION _ UPDATE BEFORE RUN
 ### moved genomics dbi section to new script for optimization / memory constraints

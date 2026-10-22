@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/prefetch.%A_%a.out  # Std out
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/prefetch.%A_%a.out  # Std error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 
 ### to Run
 # sbatch --array=1-$( wc -l < /project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv )%10 ~/drosophila_polymorph/1-2.inbred_dataProcessing/1.downloadSRA.sh

@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/rpt_filt.%A.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/rpt_filt.%A.err # Standard error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 
 set -euo pipefail
 

@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/be/copy.%A_%a.out  # Std out
 #SBATCH -e /scratch/ejy4bu/err_outs/be/copy.%A_%a.out  # Std error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 #SBATCH --array=1-3665%100
 
 set -euo pipefail

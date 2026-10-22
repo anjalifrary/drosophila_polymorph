@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.out # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/SRA/genotype.%A_%a.err # Standard error
 #SBATCH -p standard
-#SBATCH --account berglandlab
+#SBATCH --account berglandlab_standard
 #SBATCH --array=0-0
 
 

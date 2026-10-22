@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/GDS/rdsMerge.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/GDS/rdsMERGE.%A_%a.err  # Standard error
 #SBATCH -p standard        # Partition
-#SBATCH --account=berglandlab
+#SBATCH --account=berglandlab_standard
 
 cd 1.gds_extract_data/
 export R_LIBS_USER="/sfs/gpfs/tardis/home/ejy4bu/R/goolf/4.5/"

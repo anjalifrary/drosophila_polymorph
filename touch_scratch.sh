@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/touch.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/touch.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
-#SBATCH --account=berglandlab
+#SBATCH --account=berglandlab_standard
 
 cd /scratch/ejy4bu
 find . -type f -exec touch {} +
