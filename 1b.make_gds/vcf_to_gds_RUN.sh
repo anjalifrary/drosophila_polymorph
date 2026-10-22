@@ -51,25 +51,25 @@ module load bcftools
 #     ${in_vcf}
 # bcftools index -f ${out_vcf}
 
-# ### INBRED SIM: re-do biallelic
-# in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.vcf.gz"
-# out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.vcf.gz"
-# bcftools view \
-#     -m2 -M2 -v snps \
-#     -Oz \
-#     -o ${out_vcf} \
-#     ${in_vcf}
-# bcftools index -f ${out_vcf}
-
-### INBRED MEL: re-do biallelic
-in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.gz"
-out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.m2.M2.vcf.gz"
+### INBRED SIM: re-do biallelic
+in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.vcf.gz"
+out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.vcf.gz"
 bcftools view \
     -m2 -M2 -v snps \
     -Oz \
     -o ${out_vcf} \
     ${in_vcf}
 bcftools index -f ${out_vcf}
+
+# ### INBRED MEL: re-do biallelic
+# in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.gz"
+# out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.m2.M2.vcf.gz"
+# bcftools view \
+#     -m2 -M2 -v snps \
+#     -Oz \
+#     -o ${out_vcf} \
+#     ${in_vcf}
+# bcftools index -f ${out_vcf}
 
 echo "Records before filtering:"
 bcftools index -n "${in_vcf}"

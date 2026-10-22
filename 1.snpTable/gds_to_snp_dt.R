@@ -27,7 +27,7 @@ gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.a
 # out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
 # filtered_rds <- paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds")
 # full_rds <- paste0(out_dir, "dsim3.signor.snp_dt_allEffects.rds")
-# gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
+# gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
 
 # ### mel - DGRP2 - inbred 
 # out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
