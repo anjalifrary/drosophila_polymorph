@@ -30,6 +30,13 @@ module load bcftools
 
 # bcftools index /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DGRP2.source_BCM-HGSC.dm6.final.norm.reheadered.ann.eff.vcf.gz
 
+##########################################################################################
+### Refiltering for biallelic snps
+# do once on vcf before converting to gds
+# only necessary for simulans because of added reference alleles during liftover;
+    # had already filtered for biallelic snps prior to liftover
+
+
 # ### POOLSEQ SIM: re-do biallelic
 # in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.vcf.gz"
 # out_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.vcf.gz"
