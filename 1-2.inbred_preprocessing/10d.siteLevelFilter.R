@@ -14,7 +14,7 @@ library(data.table)
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 ## mel
 # mel_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds"
-mel_gds <- paste0(outdir, "/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
+mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
 
 ## sim
 # sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
@@ -114,22 +114,22 @@ seqClose(array_genofile)
 
 # ####################################
 # # # combine intermediate files
-# library(data.table)
+library(data.table)
 
-# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-# files <- list.files(
-#     outdir,
-#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
-#     full.names = TRUE
-# )
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+files <- list.files(
+    outdir,
+    pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
+    full.names = TRUE
+)
 
-# files <- sort(files)
-# print(files)
-# site_rd_list <- lapply(files, readRDS)
+files <- sort(files)
+print(files)
+site_rd_list <- lapply(files, readRDS)
 
-# site_rd <- rbindlist(site_rd_list)
+site_rd <- rbindlist(site_rd_list)
 
-# saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
+saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
 
-# print(site_rd)
-# print(dim(site_rd))
+print(site_rd)
+print(dim(site_rd))
