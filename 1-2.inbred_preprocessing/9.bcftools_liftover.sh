@@ -250,14 +250,14 @@ singularity shell /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif
 
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-input_vcf_dsim3="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+input_vcf_dsim3="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.gz"
+vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.vcf.gz"
 
 ref_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna
 ref_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
 # chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain
 chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/liftover/liftover.dsim3.dm6.chain
-# ouput vcf:
-vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
+
 reject_vcf="${outdir}/dsim3.signor.dsim3TOdm6.liftover_rejected.vcf.gz"
 
 bcftools +liftover \
