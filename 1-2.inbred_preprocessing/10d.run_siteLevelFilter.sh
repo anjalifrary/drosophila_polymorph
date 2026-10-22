@@ -12,8 +12,8 @@
 #SBATCH --array=1-4
 
 # NVAR=3949956 # sim
-# NVAR=2948855 # mel
-NVAR=1000 # test
+NVAR=2840764 # mel new
+# NVAR=1000 # test
 
 CHUNK=$(( (NVAR + 3) / 4 ))
 

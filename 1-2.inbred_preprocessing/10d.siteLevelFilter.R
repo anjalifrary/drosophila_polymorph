@@ -71,20 +71,30 @@ gt <- seqGetData(array_genofile, "genotype")
 print(dim(gt))
 a1 <- gt[1, , ]
 a2 <- gt[2, , ]
-a1 <- matrix(a1, nrow = nvar)
-a2 <- matrix(a2, nrow = nvar)
+# a1 <- matrix(a1, nrow = nvar)
+# a2 <- matrix(a2, nrow = nvar)
 
-called_gt <- a1 >= 0 & a2 >= 0
+# called_gt means both alleles are present
+called_gt <- !is.na(a1) & !is.na(a2) & a1 >= 0 & a2 >= 0
+
+# genotype categories 
+homo_ref <- called_gt & (a1==0) & (a2==0)
+homo_alt <- called_gt & (a1==1) & (a2==1)
 het_gt <- called_gt & (a1 != a2)
 
-n_called_gt <- rowSums(called_gt)
-n_het <- rowSums(het_gt)
+n_called_gt <- colSums(called_gt)
+n_homo_ref <- colSums(homo_ref)
+n_homo_alt <- colSums(homo_alt)
+n_het <- colSums(het_gt)
 
-het_obs <- ifelse(
+prop_het <- ifelse(
     n_called_gt > 0,
     n_het / n_called_gt,
     NA_real_
 )
+
+### Add FIS (ALAN)
+# FIS is like FST but for individual genotypes, comparing observed heterozygosity to what is expected under H-W
 
 site_rd <- data.frame(
     variant.id = variants,
@@ -93,9 +103,11 @@ site_rd <- data.frame(
     avg.RD = avg.RD,
     sum.RD = sum.RD,
     called.samples = called.samples,
+    n_homo_ref=n_homo_ref, # ref/ref
     n_het = n_het, # number of samples with heterozygous genotype
+    n_homo_alt=n_homo_alt, # alt/alt
     n_called_gt = n_called_gt, # number of samples with non-missing genotype
-    het_obs = het_obs # observed heterozygosity 
+    prop_het = prop_het # observed heterozygosity 
 )
 
 head(site_rd)
@@ -112,24 +124,24 @@ saveRDS(site_rd, outfile)
 seqClose(array_genofile)
 
 
-# ####################################
-# # # combine intermediate files
-library(data.table)
+# # ####################################
+# # # # combine intermediate files
+# library(data.table)
 
-outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-files <- list.files(
-    outdir,
-    pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
-    full.names = TRUE
-)
+# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+# files <- list.files(
+#     outdir,
+#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
+#     full.names = TRUE
+# )
 
-files <- sort(files)
-print(files)
-site_rd_list <- lapply(files, readRDS)
+# files <- sort(files)
+# print(files)
+# site_rd_list <- lapply(files, readRDS)
 
-site_rd <- rbindlist(site_rd_list)
+# site_rd <- rbindlist(site_rd_list)
 
-saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
+# saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
 
-print(site_rd)
-print(dim(site_rd))
+# print(site_rd)
+# print(dim(site_rd))
