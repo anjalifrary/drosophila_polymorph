@@ -106,8 +106,8 @@ singularity shell /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
 outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
 # input_vcf_dsim3="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
-input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
-
+# input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.merged.biallelic.vcf.gz"
 # gunzip -c "$input_vcf_dsim3" |
 #   sed 's/Number=\./Number=A/g' |
 #   gzip > "${input_vcf_dsim3%.vcf.gz}.liftover.vcf.gz"
@@ -280,3 +280,60 @@ bcftools index /scratch/ejy4bu/drosophila/liftover/20Nov2025_sim_dest3/dest.sim.
 # mv /scratch/aob2x/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds.gz \
 # /scratch/aob2x/20Nov2025_sim_dest3/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.gds
 
+
+######################################################################################
+### CLEAN
+# https://github.com/freeseek/score/blob/master/README.md#usage
+
+module load apptainer/1.5.0
+module load samtools bcftools gcc/11.4.0 openmpi/4.1.4 R/4.5.0
+
+mkdir -p /scratch/ejy4bu/drosophila/liftover/
+singularity shell /scratch/ejy4bu/drosophila/liftover/bcftools_liftover.sif
+
+outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
+input_vcf_dsim3="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.merged.biallelic.vcf.gz"
+vcf_dm6="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.new.vcf.gz"
+
+ref_dsim3=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna
+ref_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+
+# chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain # old - issue on 3R inversion
+chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/liftover/liftover.dsim3.dm6.chain
+
+reject_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.dsim3TOdm6.liftover_rejected.vcf.gz"
+
+bcftools view -h \
+  "$input_vcf_dsim3" \
+  | sed -E 's/(##INFO=<ID=(AF|AC),Number=)\./\1A/' \
+  > /scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/liftover_fix.header.txt
+
+input_vcf_dsim3_reheadered="${input_vcf_dsim3%.vcf.gz}.reheadered.vcf.gz"
+
+bcftools reheader \
+  -h /scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/liftover_fix.header.txt \
+  -o "$input_vcf_dsim3_reheadered" \
+  "$input_vcf_dsim3"
+
+bcftools index -t "$input_vcf_dsim3_reheadered"
+
+# should show number = A
+bcftools view -h \
+  "$input_vcf_dsim3_reheadered" \
+  | grep -E '^##INFO=<ID=(AF|AC),'
+
+bcftools +liftover \
+  -Oz -o $vcf_dm6 \
+  $input_vcf_dsim3_reheadered -- \
+  -f $ref_dm6 \
+  -s $ref_dsim3 \
+  -c $chain_dsim3_dm6 \
+  --reject $reject_vcf \
+  --reject-type z \
+  --drop-tags FORMAT/FREQ,FORMAT/AD \
+  --write-src
+# "
+
+bcftools sort "$vcf_dm6" -Oz -o "${vcf_dm6%.vcf.gz}.sorted.vcf.gz"
+
+bcftools index -t "${vcf_dm6%.vcf.gz}.sorted.vcf.gz"
