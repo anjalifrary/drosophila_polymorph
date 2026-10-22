@@ -2,11 +2,15 @@ library(SeqArray)
 library(data.table)
 
 # ### mel
-# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 # mel_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds"
+mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
 # out_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.gds")
+out_gds <- paste0(outdir, "/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.goodSamps.gds")
+
 # meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"))
-# genofile <- seqOpen(mel_gds)
+genofile <- seqOpen(mel_gds)
+meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.10_2026.csv"))
 
 ### sim
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"

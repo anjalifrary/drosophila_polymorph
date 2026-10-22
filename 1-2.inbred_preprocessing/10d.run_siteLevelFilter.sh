@@ -6,14 +6,14 @@
 #SBATCH -t 0-10:00         # 10 hours runtime
 #SBATCH --mem=50G         # Memory per node
 #SBATCH -o /scratch/ejy4bu/err_outs/GDS/sampleFilt.%A_%a.out  # Standard output
-#SBATCH -e /scratch/ejy4bu/err_outs/GDS/sampleFil.%A_%a.err  # Standard error
+#SBATCH -e /scratch/ejy4bu/err_outs/GDS/sampleFilt.%A_%a.err  # Standard error
 #SBATCH -p standard       # Partition
 #SBATCH --account=berglandlab_standard
 #SBATCH --array=1-4
 
 # NVAR=3949956 # sim
-NVAR=2948855 # mel
-# NVAR=1000 # test
+# NVAR=2948855 # mel
+NVAR=1000 # test
 
 CHUNK=$(( (NVAR + 3) / 4 ))
 
