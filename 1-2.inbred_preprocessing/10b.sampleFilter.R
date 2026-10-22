@@ -160,6 +160,7 @@ het_table <- data.frame(
 
 head(het_table)
 summary(het_table$prop.heterozygous)
+hist(het_table$prop.heterozygous, breaks = 50)
 
 # merge het_table on metadata
 metadata <- merge(metadata, het_table, by="sample.id")
