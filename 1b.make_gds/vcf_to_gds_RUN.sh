@@ -8,7 +8,7 @@
 #SBATCH -o /scratch/ejy4bu/err_outs/GDS/vcf2gds.%A_%a.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/GDS/vcf2gds.%A_%a.err  # Standard error
 #SBATCH -p standard        # Partition
-#SBATCH --account=berglandlab
+#SBATCH --account=berglandlab_standard
 
 export R_LIBS_USER=~/Rlibs
 module load gcc/11.4.0 openmpi/4.1.4 
