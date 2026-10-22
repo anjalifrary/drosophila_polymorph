@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #SBATCH -J vcf2gds         # Job name
 #SBATCH --ntasks=1         # Single task per job
-#SBATCH --cpus-per-task=10 # Number of CPU cores per task
+#SBATCH --cpus-per-task=12 # Number of CPU cores per task
 #SBATCH -N 1               # Run on one node
-#SBATCH -t 0-10:00         # 10 hours runtime
+#SBATCH -t 0-20:00         # 10 hours runtime
 #SBATCH --mem=100G         # Memory per node
 #SBATCH -o /scratch/ejy4bu/err_outs/GDS/vcf2gds.%A.out  # Standard output
 #SBATCH -e /scratch/ejy4bu/err_outs/GDS/vcf2gds.%A.err  # Standard error
@@ -41,19 +41,21 @@ module load bcftools
 # bcftools index -f ${out_vcf}
 
 ### POOLSEQ MEL: re-do biallelic
-in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.gz"
-out_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.m2.M2.gz"
-bcftools view \
-    -m2 -M2 -v snps \
-    -Oz \
-    -o ${out_vcf} \
-    ${in_vcf}
-bcftools index -f ${out_vcf}
+# in_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.gz"
+# out_vcf="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.vcf.m2.M2.gz"
+# bcftools view \
+#     --threads 10 \
+#     -m2 -M2 -v snps \
+#     -Oz \
+#     -o ${out_vcf} \
+#     ${in_vcf}
+# bcftools index -f ${out_vcf}
 
 # ### INBRED SIM: re-do biallelic
 # in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.vcf.gz"
 # out_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.vcf.gz"
 # bcftools view \
+#     --threads 10 \
 #     -m2 -M2 -v snps \
 #     -Oz \
 #     -o ${out_vcf} \
@@ -70,11 +72,11 @@ bcftools index -f ${out_vcf}
 #     ${in_vcf}
 # bcftools index -f ${out_vcf}
 
-echo "Records before filtering:"
-bcftools index -n "${in_vcf}"
+# echo "Records before filtering:"
+# bcftools index -n "${in_vcf}"
 
-echo "Biallelic records:"
-bcftools index -n "${out_vcf}"
+# echo "Biallelic records:"
+# bcftools index -n "${out_vcf}"
 
 Rscript 1b.make_gds/vcf_to_gds.R
 
