@@ -337,3 +337,33 @@ bcftools +liftover \
 bcftools sort "$vcf_dm6" -Oz -o "${vcf_dm6%.vcf.gz}.sorted.vcf.gz"
 
 bcftools index -t "${vcf_dm6%.vcf.gz}.sorted.vcf.gz"
+
+
+### inspect rejects by chromosome:
+tmp_in=$(mktemp)
+tmp_rej=$(mktemp)
+
+bcftools query -f '%CHROM\n' "$input_vcf_dsim3" |
+    sort | uniq -c |
+    awk '{print $2 "\t" $1}' |
+    sort -k1,1 > "$tmp_in"
+
+bcftools query -f '%CHROM\n' "$reject_vcf" |
+    sort | uniq -c |
+    awk '{print $2 "\t" $1}' |
+    sort -k1,1 > "$tmp_rej"
+
+{
+    printf 'CHROM\tINPUT\tREJECTED\tREJECT_PCT\n'
+    join -t $'\t' -a 1 -e 0 -o '0,1.2,2.2' "$tmp_in" "$tmp_rej" |
+        awk -F '\t' 'BEGIN {OFS="\t"}
+        $2 > 0 {
+            printf "%s\t%d\t%d\t%.3f\n", $1, $2, $3, 100*$3/$2
+        }'
+} | {
+    read -r header
+    printf '%s\n' "$header"
+    sort -t $'\t' -k4,4nr
+}
+
+rm "$tmp_in" "$tmp_rej"
