@@ -257,7 +257,8 @@ ref_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dm
 # chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/data_files/liftover/dsim_v3.1_to_dmel_v6.chain
 chain_dsim3_dm6=/project/berglandlab/anjali/drosophila_polymorphism/liftover/liftover.dsim3.dm6.chain
 # ouput vcf:
-vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.new.vcf.gz"
+vcf_dm6="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.vcf.gz"
+reject_vcf="${outdir}/dsim3.signor.dsim3TOdm6.liftover_rejected.vcf.gz"
 
 bcftools +liftover \
   -Oz -o $vcf_dm6 \
@@ -265,6 +266,8 @@ bcftools +liftover \
   -f $ref_dm6 \
   -s $ref_dsim3 \
   -c $chain_dsim3_dm6 \
+  --reject $reject_vcf \
+  --reject-type z \
   --drop-tags FORMAT/FREQ,FORMAT/AD \
   --write-src
 
