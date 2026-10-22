@@ -4,6 +4,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 start <- as.integer(args[1])
 end <- as.integer(args[2])
+# start <- 1
+# end <- 1000
 
 
 library(SeqArray)
@@ -93,21 +95,45 @@ prop_het <- ifelse(
     NA_real_
 )
 
+### recalculate AF 
+af = seqAlleleFreq(array_genofile, ref.allele = 1L)
+
+
 ### Add FIS (ALAN)
 # FIS is like FST but for individual genotypes, comparing observed heterozygosity to what is expected under H-W
 
+# p is allele frequency for the snp 
+fis <- function(nHet, nTot, p) {
+    numerator <- (nHet/nTot)
+    denominator <- (nTot/(nTot-1))*(2*p*(1-p) - (nHet/nTot)/(2*nTot))
+    1 - numerator/denominator
+  }
+
+site_fis <- fis(
+    nHet = n_het,
+    nTot = n_called_gt,
+    p = af
+)
+
+chr <- seqGetData(array_genofile, "chromosome")
+pos <- seqGetData(array_genofile, "position")
+
 site_rd <- data.frame(
+    chr = chr,
+    pos = pos, 
     variant.id = variants,
     avg.OR = avg.OR,
     avg.SR = avg.SR,
     avg.RD = avg.RD,
     sum.RD = sum.RD,
     called.samples = called.samples,
+    af = af,
     n_homo_ref=n_homo_ref, # ref/ref
     n_het = n_het, # number of samples with heterozygous genotype
     n_homo_alt=n_homo_alt, # alt/alt
     n_called_gt = n_called_gt, # number of samples with non-missing genotype
-    prop_het = prop_het # observed heterozygosity 
+    prop_het = prop_het, # observed heterozygosity
+    fis = site_fis
 )
 
 head(site_rd)
@@ -125,23 +151,23 @@ seqClose(array_genofile)
 
 
 # # ####################################
-# # # # combine intermediate files
-# library(data.table)
+# # # combine intermediate files
+library(data.table)
 
-# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-# files <- list.files(
-#     outdir,
-#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
-#     full.names = TRUE
-# )
+outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+files <- list.files(
+    outdir,
+    pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
+    full.names = TRUE
+)
 
-# files <- sort(files)
-# print(files)
-# site_rd_list <- lapply(files, readRDS)
+files <- sort(files)
+print(files)
+site_rd_list <- lapply(files, readRDS)
 
-# site_rd <- rbindlist(site_rd_list)
+site_rd <- rbindlist(site_rd_list)
 
-# saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
+saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
 
-# print(site_rd)
-# print(dim(site_rd))
+print(site_rd)
+print(dim(site_rd))
