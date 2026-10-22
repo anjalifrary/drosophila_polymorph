@@ -26,7 +26,7 @@ module load gcc/11.4.0
 
 ### sim:
 outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
-out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+in_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
 out_vcf="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.merged.vcf.gz"
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
 
