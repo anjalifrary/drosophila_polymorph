@@ -10,26 +10,14 @@ library(doMC)
 out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/"
 full_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
 filtered_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.rds")
-gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
 
 # sim:
 out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/"
-full_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_allEffects.rds")
-filtered_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.rds")
-gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds")
+full_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_allEffects.10_2026.rds")
+filtered_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.10_2026.rds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.gds")
 
-### old:
-# out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-# out_rds <- paste0(out_dir, "sim_eff_snp_dt.rds")
-# if(!file.exists(out_rds)) file.create(out_rds)
-# out_csv <- paste0(out_dir, "sim_eff_snp_dt.csv")
-# if(!file.exists(out_csv)) file.create(out_csv)
-
-# # load gds file
-# # mel_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.ann.eff.gds"
-# # gds_file <- seqOpen(mel_file)
-# sim_file <- "/scratch/ejy4bu/drosophila/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.ann.dmel6.eff.gds"
-# gds_file <- seqOpen(sim_file)
 
 #######################################################################
 
@@ -57,7 +45,7 @@ filter_effects <- c("synonymous_variant", "missense_variant")
 
 seqResetFilter(gds_file)
 
-# ### this worked on the DGRP gds:
+# ### this worked on the DGRP (inbred) gds:
 # dt <- data.table(
 #     chr = seqGetData(gds_file, "chromosome"), 
 #     pos = seqGetData(gds_file, "position"),
@@ -68,13 +56,13 @@ seqResetFilter(gds_file)
 #     n_samps = seqGetData(gds_file, "annotation/info/NS")
 # )
 
-### this worked on the dsim3 signor gds:
+### this worked on the dsim3 signor (inbred) gds:
 dt <- data.table(
     chr = seqGetData(gds_file, "chromosome"), 
     pos = seqGetData(gds_file, "position"),
     nAlleles = seqGetData(gds_file, "$num_allele"),
-    id = seqGetData(gds_file, "variant.id")
-    # af = seqGetData(gds_file, "annotation/info/AF"),
+    id = seqGetData(gds_file, "variant.id"),
+    af = seqGetData(gds_file, "annotation/info/AF")
     # maf = seqGetData(gds_file, "annotation/info/MAF"),
     # n_samps = seqGetData(gds_file, "annotation/info/NS")
 )
