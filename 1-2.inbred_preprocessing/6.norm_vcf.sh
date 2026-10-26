@@ -10,121 +10,89 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab_standard
 
-# sbatch --dependency=afterok:17477781 1-2.inbred_preprocessing/6.norm_vcf.sh
-
 set -euo pipefail
 module load gcc/11.4.0
 module load bcftools
 
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-mkdir -p $outdir
-# ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+### dsim Signor
+outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
+ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
+in_vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
+out_vcf="${outdir}/dsim3.signor.combined.norm.vcf.gz"
 
-vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
-# vcf="${outdir}/dsim3.signor.combined.raw.vcf.gz"
 echo "number records before: "
-bcftools index -n $vcf
-
-# # bcftools index $vcf
-# bcftools view \
-#     -r 2L,2R,3L,3R,4,X \
-#     -Oz \
-#     -o ${outdir}/dsim3.signor.combined.primaryChr.vcf.gz \
-#     ${vcf}
-
-# echo "Filtered for primary chr"
-
-# # ### 4. Normalize vcfs
-# # # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
-# bcftools norm \
-#     -f ${ref} \
-#     -m -both \
-#     -Oz \
-#     -o ${outdir}/dsim3.signor.combined.norm.vcf.gz \
-#     ${vcf}
-
-# echo "normalized with -both flag"
+bcftools index -n $in_vcf
 
 
-# bcftools index -f ${outdir}/dsim3.signor.combined.norm.vcf.gz
-# echo "indexed. "
+# # ### 6. Normalize vcfs - SIM
+# flag -m -both splits all multiallelic records into different rows by type - indel & snp
 
-# echo "number records before: "
-# bcftools index -n $vcf
-# echo "number records after: "
-# bcftools index -n ${outdir}/dsim3.signor.combined.norm.vcf.gz
-
-
-# echo "complete..."
-
-# # filters for biallelic snps (remove indels, multiallelic snps)
-# bcftools view \
-#     -v snps \
-#     -m2 -M2 \
-#     -Oz \
-#     -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
-#     ${outdir}/dsim3.signor.combined.norm.vcf.gz
-
-# bcftools index ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz
-
-
-### 4. Normalize vcfs
-
-
-# mel DGRP vcf:
-
-
-# bcftools reheader \
-#     -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt \
-#     -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.vcf.gz \
-#     $vcf
-
-# bcftools index ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.vcf.gz
-
-vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.vcf.gz"
-
-bcftools view \
-    -r 2L,2R,3L,3R,4,X \
-    -Oz \
-    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.vcf.gz \
-    ${vcf}
-
-vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.vcf.gz"
-echo "Filtered for primary chr"
-
-bcftools index -f $vcf
-
-
-# # what should -m flag be?? +both merges separate rows into 1 multiallelic row by type (snp vs indel)
 bcftools norm \
     -f ${ref} \
     -m -both \
     -Oz \
-    -o ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz \
-    ${vcf}
+    -o ${out_vcf} \
+    ${in_vcf}
+
+echo "normalized"
+
+bcftools index -f ${out_vcf}
+echo "indexed. "
+
+echo "number records before: "
+bcftools index -n $in_vcf
+echo "number records after: "
+bcftools index -n $out_vcf
+
+echo "complete."
+
+
+### 6. Normalize vcfs - MEL
+
+### dmel DGRP2
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+# ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz"
+# reheadered_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.vcf.gz"
+# prm_chr_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz"
+
+bcftools reheader \
+    -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/DRGP2.dm6.header.txt \
+    -o $reheadered_vcf \
+    $in_vcf
+
+bcftools index $reheadered_vcf
+
+bcftools view \
+    -r 2L,2R,3L,3R,4,X \
+    -Oz \
+    -o ${prm_chr_vcf} \
+    ${reheadered_vcf}
+
+echo "Filtered for primary chr"
+
+bcftools index -f $prm_chr_vcf
+
+bcftools norm \
+    -f ${ref} \
+    -m -both \
+    -Oz \
+    -o ${out_vcf} \
+    ${prm_chr_vcf}
 
 echo "normalized with -both flag"
 
-# # should i really do this now or figure out how to better filter for it later? 
-# # filters for biallelic snps (remove indels, multiallelic snps)
-# bcftools view \
-#     -v snps \
-#     -m2 -M2 \
-#     -Oz \
-#     -o ${outdir}/dsim3.signor.combined.norm.biallelic.snpsOnly.vcf.gz \
-#     ${outdir}/dsim3.signor.combined.norm.vcf.gz
-
-# echo "filtered for biallelic snps"
-
-bcftools index -f ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz
+bcftools index -f ${out_vcf}
 echo "indexed. "
 
-echo "number records before (primaryChr, reheadered): "
-bcftools index -n $vcf
-echo "number records after: "
-bcftools index -n ${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.vcf.gz
-
+echo "number records before: "
+bcftools index -n $in_vcf
+echo "number records reheadered: "
+bcftools index -n $reheadered_vcf
+echo "number records primary chr: "
+bcftools index -n $prm_chr_vcf
+echo "number records after norm: "
+bcftools index -n $out_vcf
 
 echo "complete..."

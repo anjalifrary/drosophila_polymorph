@@ -23,11 +23,11 @@ module load bcftools
 
 
 ### MEL
-ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
-indir="/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2/"
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-in_vcf="${indir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
-out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.vcf.gz"
+# ref=/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.cleanNames.fna
+# indir="/project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/DGRP2/"
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+# in_vcf="${indir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.vcf.gz"
 
 echo "Input records:"
 bcftools index -n "$in_vcf"

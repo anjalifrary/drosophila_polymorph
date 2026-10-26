@@ -18,21 +18,10 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-### mel:
-outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-
-# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
-# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.ann.eff.vcf.gz"
-
-in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
-
-# # see if repeat mask or wmdust did anything...
-# bcftools index -n "${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.vcf.gz"
-# bcftools index -n "${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-# bcftools index -n "${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.ann.eff.vcf.gz"
-# bcftools index -n "${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
-
+### MEL DGRP2:
+# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
+# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
 # echo "Annotating Dm6 vcf with SnpEff..."
 
@@ -45,7 +34,7 @@ out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.ga
 #     | bgzip -@ 10 -c - > \
 #     $out_vcf
 
-# ### sim:
+# ### SIM Signor:
 # outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
 # in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
 # out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
@@ -70,58 +59,8 @@ bcftools index $out_vcf
 
 echo "Complete"
 
-cp ${out_vcf} \
+cp "${out_vcf}" \
 /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
 
 cp "${out_vcf}.csi" \
 /project/berglandlab/anjali/drosophila_polymorphism/data_files/vcfs/
-
-
-
-
-### Junk
-
-# not reheadered:
-# cp /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz /scratch/ejy4bu/drosophila/inbred/combined_vcf/
-
-# in_vcf="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz"
-
-
-# file /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz
-# bcftools view -h /scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz.gz | head
-# file /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz 
-# bcftools view -h /project/berglandlab/Dmel_genomic_resources/DGRP/vcf/DGRP2.source_BCM-HGSC.dm6.final.vcf.gz | head
-# file $in_vcf
-# bcftools view -h $in_vcf | head
-
-# file /project/berglandlab/DGRP_freeze2_vcf/DGRP2.source_BCM-HGSC.dm6.final.newheader.vcf.gz
-
-
-
-### annotate
-#  module load htslib
-#
-#  java -jar $SNPEFF_HOME/snpEff.jar ann -formatEff \
-#  Dsim_v3.1 \
-#  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.vcf.gz | \
-#  bgzip -@ 20 -c - > \
-#  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz
-
-### convert
-#  module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
-#
-#  Rscript --vanilla ~/DESTv3/snpCalling_dev/scatter_gather_annotate/vcf2gds.R \
-#  /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz \
-#  20
-
-# module load htslib
-
-# zcat /project/berglandlab/alan/privatePolymorphisms/simulans/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.ann.eff.vcf.gz |
-# grep -E "#|missense|synonymous" | \
-# bgzip -@ 10 -c - > /project/berglandlab/multispecies_endemism/data/Dsim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.NS_SYN.ann.eff.vcf.gz
-
-# module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
-
-# Rscript --vanilla ~/DESTv3/snpCalling_dev/scatter_gather_annotate/vcf2gds.R \
-# /project/berglandlab/multispecies_endemism/data/Dsim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.NS_SYN.ann.eff.vcf.gz \
-# 20

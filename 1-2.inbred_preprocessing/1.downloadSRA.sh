@@ -14,17 +14,11 @@
 # sbatch --array=1-$( wc -l < /project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv )%10 ~/drosophila_polymorph/1-2.inbred_dataProcessing/1.downloadSRA.sh
 
 module load gcc/11.4.0 sratoolkit/3.1.1 
-# module load gcc/11.4.0 sratoolkit/3.1.1 aspera-connect/4.2.8
 
 wd=/scratch/ejy4bu/drosophila/inbred
 if [ ! -d $wd ]; then
   mkdir $wd
 fi
-### cat /scratch/aob2x/compBio/logs/prefetch.52222298_*.out | grep -B1 "do not"
-### cat /scratch/aob2x/compBio/logs/prefetch.3259341_3.out
-
-
-# SLURM_ARRAY_TASK_ID=2
 
 metadata="/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/SraRunTable.csv"
 
@@ -33,8 +27,6 @@ proj=$(tail -n +2 "$metadata" | sed "${SLURM_ARRAY_TASK_ID}q;d" | cut -f6 -d",")
 sampName=$(tail -n +2 "$metadata" | sed "${SLURM_ARRAY_TASK_ID}q;d" | cut -f40 -d",")
 
 echo $sampName " / " $sranum " / " $proj
-
-### Sz100  /  SRR3585384  /  PRJNA318623
 
 if [ ! -d "${wd}/fastq/${proj}" ]; then
   mkdir -p ${wd}/fastq/${proj}
@@ -64,16 +56,3 @@ else
   ls -lh ${wd}/fastq/${proj}/${sranum}*
 
 fi
-
-# if [ -f "${wd}/fastq/${proj}/${sranum}_1.fastq" ]; then
-#   gzip ${wd}/fastq/${proj}/${sranum}_1.fastq
-#   gzip ${wd}/fastq/${proj}/${sranum}_2.fastq
-# fi
-
-# if [ -f "${wd}/fastq/${proj}/${sranum}" ]; then
-#   gzip -c ${wd}/fastq/${proj}/${sranum} > ${wd}/fastq/${proj}/${sranum}.fastq.gz
-#   rm ${wd}/fastq/${proj}/${sranum}
-# fi
-
-#rm /scratch/aob2x/fastq/${sranum}.sra
-# cat /home/aob2x/CompEvoBio_modules/data/runs.csv | nl | grep "SRR12463313"

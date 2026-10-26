@@ -13,12 +13,7 @@
 
 set -euo pipefail
 
-
-#ijob -A berglandlab -c10 -p standard --mem=100G
-
 ref="/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-
-
 # ### do once
 # bwa index ${ref}
 # samtools faidx ${ref}
@@ -33,9 +28,7 @@ module load gatk
 module load fastqc
 
 
-
 MY_DATA="/scratch/ejy4bu/drosophila/inbred/fastq/PRJNA318623/"
-# SAMPLES=($(ls -d ${MY_DATA}*/))
 SAMPLES=("${MY_DATA}"*/)
 
 echo "Samples = ${#SAMPLES[@]}"
@@ -44,7 +37,6 @@ SAMPLE_DIR="${SAMPLES[$SLURM_ARRAY_TASK_ID]}"
 samp_name=$(basename "$SAMPLE_DIR")
 
 fastq="${SAMPLE_DIR}/${samp_name}.fastq.gz"
-
 
 echo "Processing sample ${samp_name}. (Array task ID: $SLURM_ARRAY_TASK_ID)"
 
@@ -90,7 +82,6 @@ if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.sorted.bam" ]; then
 fi
 
 ### 4. dedup mark duplicates (GATK)
-
 if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
     echo "dedup sample ${samp_name}. "
     java -Xmx45G -jar $EBROOTPICARD/picard.jar MarkDuplicates \
@@ -99,7 +90,6 @@ if [ ! -f "${SAMPLE_DIR}/bam/${samp_name}.markdup.bam" ]; then
         M=${SAMPLE_DIR}/bam/${samp_name}.markdup.metrics.txt \
         CREATE_INDEX=true
 fi
-# should i remove duplicates or just flag?
 
 ### 5. Haplotype caller 
 if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
@@ -113,26 +103,3 @@ if [ ! -f "${SAMPLE_DIR}/gvcf/${samp_name}.g.vcf.gz" ]; then
 fi
 
 echo "Complete"
-
-# ### 6. concatenate vcfs 
-# module load bcftools
-
-# # Define input and output directories
-# VCF_DIR="/project/berglandlab/chlorella_sequencing/vcfs"
-# OUTPUT_VCF="/project/berglandlab/chlorella_sequencing/combined_chlorella.vcf.gz"
-
-# # Create a list of VCF files
-# VCF_LIST=$(ls ${VCF_DIR}/*.vcf.gz | sort)
-
-# # Concatenate VCFs using bcftools
-# bcftools concat -a -O z -o ${OUTPUT_VCF} ${VCF_DIR}/*.vcf.gz
-
-# # Index the final VCF (optional but recommended for SNPeff)
-# bcftools index ${OUTPUT_VCF}
-
-# ### 7. SnpEFF
-# SNPEFF_DIR=$HOME/snpEff
-# VCF_IN="/project/berglandlab/chlorella_sequencing/combined_chlorella.vcf.gz"
-# VCF_OUT="/project/berglandlab/chlorella_sequencing/combined_chlorella_annotated.vcf"
-
-# java -Xmx32g -jar $SNPEFF_DIR/snpEff.jar -v chlorella $VCF_IN > $VCF_OUT

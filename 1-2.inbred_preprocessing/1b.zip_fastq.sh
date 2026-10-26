@@ -14,11 +14,7 @@
 
 module load gcc htslib
 
-
-#for pipeline, get sample_dir from array
 wd="/scratch/ejy4bu/drosophila/inbred/fastq/PRJNA318623"
-# sample_dir="$1"
-# sample_dir="${wd}/SRR3585384"
 sample_dir=$(find "$wd" -maxdepth 1 -type d -name "SRR*" | sort | sed -n "${SLURM_ARRAY_TASK_ID}p")
 echo "processing ${sample_dir}"
 

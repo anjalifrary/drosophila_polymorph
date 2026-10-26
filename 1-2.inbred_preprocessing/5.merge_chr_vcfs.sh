@@ -16,8 +16,8 @@ module load bcftools
 
 outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/"
 
+### 5. Concatenate chromosome vcfs
 
-# # merge all vcfs: (do outside of array job)
 bcftools concat \
     -Oz \
     -o ${outdir}/dsim3.signor.combined.raw.vcf.gz \

@@ -29,7 +29,7 @@ out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.ga
 # in_vcf="${outdir}/dsim3.signor.combined.norm.vcf.gz"
 # out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.vcf.gz"
 
-### 5. Filter variants (used GATK best practices hard filters.. ?)
+### 7. Filter variants (used GATK best practices hard filters.)
 echo "Regenerating index via GATK"
 gatk IndexFeatureFile -I "$in_vcf"
 echo "Filtering..."
