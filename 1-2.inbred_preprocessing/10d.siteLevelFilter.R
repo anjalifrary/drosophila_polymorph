@@ -4,8 +4,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 start <- as.integer(args[1])
 end <- as.integer(args[2])
-start <- 1
-end <- 1000
+# start <- 1
+# end <- 1000
 
 
 library(SeqArray)
