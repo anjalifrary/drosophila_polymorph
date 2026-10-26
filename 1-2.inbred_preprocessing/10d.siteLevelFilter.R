@@ -151,7 +151,7 @@ seqClose(array_genofile)
 # outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 # files <- list.files(
 #     outdir,
-#     pattern = "^sim_site_RD_[0-9]+_[0-9]+\\.rds$",
+#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
 #     full.names = TRUE
 # )
 
@@ -161,7 +161,7 @@ seqClose(array_genofile)
 
 # site_rd <- rbindlist(site_rd_list)
 
-# saveRDS(site_rd, file.path(outdir, "sim_site_RD.rds"))
+# saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
 
 # print(site_rd)
 # print(dim(site_rd))
