@@ -4,8 +4,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 start <- as.integer(args[1])
 end <- as.integer(args[2])
-# start <- 1
-# end <- 1000
+start <- 1
+end <- 1000
 
 
 library(SeqArray)
@@ -14,20 +14,20 @@ library(data.table)
 
 
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-## mel
-# mel_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds"
-mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
 
-## sim
+### Mel - DGRP2
+# mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
+# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.10_2026.csv"
+# outfile <- file.path(outdir, paste0("mel_site_RD_", start, "_", end, ".rds"))
+# array_genofile <- seqOpen(mel_gds)
+
+### Sim - Signor
 # sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
+sim_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.gds"
+meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.dm6.10_2026.csv"
+outfile <- file.path(outdir, paste0("sim_site_RD_", start, "_", end, ".rds"))
 
-# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"
-meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.10_2026.csv"
-
-array_genofile <- seqOpen(mel_gds)
-
-# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.csv"
-# array_genofile <- seqOpen(sim_gds)
+array_genofile <- seqOpen(sim_gds)
 
 
 seqResetFilter(array_genofile)
@@ -42,31 +42,28 @@ variants <- seqGetData(array_genofile, "variant.id")
 nvar <- length(variants)
 print(paste0(nvar, " variants"))
 
-### sim:
-# dp <- seqGetData(array_genofile, "annotation/format/DP")
+## sim:
+dp <- seqGetData(array_genofile, "annotation/format/DP")
 
-# sum.RD <- colSums(dp, na.rm = TRUE)
-# called.samples <- colSums(!is.na(dp))
-# avg.RD <- sum.RD / called.samples
-
-# site_rd <- data.frame(
-#     variant.id = variants,
-#     sum.RD = sum.RD,
-#     avg.RD = avg.RD,
-#     called.samples = called.samples
-# )
-
-
-### mel:
-OR <- seqGetData(array_genofile, "annotation/format/OR")
-SR <- seqGetData(array_genofile, "annotation/format/SR")
-sum.RD <- colSums(OR + SR, na.rm = TRUE)
-called.samples <- colSums(!is.na(OR + SR))
-# avg.RD <- colMeans(OR + SR, na.rm = TRUE)
+sum.RD <- colSums(dp, na.rm = TRUE)
+called.samples <- colSums(!is.na(dp))
 avg.RD <- sum.RD / called.samples
 
-avg.OR <- colMeans(OR, na.rm = TRUE)
-avg.SR <- colMeans(SR, na.rm = TRUE)
+
+
+# ### mel:
+# OR <- seqGetData(array_genofile, "annotation/format/OR")
+# SR <- seqGetData(array_genofile, "annotation/format/SR")
+# sum.RD <- colSums(OR + SR, na.rm = TRUE)
+# called.samples <- colSums(!is.na(OR + SR))
+# # avg.RD <- colMeans(OR + SR, na.rm = TRUE)
+# avg.RD <- sum.RD / called.samples
+
+# avg.OR <- colMeans(OR, na.rm = TRUE)
+# avg.SR <- colMeans(SR, na.rm = TRUE)
+
+
+####################################################################
 
 ### per-site heterozygosity
 gt <- seqGetData(array_genofile, "genotype")
@@ -122,8 +119,10 @@ site_rd <- data.frame(
     chr = chr,
     pos = pos, 
     variant.id = variants,
-    avg.OR = avg.OR,
-    avg.SR = avg.SR,
+    ### mel only:
+    # avg.OR = avg.OR,
+    # avg.SR = avg.SR,
+    ### end mel only ^
     avg.RD = avg.RD,
     sum.RD = sum.RD,
     called.samples = called.samples,
@@ -139,35 +138,32 @@ site_rd <- data.frame(
 head(site_rd)
 summary(site_rd$avg.RD)
 summary(site_rd$sum.RD)
+summary(site_rd$fis)
+summary(site_rd$prop_het)
 
-outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-outfile <- file.path(
-    outdir,
-    paste0("mel_site_RD_", start, "_", end, ".rds")
-)
 
 saveRDS(site_rd, outfile)
 seqClose(array_genofile)
 
 
 # # ####################################
-# # # combine intermediate files
-library(data.table)
+# # # # combine intermediate files - do outside of loop
+# library(data.table)
 
-outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-files <- list.files(
-    outdir,
-    pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
-    full.names = TRUE
-)
+# outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
+# files <- list.files(
+#     outdir,
+#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
+#     full.names = TRUE
+# )
 
-files <- sort(files)
-print(files)
-site_rd_list <- lapply(files, readRDS)
+# files <- sort(files)
+# print(files)
+# site_rd_list <- lapply(files, readRDS)
 
-site_rd <- rbindlist(site_rd_list)
+# site_rd <- rbindlist(site_rd_list)
 
-saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
+# saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
 
-print(site_rd)
-print(dim(site_rd))
+# print(site_rd)
+# print(dim(site_rd))
