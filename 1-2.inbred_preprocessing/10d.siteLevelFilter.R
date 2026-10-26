@@ -16,18 +16,16 @@ library(data.table)
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 
 ### Mel - DGRP2
-# mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
-# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.10_2026.csv"
-# outfile <- file.path(outdir, paste0("mel_site_RD_", start, "_", end, ".rds"))
-# array_genofile <- seqOpen(mel_gds)
+mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
+meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.10_2026.csv"
+outfile <- file.path(outdir, paste0("mel_site_RD_", start, "_", end, ".rds"))
+array_genofile <- seqOpen(mel_gds)
 
 ### Sim - Signor
-# sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
-sim_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.gds"
-meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.dm6.10_2026.csv"
-outfile <- file.path(outdir, paste0("sim_site_RD_", start, "_", end, ".rds"))
-
-array_genofile <- seqOpen(sim_gds)
+# sim_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.gds"
+# meta_file <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.dm6.10_2026.csv"
+# outfile <- file.path(outdir, paste0("sim_site_RD_", start, "_", end, ".rds"))
+# array_genofile <- seqOpen(sim_gds)
 
 
 seqResetFilter(array_genofile)
@@ -42,25 +40,25 @@ variants <- seqGetData(array_genofile, "variant.id")
 nvar <- length(variants)
 print(paste0(nvar, " variants"))
 
-## sim:
-dp <- seqGetData(array_genofile, "annotation/format/DP")
+# ### sim:
+# dp <- seqGetData(array_genofile, "annotation/format/DP")
 
-sum.RD <- colSums(dp, na.rm = TRUE)
-called.samples <- colSums(!is.na(dp))
-avg.RD <- sum.RD / called.samples
+# sum.RD <- colSums(dp, na.rm = TRUE)
+# called.samples <- colSums(!is.na(dp))
+# avg.RD <- sum.RD / called.samples
 
 
 
 # ### mel:
-# OR <- seqGetData(array_genofile, "annotation/format/OR")
-# SR <- seqGetData(array_genofile, "annotation/format/SR")
-# sum.RD <- colSums(OR + SR, na.rm = TRUE)
-# called.samples <- colSums(!is.na(OR + SR))
-# # avg.RD <- colMeans(OR + SR, na.rm = TRUE)
-# avg.RD <- sum.RD / called.samples
+OR <- seqGetData(array_genofile, "annotation/format/OR")
+SR <- seqGetData(array_genofile, "annotation/format/SR")
+sum.RD <- colSums(OR + SR, na.rm = TRUE)
+called.samples <- colSums(!is.na(OR + SR))
+# avg.RD <- colMeans(OR + SR, na.rm = TRUE)
+avg.RD <- sum.RD / called.samples
 
-# avg.OR <- colMeans(OR, na.rm = TRUE)
-# avg.SR <- colMeans(SR, na.rm = TRUE)
+avg.OR <- colMeans(OR, na.rm = TRUE)
+avg.SR <- colMeans(SR, na.rm = TRUE)
 
 
 ####################################################################
@@ -120,8 +118,8 @@ site_rd <- data.frame(
     pos = pos, 
     variant.id = variants,
     ### mel only:
-    # avg.OR = avg.OR,
-    # avg.SR = avg.SR,
+    avg.OR = avg.OR,
+    avg.SR = avg.SR,
     ### end mel only ^
     avg.RD = avg.RD,
     sum.RD = sum.RD,
@@ -147,13 +145,13 @@ seqClose(array_genofile)
 
 
 # # ####################################
-# # # # combine intermediate files - do outside of loop
+# # # combine intermediate files - do outside of loop
 # library(data.table)
 
 # outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
 # files <- list.files(
 #     outdir,
-#     pattern = "^mel_site_RD_[0-9]+_[0-9]+\\.rds$",
+#     pattern = "^sim_site_RD_[0-9]+_[0-9]+\\.rds$",
 #     full.names = TRUE
 # )
 
@@ -163,7 +161,7 @@ seqClose(array_genofile)
 
 # site_rd <- rbindlist(site_rd_list)
 
-# saveRDS(site_rd, file.path(outdir, "mel_site_RD.rds"))
+# saveRDS(site_rd, file.path(outdir, "sim_site_RD.rds"))
 
 # print(site_rd)
 # print(dim(site_rd))
