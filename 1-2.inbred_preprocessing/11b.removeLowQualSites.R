@@ -5,9 +5,9 @@ library(data.table)
 
 ### mel
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-mel_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.gds")
-out_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
-meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.csv"))
+mel_gds <- paste0(outdir, "/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.goodSamps.gds")
+out_gds <- paste0(outdir, "/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.goodSamps.goodSites.gds")
+meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/DGRP2.source_BCM-HGSC.dm6.10_2026.csv"))
 genofile <- seqOpen(mel_gds)
 site_rd <- readRDS(paste0(outdir, "mel_site_RD.rds"))
 
@@ -20,14 +20,14 @@ genofile <- seqOpen(sim_gds)
 site_rd <- readRDS(paste0(outdir, "sim_site_RD.rds"))
 
 
-#mel:
-# avg_RD_min <- 5
-# avg_RD_max <- 55
+# mel:
+avg_RD_min <- 5
+avg_RD_max <- 55
 
-# keep <- site_rd[
-#     avg.RD >= avg_RD_min &
-#     avg.RD <= avg_RD_max
-# ]
+keep <- site_rd[
+    avg.RD >= avg_RD_min &
+    avg.RD <= avg_RD_max
+]
 
 gds_ids <- seqGetData(genofile, "variant.id")
 filter <- seqGetData(genofile, "annotation/filter")
@@ -56,9 +56,10 @@ sum_RD_max <- 2500
 keep <- keep[
     filter == "PASS" &
     avg.RD >= avg_RD_min &
-    avg.RD <= avg_RD_max &
-    sum.RD >= sum_RD_min & 
-    sum.RD <= sum_RD_max
+    avg.RD <= avg_RD_max 
+    # &
+    # sum.RD >= sum_RD_min & 
+    # sum.RD <= sum_RD_max
 ]
 
 seqSetFilter(
