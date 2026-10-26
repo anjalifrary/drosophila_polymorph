@@ -25,16 +25,17 @@ mel_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm
 # mel_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.gds"
 mel_snp_gds <- paste0(outdir, "DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.snpRelate.gds")
 ## sim
-sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
-sim_snp_gds <- paste0(outdir, "dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.snpRelate.gds")
+sim_gds <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.gds"
+# sim_gds <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/gds/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
+sim_snp_gds <- paste0(outdir, "dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.snpRelate.gds")
 
 
 # get SNPRelate gds files, (convert from SeqArray gds file formats)
 seqGDS2SNP(mel_gds, mel_snp_gds)
 genofile <- snpgdsOpen(mel_snp_gds)
 
-# seqGDS2SNP(sim_gds, sim_snp_gds)
-# genofile <- snpgdsOpen(sim_snp_gds)
+seqGDS2SNP(sim_gds, sim_snp_gds)
+genofile <- snpgdsOpen(sim_snp_gds)
 
 genofile
 

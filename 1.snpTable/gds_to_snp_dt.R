@@ -16,7 +16,7 @@ gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolS
 out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/"
 full_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_allEffects.10_2026.rds")
 filtered_rds <- paste0(out_dir, "dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.10_2026.rds")
-gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.gds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.m2.M2.gds")
 
 
 #######################################################################
