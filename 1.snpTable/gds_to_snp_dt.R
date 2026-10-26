@@ -70,7 +70,7 @@ dt[, count_records := .N, by = .(chr, pos)]
 
 nrow(dt) 
 # dgrp: 2830779 #signor: 3905965
-# dest sim: 4362135; dest mel: 37549202
+# dest sim: 4427142; dest mel: 37549202
 # summary(dt$af)
 # summary(dt$maf)
 
@@ -79,9 +79,9 @@ nrow(dt)
 # there are 2630 sites in dgrp dt that are fixed for ALT allele 
 
 biallelic_dt <- dt[count_records==1 & nAlleles == 2, ] # gets 1 record per (chr, pos) where records have 2 alleles each
-nrow(biallelic_dt) # dgrp: 2830779 # signor: 3567947 # dest sim: 3810589 ; dest mel: 27302084
+nrow(biallelic_dt) # dgrp: 2830779 # signor: 3567947 # dest sim: 4420061 ; dest mel: 27302084
 
-biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
+# biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
 seqSetFilter(gds_file, variant.id = biallelic_dt$id)
 
 # now get AF for signor:
@@ -139,13 +139,13 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
         maf        = biallelic_dt$maf[idx]
         ,
         n_samps    = biallelic_dt$n_samps
-        # ,
-        # chr_src    = src_chr,
-        # pos_src    = src_pos,
-        # ref_src    = ref_src,
-        # alt_src    = alt_src,
-        # flip       = flip,
-        # swap       = swap
+        ,
+        chr_src    = src_chr,
+        pos_src    = src_pos,
+        ref_src    = ref_src,
+        alt_src    = alt_src,
+        flip       = flip,
+        swap       = swap
     )
 
 
@@ -201,12 +201,12 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
     eff_row1[, eff := NULL]
     eff_row1[, effect_order := NULL]
 
-    # snp_dt <- merge(snp.dt1, eff_row1, by = "variant.id", all.x=T)
-    # snp_dt <- merge(snp_dt, ann_row1[, .(variant.id, gene_id_fbgn)], by = "variant.id", all.x=T)
+    snp_dt <- merge(snp.dt1, eff_row1, by = "variant.id", all.x=T)
+    snp_dt <- merge(snp_dt, ann_row1[, .(variant.id, gene_id_fbgn)], by = "variant.id", all.x=T)
     # filtered_dt <- snp_dt[effect%in%(filter_effects)]
 
     bin_table <- merge(snp.dt1, eff_row1, by="variant.id")
-    # bin_table <- merge(bin_table, ann_row1[, .(variant.id, gene_id_fbgn)], by="variant.id", all.x=T)
+    bin_table <- merge(bin_table, ann_row1[, .(variant.id, gene_id_fbgn)], by="variant.id", all.x=T)
 
     rm(eff_all, ann_all, eff_dt, ann_dt, eff_row1, ann_row1,
         eff_split, ann_split, snp.dt1, alleles_all, allele_split)
@@ -216,6 +216,7 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
 
 }
 # return(result)
+result <- bin_table
 
 filtered_dt <- result[effect%in%(filter_effects)]
 
