@@ -8,8 +8,8 @@ library(doMC)
 
 # mel: 
 out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/"
-full_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
-filtered_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.rds")
+full_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.10_2026.rds")
+filtered_rds <- paste0(out_dir, "dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.10_2026.rds")
 gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
 
 # sim:
@@ -70,7 +70,7 @@ dt[, count_records := .N, by = .(chr, pos)]
 
 nrow(dt) 
 # dgrp: 2830779 #signor: 3905965
-# dest sim: 4427142; dest mel: 37549202
+# dest sim: 4427142; dest mel: 27302084
 # summary(dt$af)
 # summary(dt$maf)
 
@@ -92,8 +92,8 @@ biallelic_dt <- biallelic_dt[maf >0 & af < 1, ]
 nrow(biallelic_dt) # signor: 3566589; dgrp: 2828149
 variant_ids <- biallelic_dt$id
 
-bin_size <- length(variant_ids) # test on 100 variants first 
-# bin_size <- 1000000
+# bin_size <- length(variant_ids) # test on 100 variants first 
+bin_size <- 1000000
 bins <- split(seq_along(variant_ids), ceiling(seq_along(variant_ids) / bin_size))
 n_bins <- length(bins)
 
@@ -135,17 +135,18 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
         pos        = biallelic_dt$pos[idx],
         ref        = allele_split[[1]],
         alt        = allele_split[[2]],
-        af         = biallelic_dt$af[idx],
-        maf        = biallelic_dt$maf[idx]
-        ,
-        n_samps    = biallelic_dt$n_samps
-        ,
-        chr_src    = src_chr,
-        pos_src    = src_pos,
-        ref_src    = ref_src,
-        alt_src    = alt_src,
-        flip       = flip,
-        swap       = swap
+        af         = biallelic_dt$af[idx]
+        # ,
+        # maf        = biallelic_dt$maf[idx]
+        # ,
+        # n_samps    = biallelic_dt$n_samps
+        # ,
+        # chr_src    = src_chr,
+        # pos_src    = src_pos,
+        # ref_src    = ref_src,
+        # alt_src    = alt_src,
+        # flip       = flip,
+        # swap       = swap
     )
 
 
@@ -216,7 +217,7 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
 
 }
 # return(result)
-result <- bin_table
+# result <- bin_table
 
 filtered_dt <- result[effect%in%(filter_effects)]
 

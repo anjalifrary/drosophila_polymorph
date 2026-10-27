@@ -13,9 +13,9 @@ site_rd <- readRDS(paste0(outdir, "mel_site_RD.rds"))
 
 ### sim
 outdir <- "/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/"
-sim_gds <- paste0(outdir, "dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.gds")
-out_gds <- paste0(outdir, "dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.goodSamps.goodSites.gds")
-meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.csv"))
+sim_gds <- paste0(outdir, "dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.goodSamps.gds")
+out_gds <- paste0(outdir, "dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.goodSamps.goodSites.gds")
+meta_file <- as.data.table(read.csv("/project/berglandlab/anjali/drosophila_polymorphism/data_files/metadata/signor.dsim3.sampleFilt.10_2026.csv"))
 genofile <- seqOpen(sim_gds)
 site_rd <- readRDS(paste0(outdir, "sim_site_RD.rds"))
 
