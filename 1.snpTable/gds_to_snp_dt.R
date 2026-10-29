@@ -24,10 +24,10 @@ gds_file <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.a
 ### INBRED ###
 
 # ### sim - signor -  inbred 
-# out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
-# filtered_rds <- paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds")
-# full_rds <- paste0(out_dir, "dsim3.signor.snp_dt_allEffects.rds")
-# gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/gds_files/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
+out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
+filtered_rds <- paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.10_2026.rds")
+full_rds <- paste0(out_dir, "dsim3.signor.snp_dt_allEffects.10_2026.rds")
+gds_file <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.goodSamps.goodSites.gds")
 
 # ### mel - DGRP2 - inbred 
 # out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
@@ -69,7 +69,7 @@ dt <- data.table(
 dt[, count_records := .N, by = .(chr, pos)]
 
 nrow(dt) 
-# dgrp: 2830779 #signor: 3905965
+# dgrp: 2830779 #signor: 4144359
 # dest sim: 4427142; dest mel: 27302084
 # summary(dt$af)
 # summary(dt$maf)
@@ -79,7 +79,7 @@ nrow(dt)
 # there are 2630 sites in dgrp dt that are fixed for ALT allele 
 
 biallelic_dt <- dt[count_records==1 & nAlleles == 2, ] # gets 1 record per (chr, pos) where records have 2 alleles each
-nrow(biallelic_dt) # dgrp: 2830779 # signor: 3567947 # dest sim: 4420061 ; dest mel: 27302084
+nrow(biallelic_dt) # dgrp: 2830779 # signor: 4142894 # dest sim: 4420061 ; dest mel: 27302084
 
 # biallelic_dt <- biallelic_dt[maf>0, ] # removed fake biallelic records 
 seqSetFilter(gds_file, variant.id = biallelic_dt$id)
@@ -110,23 +110,23 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
     allele_split <- tstrsplit(alleles_all, ",")
 
     # ### for signor only:
-    # genotypes <- seqGetData(gds_file, "genotype")
-    # # extract genotypes for all samples and apply (1, 0, 3=missing... and NAs)
-    # n_samps <- apply(genotypes, 3, function(g) {
-    #     sum(!is.na(g[1, ]) & !is.na(g[2, ]))
-    # })
+    genotypes <- seqGetData(gds_file, "genotype")
+    # extract genotypes for all samples and apply (1, 0, 3=missing... and NAs)
+    n_samps <- apply(genotypes, 3, function(g) {
+        sum(!is.na(g[1, ]) & !is.na(g[2, ]))
+    })
 
-    # src_chr <- seqGetData(gds_file, "annotation/info/SRC_CHROM")
-    # src_pos <- seqGetData(gds_file, "annotation/info/SRC_POS")
+    src_chr <- seqGetData(gds_file, "annotation/info/SRC_CHROM")
+    src_pos <- seqGetData(gds_file, "annotation/info/SRC_POS")
 
-    # # src_ref_alt is list with length 2 for ALL snps so extracting pair for each snp :
-    # src_ref_alt <- seqGetData(gds_file, "annotation/info/SRC_REF_ALT")
-    # ref_src <- src_ref_alt$data[seq(1, length(src_ref_alt$data), by = 2)]
-    # alt_src <- src_ref_alt$data[seq(2, length(src_ref_alt$data), by = 2)]
+    # src_ref_alt is list with length 2 for ALL snps so extracting pair for each snp :
+    src_ref_alt <- seqGetData(gds_file, "annotation/info/SRC_REF_ALT")
+    ref_src <- src_ref_alt$data[seq(1, length(src_ref_alt$data), by = 2)]
+    alt_src <- src_ref_alt$data[seq(2, length(src_ref_alt$data), by = 2)]
 
-    # # flip = if strand was flipped; swapped = if ref and alt were swapped
-    # flip <- seqGetData(gds_file, "annotation/info/FLIP")
-    # swap <- seqGetData(gds_file, "annotation/info/SWAP")
+    # flip = if strand was flipped; swapped = if ref and alt were swapped
+    flip <- seqGetData(gds_file, "annotation/info/FLIP")
+    swap <- seqGetData(gds_file, "annotation/info/SWAP")
     # ### end signor specific code ^
 
     snp.dt1 <- data.table(
@@ -138,15 +138,14 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
         af         = biallelic_dt$af[idx]
         # ,
         # maf        = biallelic_dt$maf[idx]
-        # ,
-        # n_samps    = biallelic_dt$n_samps
-        # ,
-        # chr_src    = src_chr,
-        # pos_src    = src_pos,
-        # ref_src    = ref_src,
-        # alt_src    = alt_src,
-        # flip       = flip,
-        # swap       = swap
+        ,
+        n_samps    = n_samps,
+        chr_src    = src_chr,
+        pos_src    = src_pos,
+        ref_src    = ref_src,
+        alt_src    = alt_src,
+        flip       = flip,
+        swap       = swap
     )
 
 
@@ -209,8 +208,9 @@ result <- foreach(i = seq_along(bins), .combine = rbind) %do% {   # for binning 
     bin_table <- merge(snp.dt1, eff_row1, by="variant.id")
     bin_table <- merge(bin_table, ann_row1[, .(variant.id, gene_id_fbgn)], by="variant.id", all.x=T)
 
-    rm(eff_all, ann_all, eff_dt, ann_dt, eff_row1, ann_row1,
-        eff_split, ann_split, snp.dt1, alleles_all, allele_split)
+    rm(eff_all, eff_dt, eff_row1, eff_split,
+    # ann_all, ann_dt, ann_row1, ann_split,
+      snp.dt1, alleles_all, allele_split)
 
     gc()
     bin_table

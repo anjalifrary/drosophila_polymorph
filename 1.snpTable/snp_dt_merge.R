@@ -29,11 +29,11 @@ mel_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.Poo
 
 ### INBRED ###
 out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
-sim_snp_dt <- readRDS(paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.rds"))
-mel_snp_dt <- readRDS(paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.rds"))
+sim_snp_dt <- readRDS(paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.10_2026.rds"))
+mel_snp_dt <- readRDS(paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.10_2026.rds"))
 
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
-out_rds <- paste0(out_dir, "dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.rds")
+out_rds <- paste0(out_dir, "dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.10_2026.rds")
 
 
 
@@ -46,7 +46,7 @@ out_rds <- paste0(out_dir, "dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_varia
 
 # NOTE: this is a union merge... keep ALL variants. no filtering yet
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
-message(nrow(shared_table), " total variants")
+message(nrow(shared_table), " total variants") # 1535988 (inbred)
 
 
 library(AnnotationDbi)

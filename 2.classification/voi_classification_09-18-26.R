@@ -22,8 +22,8 @@ csv_class <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.
 
 ### INBRED ###
 
-# shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
-# csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.classification.csv"
+shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.classification.10_2026.csv"
 
 ### filter for tsp_samePos TRUE or FALSE (ignore NAs)
 # now filtered_dt contains only codons where there is 1 (valid) snp in both species 
@@ -31,22 +31,22 @@ csv_class <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.
 
 # ### inbred only:
 
-# # 2 codons have opposite strandedness:
-# #   3L:18870748:18870750
-# #   3R:21866692:21866694
-# filtered_dt <- shared_dt
-# filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
-#     keep_mel := "oppStrnd"
-# ]
-# filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
-#     keep_sim := "oppStrnd"
-# ]
-# filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
-#     keep_mel := "oppStrnd"
-# ]
-# filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
-#     keep_sim := "oppStrnd"
-# ]
+# 2 codons have opposite strandedness:
+#   3L:18870748:18870750
+#   3R:21866692:21866694
+filtered_dt <- shared_dt
+filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
+    keep_mel := "oppStrnd"
+]
+filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
+    keep_sim := "oppStrnd"
+]
+filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
+    keep_mel := "oppStrnd"
+]
+filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
+    keep_sim := "oppStrnd"
+]
 
 
 filtered_dt <- shared_dt
@@ -95,8 +95,8 @@ mel_cols <- c(
     "aa_ref_mel", "aa_alt_mel", 
     "gene_mel", "gene_id_fbgn_fromGFF", 
     "transcript_id_mel", 
-    # "n_samps_mel", 
-    # "af_mel", "maf_mel", 
+    "n_samps_mel", 
+    "af_mel", #"maf_mel", 
     "effect_mel", 
     "strand_mel"
 )
@@ -112,8 +112,8 @@ sim_cols <- c(
     "aa_ref_sim", "aa_alt_sim",
     "gene_sim",
     "transcript_id_sim",
-    # "n_samps_sim", 
-    # "af_sim", "maf_sim",
+    "n_samps_sim", 
+    "af_sim", # "maf_sim",
     "effect_sim", 
     "flip", "swap", 
     "strand_sim"
@@ -189,6 +189,12 @@ new_dt[
 # 2:        TRUE      1     1     1  126095 --- samePos
 # 3:          NA      1     0     1  276734 --- simOnly
 # 4:          NA      1     1     0 2682971 --- melOnly
+
+# # inbred:
+# 1:       FALSE      2     1     1  23979
+# 2:        TRUE      1     1     1 101938
+# 3:          NA      1     0     1 866871
+# 4:          NA      1     1     0 344098
 
 
 get_pair <- function(ref,alt) {
@@ -406,13 +412,13 @@ candidates <- final_dt[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y
 saveRDS(candidates, candidates_dt)
 
 # ### INBRED:
-# saveRDS(final_dt, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.rds")
+saveRDS(final_dt, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.rds")
 
-# sharedOnly <- final_dt[!is.na(classification)]
-# saveRDS(sharedOnly, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.rds")
+sharedOnly <- final_dt[!is.na(classification)]
+saveRDS(sharedOnly, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.rds")
 
-# candidates <- final_dt[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
-# saveRDS(candidates, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
+candidates <- final_dt[classification%in%c("A", "B", "F", "G", "O", "P", "X", "Y")]
+saveRDS(candidates, "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.classed.rds")
 
 
 class_table <- rbindlist(

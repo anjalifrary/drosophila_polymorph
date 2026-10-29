@@ -5,7 +5,7 @@ library(Biostrings)
 #######################################
 ### sim signor
 
-lifted_vcf <- "/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.vcf.gz"
+lifted_vcf <- "/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.vcf.gz"
 
 sim_gff <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.gff"
 
@@ -14,12 +14,75 @@ cds_fasta <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fas
 
 
 sim_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.snp_dt_SynMissense.rds")
-gds_file <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
-shared_dt <-readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.rds")
+gds_file <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.goodSamps.goodSites.gds"
+
+shared_dt <-readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.10_2026.rds")
 
 out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/simMap/"
 
-out_rds <- paste0(out_dir,  "dsim3.signor.all_quality_variants_codonMap.rds")
+out_rds <- paste0(out_dir,  "dsim3.signor.all_quality_variants_codonMap.10_2026.rds")
+
+### recalculate AF:
+mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.goodSamps.goodSites.gds")
+sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.goodSamps.goodSites.gds")
+
+# mel:
+
+mel_candidates <- shared_dt[
+    !is.na(variant.id_mel), .(chr_dm6, pos_dm6)
+]
+seqResetFilter(mel_gds)
+
+seqSetFilterPos(
+    mel_gds,
+    chr = mel_candidates$chr_dm6,
+    pos = mel_candidates$pos_dm6
+)
+
+mel_freq_dt <- data.table(
+    chr_dm6 = seqGetData(mel_gds, "chromosome"),
+    pos_dm6 = seqGetData(mel_gds, "position"),
+    af_mel = seqAlleleFreq(mel_gds, ref.allele = 1L)
+)
+
+mel_freq_dt[, maf_mel := pmin(af_mel, 1 - af_mel)]
+
+snp_dt[
+    mel_freq_dt,
+    on = .(chr_dm6, pos_dm6),
+    `:=`(
+        af_mel = i.af_mel,
+        maf_mel = i.maf_mel
+    )
+]
+
+snp_dt[
+    is.na(variant.id_mel),
+    `:=`(
+        af_mel = NA_real_,
+        maf_mel = NA_real_
+    )
+]
+
+snp_dt[, .(
+    n = .N,
+    n_af = sum(!is.na(af_mel)),
+    n_maf = sum(!is.na(maf_mel)),
+    n_old_af = sum(!is.na(af_mel_old))
+)]
+
+snp_dt[
+    !is.na(af_mel_old) & !is.na(af_mel),
+    .(
+        classification,
+        chr_dm6,
+        pos_dm6,
+        af_mel_old,
+        af_mel,
+        maf_mel_old,
+        maf_mel
+    )
+][1:20]
 
 
 ########
@@ -79,7 +142,7 @@ sim_cds <- cds_gff[
         ref_mel = i.ref_mel,
         alt_mel = i.alt_mel,
         af_mel = i.af_mel,
-        maf_mel = i.maf_mel,
+        # maf_mel = i.maf_mel,
         effect_mel = i.effect_mel,
         codon_change_mel = i.codon_change_mel,
         aa_change_mel = i.aa_change_mel,
@@ -89,7 +152,7 @@ sim_cds <- cds_gff[
         ref_sim = i.ref_sim,
         alt_sim = i.alt_sim,
         af_sim = i.af_sim,
-        maf_sim = i.maf_sim,
+        # maf_sim = i.maf_sim,
         effect_sim = i.effect_sim,
         codon_change_sim = i.codon_change_sim,
         aa_change_sim = i.aa_change_sim,
@@ -133,7 +196,9 @@ library(data.table)
 
 ref <- readDNAStringSet("/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna")
 sim_cds[, codon_ref_annotation := toupper(sub("/.*", "", codon_change_sim))]
+names(ref) <- trimws(names(ref))
 
+sim_cds[, codon_genomic_raw := NA_character_]
 for (chr in unique(sim_cds$sim_chr)) {
     
     idx <- which(sim_cds$sim_chr == chr)
@@ -195,7 +260,7 @@ shared_dt[, keep_sim := fifelse(
 
 
 
-# there are 88 rows that are missing from sim cds (annotated as FALSE but have variant id sim)
+# there are 90 rows that are missing from sim cds (annotated as FALSE but have variant id sim)
 missing_from_sim_cds <- shared_dt[
     keep_sim == FALSE & !is.na(variant.id_sim) &
     !(variant.id_sim %in% sim_cds$variant_id_sim)
@@ -213,7 +278,7 @@ saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.s
 ############################################################################################
 ### repeat for mel: 1 snp per codon
 
-mel_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.rds")
+mel_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.10_2026.rds")
 
 mel_gff <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.gff"
 
@@ -249,6 +314,10 @@ cds_gff <- gff[
 ]
 
 # extract genes and transcripts
+cds_gff[, transcript_id := str_extract(
+    attributes,
+    "(?<=Parent=rna-)[^;,]+"
+)]
 
 mrna_map <- gff[
     feature == "mRNA",
@@ -312,7 +381,7 @@ mel_cds <- cds_gff[
         alt_mel = i.alt_mel,
 
         af_mel = i.af_mel,
-        maf_mel = i.maf_mel,
+        # maf_mel = i.maf_mel,
         effect_mel = i.effect_mel,
         codon_change_mel = i.codon_change_mel,
         aa_change_mel = i.aa_change_mel,
@@ -322,7 +391,7 @@ mel_cds <- cds_gff[
         ref_sim = i.ref_sim,
         alt_sim = i.alt_sim,
         af_sim = i.af_sim,
-        maf_sim = i.maf_sim,
+        # maf_sim = i.maf_sim,
         effect_sim = i.effect_sim,
         codon_change_sim = i.codon_change_sim,
         aa_change_sim = i.aa_change_sim,
@@ -423,8 +492,8 @@ mel_cds[, n_snps_in_codon := .N, by = codon_id]
 
 mel_1snp_perCodon <- mel_cds[n_snps_in_codon ==1]
 
-saveRDS(mel_cds, "/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense_update09_17_26.rds")
-saveRDS(mel_1snp_perCodon, "/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense_update09_17_26_1snp_perCodon.rds")
+saveRDS(mel_cds, "/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.codonMap.10_2026.rds")
+saveRDS(mel_1snp_perCodon, "/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.1snp_perCodon.rds")
 
 shared_dt[, keep_mel := as.character(variant.id_mel %in% mel_1snp_perCodon$variant_id_mel)]
 
@@ -462,7 +531,7 @@ saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.s
     # in order to determine same / different codon snps
 
 shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.rds")
-mel_1snp_perCodon <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense_update09_17_26_1snp_perCodon.rds")
+mel_1snp_perCodon <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.1snp_perCodon.rds")
 sim_1snp_perCodon <- readRDS(paste0(out_dir, "sim_1snp_perCodon.rds"))
 
 ### add dm6 codon id for sim variants:
@@ -571,7 +640,7 @@ shared_dt_cleaner <- shared_dt_all[, .(
 
     ### frequency stuff:
     n_samps_mel, n_samps_sim, 
-    af_mel, maf_mel, af_sim, maf_sim, 
+    af_mel, af_sim,
     effect_mel, effect_sim, 
 
     ### extras:
@@ -600,7 +669,7 @@ mel_cols <- c(
     "gene_mel", "gene_id_fbgn_fromGFF", 
     "transcript_id_mel", 
     "n_samps_mel", 
-    "af_mel", "maf_mel", 
+    "af_mel",
     "effect_mel", 
     "strand_mel"
 )
@@ -616,7 +685,7 @@ sim_cols <- c(
     "gene_sim",
     "transcript_id_sim",
     "n_samps_sim", 
-    "af_sim", "maf_sim",
+    "af_sim", 
     "effect_sim", 
     "flip", "swap", 
     "strand_sim"
