@@ -1,3 +1,4 @@
+### OLD - now integrated into snp_idCodons_inbred.R
 
 library(data.table)
 library(SeqArray)
