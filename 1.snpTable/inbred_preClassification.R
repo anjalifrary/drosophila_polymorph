@@ -15,8 +15,8 @@ library(SeqArray)
 
 shared_dt <-readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.10_2026.rds")
 
-out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/simMap/"
-out_rds <- paste0(out_dir,  "dsim3.signor.all_quality_variants_codonMap.10_2026.rds")
+# out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/simMap/"
+# out_rds <- paste0(out_dir,  "dsim3.signor.all_quality_variants_codonMap.10_2026.rds")
 
 ###############################################################################################
 ### 1. recalculate AF:
@@ -68,17 +68,25 @@ snp_dt[is.na(variant.id_mel), `:=` (af_mel = NA_real_, maf_mel = NA_real_)]
 shared_dt <- merge(shared_dt, snp_dt[, .(chr, pos, af_mel, maf_mel, n_samps_mel)], by=c("chr", "pos"), all.x=T)
 nrow(shared_dt[!is.na(variant.id_mel) & af_mel > af_mel_old])
 seqClose(mel_gds)
+
 # safe copy:
 shared_dt_noMAFfilter <- copy(shared_dt)
+nrow(shared_dt_noMAFfilter)
 
-saveRDS(shared_dt_noMAFfilter, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.noMAFfilter.rds")
+saveRDS(shared_dt_noMAFfilter, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.noMAFfilter.rds")
 
-### incorrect: union merge; keeps rows where either species passes filter - WRONG
-# shared_dt <- shared_dt[
-#     (!is.na(variant.id_mel) & af_mel >= 0.05 & af_mel <= 0.95)
-#     | (!is.na(variant.id_sim) & af_sim >= 0.05 & af_sim <= 0.95)
-# ]
-# saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.0.05MAFfilter.rds")
+shared_dt[!is.na(variant.id_mel) & (maf_mel < 0.05 | maf_mel > 0.95),
+    variant.id_mel := NA
+]
+shared_dt[
+    !is.na(variant.id_sim) & (maf_sim < 0.05 | maf_sim > 0.95),
+    variant.id_sim := NA
+]
+
+shared_dt <- shared_dt[!is.na(variant.id_sim) | !is.na(variant.id_mel), ]
+nrow(shared_dt)
+
+saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.rds")
 
 ###############################################################################################
 ### 2. Extract GFF info: CDS regions; chr, start, end, strand, phase 
@@ -91,20 +99,16 @@ sim_gff <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fasta
 # sim_2R  Gnomon  CDS     6534278 6534771 .       -       0       ID=cds-XP_016026650.1;Parent=rna-XM_016167191.3;Dbxref=GeneID:6733679,Genbank:XP_016026650.1;Name=XP_016026650.1;gbkey=CDS;gene=LOC6733679;product=dnaJ homolog subfamily C member 13 isoform X1;protein_id=XP_016026650.1
 # phase = how many bases to skip at the start of a coding sequence (CDS) feature to reach the first complete codon.
 gff <- fread(
-     cmd = paste("grep -v '^#'", shQuote(sim_gff)), 
-     sep="\t", header=F, 
+    cmd = paste("grep -v '^#'", shQuote(sim_gff)), 
+    sep="\t", header=F, 
     col.names=c(
         "chr", "source", "feature", "start", "end", "score", "strand", "phase", "attributes"
     ))
-
-cds_gff <- gff[feature=="CDS", .(
-    chr, start, end, strand, phase, attributes
-)]
+cds_gff <- gff[feature=="CDS", .(chr, start, end, strand, phase, attributes)]
 
 # extract genes and transcripts
 cds_gff[, transcript_id := str_extract(attributes,"(?<=Parent=rna-)[^;]+")]
 cds_gff[, gene_id := str_extract(attributes, "(?<=Dbxref=GeneID:)[^,;]+")]
-
 cds_gff[, sim_chr := chr]
 cds_gff[, chr := sub("^sim_", "", sim_chr)]
 
@@ -166,10 +170,10 @@ sim_cds[, pos_in_codon := ((nt_pos_sim - 1) %% 3) + 1]
 sim_cds[, codon_start_nt := ((nt_pos_sim - 1) %/% 3) * 3 + 1]
 sim_cds[, codon_end_nt   := codon_start_nt + 2]
 sim_cds[, snp_pos_in_codon := regexpr("[A-Z]", sub("/.*", "", codon_change_sim))]
-nrow(is.na(sim_cds$pos_in_codon) |
+sum(is.na(sim_cds$pos_in_codon) |
     is.na(sim_cds$snp_pos_in_codon) |
-    sim_cds[pos_in_codon != snp_pos_in_codon]
-) # should be 0 . good!
+    sim_cds$pos_in_codon != sim_cds$snp_pos_in_codon
+) # should be 0
 
 ### assign strandedness 
 sim_cds[strand == "+",
@@ -220,11 +224,12 @@ sim_cds[strand == "+", codon_from_genome := codon_genomic_raw]
 sim_cds[strand == "-", codon_from_genome := as.character(reverseComplement(DNAStringSet(as.character(codon_genomic_raw))))]
 
 nrow(sim_cds[codon_from_genome == codon_ref_annotation])
-nrow(sim_cds[codon_from_genome != codon_ref_annotation])
+nrow(sim_cds[codon_from_genome != codon_ref_annotation]) # should be 0
+sum(is.na(sim_cds$codon_from_genome)) # should be 0
+sum(is.na(sim_cds$codon_ref_annotation)) # should be 0 
 
 table(sim_cds$codon_from_genome == sim_cds$codon_ref_annotation) 
-sum(is.na(sim_cds$codon_from_genome))
-sum(is.na(sim_cds$codon_ref_annotation))
+
 # codon_from_genome matches codon_ref_annotation -- good!
 
 # codon_genomic_start = genomic coord of 1st base on reference strand
@@ -234,21 +239,22 @@ sum(is.na(sim_cds$codon_ref_annotation))
 # codon_ref_annotation = reference codon annotated by snpeff (from codon_change_sim)
 
 ### Dsim3 codon id: chr:[start]:[end]
-sim_cds[, codon_id_dsim3 := paste(
-    sim_chr, dsim3_codon_start, dsim3_codon_end, sep = ":" )]
+sim_cds[, codon_id_dsim3 := paste(sim_chr, dsim3_codon_start, dsim3_codon_end, sep = ":" )]
 
 ### Dm6 codon id: chr:[start]:[end]
-sim_cds[, codon_id_dm6 := paste(
-    chr, dm6_codon_start, dm6_codon_end, sep = ":")]
+sim_cds[, codon_id_dm6_sim := paste(chr, dm6_codon_start, dm6_codon_end, sep = ":")]
 
 # calculate number of snps per codon
 sim_cds[, n_snps_in_codon_dsim3 := .N, by = codon_id_dsim3]
-sim_cds[, n_snps_in_codon_dm6 := .N, by = codon_id_dm6]
+sim_cds[, n_snps_in_codon_dm6 := .N, by = codon_id_dm6_sim]
 
 table(sim_cds$n_snps_in_codon_dsim3, useNA="ifany")
 table(sim_cds$n_snps_in_codon_dm6, useNA="ifany")
 
-sim_1snp_perCodon_dsim3 <- sim_cds[n_snps_in_codon_dsim3 ==1]
+sim_1snp_perCodon_dm6 <- copy(sim_cds[n_snps_in_codon_dm6 ==1])
+
+shared_dt <- merge(shared_dt, sim_cds[, .(chr, pos, codon_id_dsim3, codon_id_dm6_sim, strand, snp_pos_in_codon)], by=c("chr", "pos"), all.x=T)
+setnames(shared_dt, c("strand", "snp_pos_in_codon"), c("strand_sim", "snp_pos_in_codon_sim"))
 
 ### 2B: melanogaster
 # mel_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.10_2026.rds")
@@ -267,16 +273,10 @@ chr_map <- gff[ feature == "region" & grepl("genome=chromosome", attributes),
 gff[chr_map, chr_dm6 := i.chr, on = .(chr = chr_gff)]
 unique(gff[!is.na(chr_dm6), .(chr, chr_dm6)]) # X, 2L, 2R, 3L, 3R, 4, Y
 
-cds_gff <- gff[feature == "CDS" & !is.na(chr_dm6), 
-    .(chr_dm6, start, end, strand, phase, attributes)
-]
+cds_gff <- gff[feature == "CDS" & !is.na(chr_dm6), .(chr_dm6, start, end, strand, phase, attributes)]
 
 # extract genes and transcripts
-cds_gff[, transcript_id := str_extract(
-    attributes,
-    "(?<=Parent=rna-)[^;,]+"
-)]
-
+cds_gff[, transcript_id := str_extract(attributes, "(?<=Parent=rna-)[^;,]+")]
 mrna_map <- gff[
     feature == "mRNA",
     .(
@@ -284,18 +284,14 @@ mrna_map <- gff[
         transcript_id_fbtr = str_extract(attributes, "FBtr[0-9]+")
     )
 ]
-cds_gff[
-    mrna_map,
-    on = "transcript_id",
-    transcript_id_fbtr := i.transcript_id_fbtr
-]
+cds_gff[mrna_map, on = "transcript_id", transcript_id_fbtr := i.transcript_id_fbtr]
 
 # cds_gff[, transcript_id_fbtr := str_extract(attributes, "FBtr[0-9]+")]
 cds_gff[, gene_name := str_extract(attributes, "(?<=;gene=)[^;]+")]
 cds_gff[, gene_id_fbgn := str_extract(attributes, "FBgn[0-9]+")]
 cds_gff[, .N, by = .(chr_dm6, strand)]
 
-# x prefix = mel_cds
+# x prefix = cds_gff
 # i prefix = shared_dt
 mel_cds <- cds_gff[
     shared_dt[!is.na(variant.id_mel) & af_mel >= 0.05 & af_mel <= 0.95], 
@@ -350,9 +346,9 @@ mel_cds[, pos_in_codon := ((nt_pos_mel - 1) %% 3) + 1]
 mel_cds[, codon_start_nt := ((nt_pos_mel - 1) %/% 3) * 3 + 1]
 mel_cds[, codon_end_nt   := codon_start_nt + 2]
 mel_cds[, snp_pos_in_codon := regexpr("[A-Z]", sub("/.*", "", codon_change_mel))]
-nrow(is.na(mel_cds$pos_in_codon) |
+sum(is.na(mel_cds$pos_in_codon) |
     is.na(mel_cds$snp_pos_in_codon) |
-    mel_cds[pos_in_codon != snp_pos_in_codon]
+    mel_cds$pos_in_codon != mel_cds$snp_pos_in_codon
 ) # should be 0.
 
 mel_cds[strand == "+",
@@ -393,11 +389,11 @@ mel_cds[strand == "+", codon_from_genome := codon_genomic_raw]
 mel_cds[strand == "-", codon_from_genome := as.character( reverseComplement(DNAStringSet(as.character(codon_genomic_raw))))]
 
 nrow(mel_cds[codon_from_genome == codon_ref_annotation])
-nrow(mel_cds[codon_from_genome != codon_ref_annotation])
-
+nrow(mel_cds[codon_from_genome != codon_ref_annotation]) # should be 0
+sum(is.na(sim_cds$codon_from_genome)) # should be 0
+sum(is.na(sim_cds$codon_ref_annotation)) # should be 0
 table(mel_cds$codon_from_genome == mel_cds$codon_ref_annotation)
-sum(is.na(sim_cds$codon_from_genome))
-sum(is.na(sim_cds$codon_ref_annotation))
+
 
 # codon_genomic_start = genomic coord of 1st base on reference strand
 #              _end = 3rd base 
@@ -405,16 +401,20 @@ sum(is.na(sim_cds$codon_ref_annotation))
 # codon_from_genome = genomic codon converted into 5' to 3' (reverse complmented for - strand)
 # codon_ref_annotation = reference codon annotated by snpeff (from codon_change_sim)
 
-### next: create a codon id of mel-based coordinates: chr:[start]:[end]
-mel_cds[, codon_id := paste(
+### dm6 codon id: chr:[start]:[end]
+mel_cds[, codon_id_dm6_mel := paste(
     chr,
     codon_genomic_start,
     codon_genomic_end,
     sep = ":"
 )]
 
-mel_cds[, n_snps_in_codon := .N, by = codon_id]
+mel_cds[, n_snps_in_codon := .N, by = codon_id_dm6_mel]
 mel_1snp_perCodon <- mel_cds[n_snps_in_codon ==1]
+
+shared_dt <- merge(shared_dt, mel_cds[, .(chr, pos, gene_id_fbgn_fromGFF, codon_id_dm6_mel, strand, snp_pos_in_codon)], by=c("chr", "pos"), all.x=T)
+setnames(shared_dt, c("strand", "snp_pos_in_codon"), c("strand_mel", "snp_pos_in_codon_mel"))
+
 
 ###############################################################################################
 ### 3A: D. simulans: Annotate shared table for 1 snp per codon
@@ -428,12 +428,14 @@ shared_dt[, keep_sim := fifelse(
     is.na(variant.id_sim), "No_sim_variant",
     NA_character_
 )]
+table(shared_dt$keep_sim, useNA="ifany")
 
 shared_dt[!is.na(variant.id_sim), keep_sim := fifelse(
-    variant.id.sim %in% sim_1snp_perCodon_dsim3$variant.id_sim, 
+    variant.id_sim %in% sim_1snp_perCodon_dm6$variant.id_sim, 
     "TRUE", 
-    "Multiple_SNPs_perRefCodon"
+    "Multiple_SNPs_perRefCodon_dm6"
 )]
+table(shared_dt$keep_sim, useNA="ifany")
 
 
 # shared_dt[, keep_mel := as.character(variant.id_mel %in% mel_1snp_perCodon$variant.id_mel)]
@@ -453,37 +455,31 @@ shared_dt[, keep_mel := fifelse(
     is.na(variant.id_mel), "No_mel_variant",
     NA_character_
 )]
+table(shared_dt$keep_mel, useNA="ifany")
 
 shared_dt[!is.na(variant.id_mel), keep_mel := fifelse(
     variant.id_mel %in% mel_1snp_perCodon$variant.id_mel, 
     "TRUE", 
-    "Multiple_SNPs_perCodon"
+    "Multiple_SNPs_perRefCodon"
 )]
-
-# shared_dt[, keep_mel := fifelse(
-#     is.na(variant.id_mel),
-#     NA_character_,
-#     as.character(variant.id_mel %in% mel_1snp_perCodon$variant.id_mel)
-# )]
-
+table(shared_dt$keep_mel, useNA="ifany")
 
 ###############################################################################################
 ### 4: Filter for unassigned transcripts / codons missing from CDS 
 ###############################################################################################
 
 ### 4A: simulans
-# there are 90 rows that are missing from sim cds (annotated as FALSE but have variant id sim)
 missing_from_sim_cds <- shared_dt[!is.na(variant.id_sim) & !(variant.id_sim %in% sim_cds$variant.id_sim)]
 nrow(missing_from_sim_cds) # they are all unassigned transcripts.
 
-shared_dt[variant.id_sim %in% missing_from_sim_cds$variant.id_sim, keep_sim := "UNASSIGNED_TRANSCRIPT"]
+shared_dt[variant.id_sim %in% missing_from_sim_cds$variant.id_sim, keep_sim := "Missing_fromCDS"]
 table(shared_dt$keep_sim, useNA="ifany")
 
 ### 4B: melanogaster 
 missing_from_mel_cds <- shared_dt[!is.na(variant.id_mel) & !(variant.id_mel %in% mel_cds$variant.id_mel)]
 nrow(missing_from_mel_cds)
 
-shared_dt[variant.id_mel %in% missing_from_mel_cds$variant.id_mel, keep_mel := "UNASSIGNED_TRANSCRIPT"]
+shared_dt[variant.id_mel %in% missing_from_mel_cds$variant.id_mel, keep_mel := "Missing_fromCDS"]
 table(shared_dt$keep_mel, useNA="ifany")
 
 
@@ -491,14 +487,17 @@ table(shared_dt$keep_mel, useNA="ifany")
 ### 5: Flag codons mapped 2 to 1
 ###############################################################################################
 
-dup_dm6_codons <- sim_1snp_perCodon[, .N, by = codon_id_dm6_sim][N > 1]
+dup_dm6_codons <- sim_1snp_perCodon_dm6[, .N, by = codon_id_dm6_sim][N > 1]
 
-shared_dt[variant.id_sim %in% sim_1snp_perCodon[
+shared_dt[variant.id_sim %in% sim_1snp_perCodon_dm6[
         codon_id_dm6_sim %in% dup_dm6_codons$codon_id_dm6_sim,
         variant.id_sim
     ],
     keep_sim := "MAP2TO1"
 ]
+# none! already removed when building sim_1snp_perCodon_dm6 
+    # because 2 dsim3 codons mapping to 1 dm6 codon would be counted as 2 snps in that codon
+table(shared_dt$keep_sim, useNA="ifany")
 
 
 ###############################################################################################
@@ -506,282 +505,90 @@ shared_dt[variant.id_sim %in% sim_1snp_perCodon[
 ###############################################################################################
 
 mel_codons <- unique(
-    filtered_dt[
+    shared_dt[
         !is.na(variant.id_mel),
         .(
             codon_id = codon_id_dm6_mel,
-            chr = chr_dm6,
+            chr = chr,
             start = as.integer(tstrsplit(codon_id_dm6_mel, ":", fixed = TRUE)[[2]]),
             end = as.integer(tstrsplit(codon_id_dm6_mel, ":", fixed = TRUE)[[3]])
         )
     ]
 )
-
 sim_codons <- unique(
-    filtered_dt[
+    shared_dt[
         !is.na(variant.id_sim),
         .(
             codon_id = codon_id_dm6_sim,
-            chr = chr_dm6,
+            chr = chr,
             start = as.integer(tstrsplit(codon_id_dm6_sim, ":", fixed = TRUE)[[2]]),
             end = as.integer(tstrsplit(codon_id_dm6_sim, ":", fixed = TRUE)[[3]])
         )
     ]
 )
 
-overlap <- mel_codons[
-    sim_codons,
-    on = .(
-        chr,
-        start <= end,
-        end >= start
-    ),
+overlap <- mel_codons[sim_codons, on = .(chr, start <= end, end >= start),
     nomatch = 0,
-    .(
-        codon_id_mel=x.codon_id,
-        codon_id_sim=i.codon_id
-    ),
+    .(codon_id_mel=x.codon_id, codon_id_sim=i.codon_id),
     allow.cartesian = TRUE
 ]
 
-shifted_overlap <- overlap[
-    codon_id_mel != codon_id_sim
-]
+shifted_overlap <- overlap[codon_id_mel != codon_id_sim]
 
-
-filtered_dt[
+shared_dt[
     codon_id_dm6_mel %in% shifted_overlap$codon_id_mel,
-    keep_mel := "OVERLAP"
+    keep_mel := "shifted_readingFrame"
 ]
+table(shared_dt$keep_mel, useNA="ifany")
 
-filtered_dt[
+shared_dt[
     codon_id_dm6_sim %in% shifted_overlap$codon_id_sim,
-    keep_sim := "OVERLAP"
+    keep_sim := "shifted_readingFrame"
 ]
+table(shared_dt$keep_sim, useNA="ifany")
 
 ###############################################################################################
 ### 7: Identify codons on opposite strands
 ###############################################################################################
 
-# realized I filtered for opp codons earlier but missed some... 
-opp_codons <- filtered_dt[
-    ,
-    .(
-        has_plus  = any(strand_mel == "+" | strand_sim == "+", na.rm = TRUE),
-        has_minus = any(strand_mel == "-" | strand_sim == "-", na.rm = TRUE)
-    ),
-    by = codon_id_dm6
-][has_plus & has_minus, codon_id_dm6]
+# nrow(shared_dt[!is.na(variant.id_mel) & !is.na(variant.id_sim) & 
+#     codon_id_dm6_mel != codon_id_dm6_sim & 
+#     keep_sim == "TRUE" & keep_mel == "TRUE"]) # should be 0 
+shared_dt[, codon_id_dm6 := fifelse(
+    (!is.na(variant.id_mel) & keep_mel=="TRUE"), codon_id_dm6_mel, 
+    fifelse(
+        (!is.na(variant.id_sim) & keep_sim=="TRUE"), codon_id_dm6_sim, NA_character_))]
 
-filtered_dt[codon_id_dm6%in%opp_codons, `:=` (keep_mel = "oppStrnd", keep_sim ="oppStrnd")]
+# !is.na(codon_id_dm6_mel) & !is.na(codon_id_dm6_sim)
+# opp_codons <- shared_dt[,
+#     .(
+#         has_plus  = any(strand_mel == "+" | strand_sim == "+", na.rm = TRUE),
+#         has_minus = any(strand_mel == "-" | strand_sim == "-", na.rm = TRUE)
+#     ),
+#     by = codon_id_dm6
+# ][has_plus & has_minus, codon_id_dm6]
 
-###############################################################################################
-### 8: Heterozygosity & FIS
-###############################################################################################
-
-mel_snpdata <- readRDS("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/mel_site_RD.rds")
-sim_snpdata <- readRDS("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/sim_site_RD.rds")
-shared <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.MAF.rds")
-
-shared_het <- merge(shared, mel_snpdata[, .(chr, pos, prop_het, fis)], by.x=c("chr_dm6", "pos_dm6"), by.y=c("chr", "pos"), all.x=T)
-setnames(shared_het, c("prop_het", "fis"), c("prop_het_mel", "fis_mel"))
-shared_het <- merge(shared_het, sim_snpdata[, .(chr, pos, prop_het, fis)], by.x=c("chr_dm6", "pos_dm6"), by.y=c("chr", "pos"), all.x=T)
-setnames(shared_het, c("prop_het", "fis"), c("prop_het_sim", "fis_sim"))
-
-shared_het[, .(
-    total = .N,
-    mel_fis_present = sum(!is.na(fis_mel)),
-    mel_fis_missing = sum(is.na(fis_mel)),
-    sim_fis_present = sum(!is.na(fis_sim)),
-    sim_fis_missing = sum(is.na(fis_sim))
-)]
-
-# Compare variant IDs against FIS availability
-shared_het[, .(
-    mel_variant_but_missing_fis =
-        sum(!is.na(variant.id_mel) & is.na(fis_mel)),
-    sim_variant_but_missing_fis =
-        sum(!is.na(variant.id_sim) & is.na(fis_sim))
-)]
-
-library(data.table)
-library(ggplot2)
-
-# Define classification groups
-shared_het_plot <- shared_het[!is.na(classification)]
-shared_het_plot[, class_group := fifelse(
-    classification %in% c("A", "B"),
-    "tsp",
-    "Not tsp"
-)]
-
-fis_long <- melt(
-    shared_het_plot,
-    id.vars = "class_group",
-    measure.vars = c("fis_mel", "fis_sim"),
-    variable.name = "species",
-    value.name = "FIS"
-)
-fis_long[, species := fifelse(
-    species == "fis_mel",
-    "D. melanogaster",
-    "D. simulans"
-)]
-fis_long <- fis_long[
-    !is.na(FIS) & is.finite(FIS)
+opp_codons <- shared_dt[
+    !is.na(variant.id_mel) & !is.na(variant.id_sim) &
+    # keep_mel == "TRUE" & keep_sim == "TRUE" &
+    # !is.na(strand_mel) & !is.na(strand_sim) &
+    strand_mel != strand_sim,
+    unique(codon_id_dm6)
 ]
 
-ggplot(fis_long, aes(x = class_group, y = FIS)) +
-    geom_boxplot(outlier.alpha = 0.1) +
-    facet_wrap(~species, nrow = 1) +
-    labs(
-        title = expression("Site-level " * F[IS] * " by classification"),
-        x = "Classification group",
-        y = expression(F[IS])
-    ) +
-    theme_classic()
+shared_dt[!is.na(codon_id_dm6) & codon_id_dm6%in%opp_codons, `:=` (keep_mel = "oppStrand", keep_sim ="oppStrand")]
+table(shared_dt$keep_sim, useNA="ifany")
+table(shared_dt$keep_mel, useNA="ifany")
 
-
-fis_prop_negative <- melt(
-    shared_het_plot,
-    id.vars = "class_group",
-    measure.vars = c("fis_mel", "fis_sim"),
-    variable.name = "species",
-    value.name = "FIS"
-)[
-    !is.na(FIS) & is.finite(FIS),
-    .(
-        n_sites = .N,
-        n_negative = sum(FIS < 0),
-        prop_negative = mean(FIS < 0),
-        percent_negative = 100 * mean(FIS < 0)
-    ),
-    by = .(species, class_group)
-][order(species, class_group)]
-
-library(ggplot2)
-
-ggplot(
-    fis_prop_negative,
-    aes(x = species, y = prop_negative, fill = class_group)
-) +
-    geom_col(position = "dodge") +
-    labs(
-        x = "Classification",
-        y = "Proportion with FIS < 0",
-        fill = "Species"
-    ) +
-    theme_classic()
-
-
-    prop_het_long <- melt(
-    shared_het_plot,
-    id.vars = "class_group",
-    measure.vars = c("prop_het_mel", "prop_het_sim"),
-    variable.name = "species",
-    value.name = "prop_het"
-)
-
-prop_het_long[, species := fifelse(
-    species == "prop_het_mel",
-    "D. melanogaster",
-    "D. simulans"
-)]
-
-prop_het_long <- prop_het_long[
-    !is.na(prop_het) & is.finite(prop_het)
-]
-
-ggplot(prop_het_long, aes(x = class_group, y = prop_het)) +
-    geom_boxplot(outlier.alpha = 0.1) +
-    facet_wrap(~species, nrow = 1) +
-    labs(
-        title = "Observed heterozygosity by classification",
-        x = "Classification group",
-        y = "Proportion heterozygous"
-    ) +
-    theme_classic()
-
-prop_het_summary <- prop_het_long[
-    ,
-    .(
-        n_sites = .N,
-        mean_prop_het = mean(prop_het),
-        sd_prop_het = sd(prop_het)
-    ),
-    by = .(species, class_group)
-]
-
-ggplot(
-    prop_het_summary,
-    aes(x = species, y = mean_prop_het, fill = class_group)
-) +
-    geom_col(position = "dodge") +
-    labs(
-        title = "Mean observed heterozygosity by classification",
-        x = "Species",
-        y = "Mean proportion heterozygous",
-        fill = "Classification"
-    ) +
-    theme_classic()
-
+saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.annotatedSim.annotatedMel.rds")
 
 ###############################################################################################
 ### 8: Clean up dt
 ###############################################################################################
-
-
-############################################################################################
-
-shared_dt_cleaner <- shared_dt_all[, .(
-    ### meta stuff 
-    classification,  
-    variant.id_mel, variant.id_sim,
-    chr_dm6=chr, pos_dm6=pos,
-    chr_dsim3=chr_src, pos_dsim3=pos_src,
-    
-    ### nt stuff:
-    ref_mel, alt_mel, 
-    ref_sim_dm6=ref_sim, alt_sim_dm6=alt_sim, 
-    ref_sim_dsim3=ref_src, alt_sim_dsim3=alt_src, 
-
-    ### codon stuff:
-    codon_id_dm6_mel, codon_id_dm6_sim, codon_id_dsim3,
-    codon_ref_mel, codon_alt_mel, codon_ref_sim, codon_alt_sim,
-    snp_pos_in_codon_mel, snp_pos_in_codon_sim,
-
-    ### amino acid stuff:
-    aa_pos_mel, aa_pos_sim,
-    aa_ref_mel, aa_alt_mel, aa_ref_sim, aa_alt_sim,
-
-    ### gene / transcript stuff:
-    gene_mel, gene_sim, 
-    gene_id_fbgn,
-    gene_id_fbgn_fromGFF,
-
-    transcript_id_mel, transcript_id_sim,
-
-    ### frequency stuff:
-    n_samps_mel, n_samps_sim, 
-    af_mel, af_sim,
-    effect_mel, effect_sim, 
-
-    ### extras:
-    flip, swap, 
-    strand_mel, strand_sim,
-    keep_mel, keep_sim
-)]
-
-saveRDS(shared_dt_cleaner, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.rds")
-
-### clean up rows where keep_mel / sim != TRUE
-
-filtered_dt <- shared_dt_cleaner
-filtered_dt[keep_mel != "TRUE", variant.id_mel := NA_integer_]
-filtered_dt[keep_sim != "TRUE", variant.id_sim := NA_integer_]
-
-filtered_dt <- filtered_dt[!is.na(variant.id_mel) | !is.na(variant.id_sim)]
-### mel cols:
+filtered_dt <- shared_dt[!is.na(variant.id_mel) | !is.na(variant.id_sim)]
+filtered_dt[, maf := NULL]
+setnames(filtered_dt, c("chr_src", "pos_src", "ref_sim", "alt_sim", "ref_src", "alt_src"), 
+    c("chr_dsim3", "pos_dsim3", "ref_sim_dm6", "alt_sim_dm6", "ref_sim_dsim3", "alt_sim_dsim3"))
 mel_cols <- c(
     "ref_mel", "alt_mel", 
     "codon_id_dm6_mel", 
@@ -792,7 +599,7 @@ mel_cols <- c(
     "gene_mel", "gene_id_fbgn_fromGFF", 
     "transcript_id_mel", 
     "n_samps_mel", 
-    "af_mel",
+    "af_mel", "maf_mel", 
     "effect_mel", 
     "strand_mel"
 )
@@ -808,7 +615,7 @@ sim_cols <- c(
     "gene_sim",
     "transcript_id_sim",
     "n_samps_sim", 
-    "af_sim", 
+    "af_sim", "maf_sim", 
     "effect_sim", 
     "flip", "swap", 
     "strand_sim"
@@ -830,13 +637,41 @@ filtered_dt[
     .SDcols = sim_cols
 ]
 
-saveRDS(filtered_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+new_order <- c(
+    # meta
+    "variant.id_mel", "variant.id_sim", 
+    "chr", "pos", 
+    "chr_dsim3", "pos_dsim3", 
+    # nucleotides
+    "ref_mel", "alt_mel",
+    "ref_sim_dm6", "alt_sim_dm6",
+    "ref_sim_dsim3", "alt_sim_dsim3",
+    "snp_pos_in_codon_mel", "snp_pos_in_codon_sim",
+    # codons
+    "codon_id_dm6", 
+    "codon_id_dm6_mel", "codon_id_dm6_sim", 
+    "codon_id_dsim3",
+    "codon_ref_mel", "codon_alt_mel",
+    "codon_ref_sim", "codon_alt_sim",
+    # amino acids
+    "aa_pos_mel", "aa_ref_mel", "aa_alt_mel", 
+    "aa_pos_sim", "aa_ref_sim", "aa_alt_sim", 
+    # gene info
+    "gene_mel", "gene_sim", "gene_id_fbgn", "gene_id_fbgn_fromGFF",
+    "transcript_id_mel", "transcript_id_sim", 
+    #
+    "n_samps_mel", "n_samps_sim", 
+    "af_mel", "maf_mel", 
+    "af_sim", "maf_sim", 
+    "effect_mel", "effect_sim",
+    "flip", "swap", "strand_sim", "strand_mel", 
+    "keep_mel", "keep_sim"
 
+)
 
-### working off filtered_dt
-
-
-### checking if there are codons that overlap (different reading frame)
+new_order <- intersect(new_order, names(filtered_dt))
+filtered_dt <- filtered_dt[, ..new_order]
+saveRDS(filtered_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.annotatedSim.annotatedMel.cleaner.rds")
 
 
 
@@ -891,6 +726,19 @@ table(filtered_dt$tsp_samePos, useNA="ifany")
 
 
 saveRDS(filtered_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1032,6 +880,41 @@ new_dt[
 
 
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1355,3 +1238,111 @@ shared_dt_all <- shared_dt_all[
     
 # (, .(strand, snp_pos_in_codon, codon_id, dm6_codon_id),)]
 shared_dt_all[, classification := NA_character_] # add empty classification colun
+
+
+
+
+
+shared_dt_cleaner <- shared_dt[, .(
+    ### meta stuff 
+    variant.id_mel, variant.id_sim,
+    chr_dm6=chr, pos_dm6=pos,
+    chr_dsim3=chr_src, pos_dsim3=pos_src,
+    
+    ### nt stuff:
+    ref_mel, alt_mel, 
+    ref_sim_dm6=ref_sim, alt_sim_dm6=alt_sim, 
+    ref_sim_dsim3=ref_src, alt_sim_dsim3=alt_src, 
+
+    ### codon stuff:
+    codon_id_dm6_mel, codon_id_dm6_sim, codon_id_dsim3,
+    codon_ref_mel, codon_alt_mel, codon_ref_sim, codon_alt_sim,
+    snp_pos_in_codon_mel, snp_pos_in_codon_sim,
+
+    ### amino acid stuff:
+    aa_pos_mel, aa_pos_sim,
+    aa_ref_mel, aa_alt_mel, aa_ref_sim, aa_alt_sim,
+
+    ### gene / transcript stuff:
+    gene_mel, gene_sim, 
+    gene_id_fbgn,
+    gene_id_fbgn_fromGFF,
+
+    transcript_id_mel, transcript_id_sim,
+
+    ### frequency stuff:
+    n_samps_mel, n_samps_sim, 
+    af_mel, af_sim,
+    effect_mel, effect_sim, 
+
+    ### extras:
+    flip, swap, 
+    strand_mel, strand_sim,
+    keep_mel, keep_sim
+)]
+
+
+### clean up rows where keep_mel / sim != TRUE
+
+filtered_dt <- shared_dt_cleaner
+filtered_dt[keep_mel != "TRUE", variant.id_mel := NA_integer_]
+filtered_dt[keep_sim != "TRUE", variant.id_sim := NA_integer_]
+
+filtered_dt <- filtered_dt[!is.na(variant.id_mel) | !is.na(variant.id_sim)]
+### mel cols:
+mel_cols <- c(
+    "ref_mel", "alt_mel", 
+    "codon_id_dm6_mel", 
+    "codon_ref_mel", "codon_alt_mel",
+    "snp_pos_in_codon_mel", 
+    "aa_pos_mel", 
+    "aa_ref_mel", "aa_alt_mel", 
+    "gene_mel", "gene_id_fbgn_fromGFF", 
+    "transcript_id_mel", 
+    "n_samps_mel", 
+    "af_mel",
+    "effect_mel", 
+    "strand_mel"
+)
+### sim cols:
+sim_cols <- c(
+    "chr_dsim3", "pos_dsim3", 
+    "ref_sim_dm6", "alt_sim_dm6", "ref_sim_dsim3", "alt_sim_dsim3",
+    "codon_id_dm6_sim", "codon_id_dsim3",
+    "codon_ref_sim", "codon_alt_sim",
+    "snp_pos_in_codon_sim", 
+    "aa_pos_sim",
+    "aa_ref_sim", "aa_alt_sim",
+    "gene_sim",
+    "transcript_id_sim",
+    "n_samps_sim", 
+    "af_sim", 
+    "effect_sim", 
+    "flip", "swap", 
+    "strand_sim"
+)
+
+filtered_dt[
+    is.na(variant.id_mel),
+    (mel_cols) := lapply(.SD, function(x) {
+        if (is.character(x)) NA_character_ else NA
+    }),
+    .SDcols = mel_cols
+]
+
+filtered_dt[
+    is.na(variant.id_sim),
+    (sim_cols) := lapply(.SD, function(x) {
+        if (is.character(x)) NA_character_ else NA
+    }),
+    .SDcols = sim_cols
+]
+
+saveRDS(filtered_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+
+
+### working off filtered_dt
+
+
+### checking if there are codons that overlap (different reading frame)
+

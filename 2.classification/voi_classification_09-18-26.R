@@ -22,7 +22,7 @@ csv_class <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.
 
 ### INBRED ###
 
-shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.annotatedSim.annotatedMel.cleaner.1snpCodon.rds")
+shared_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.annotatedSim.annotatedMel.cleaner.rds")
 csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.classification.10_2026.csv"
 
 ### filter for tsp_samePos TRUE or FALSE (ignore NAs)
@@ -31,22 +31,22 @@ csv_class <- "/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.sourc
 
 # ### inbred only:
 
-# 2 codons have opposite strandedness:
-#   3L:18870748:18870750
-#   3R:21866692:21866694
-filtered_dt <- shared_dt
-filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
-    keep_mel := "oppStrnd"
-]
-filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
-    keep_sim := "oppStrnd"
-]
-filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
-    keep_mel := "oppStrnd"
-]
-filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
-    keep_sim := "oppStrnd"
-]
+# # 2 codons have opposite strandedness:
+# #   3L:18870748:18870750
+# #   3R:21866692:21866694
+# filtered_dt <- shared_dt
+# filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
+#     keep_mel := "oppStrnd"
+# ]
+# filtered_dt[codon_id_dm6_mel=="3L:18870748:18870750" | codon_id_dm6_sim=="3L:18870748:18870750", 
+#     keep_sim := "oppStrnd"
+# ]
+# filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
+#     keep_mel := "oppStrnd"
+# ]
+# filtered_dt[codon_id_dm6_mel=="3R:21866692:21866694" | codon_id_dm6_sim=="3R:21866692:21866694", 
+#     keep_sim := "oppStrnd"
+# ]
 
 
 filtered_dt <- shared_dt
@@ -96,7 +96,7 @@ mel_cols <- c(
     "gene_mel", "gene_id_fbgn_fromGFF", 
     "transcript_id_mel", 
     "n_samps_mel", 
-    "af_mel", #"maf_mel", 
+    "af_mel", "maf_mel", 
     "effect_mel", 
     "strand_mel"
 )
@@ -113,11 +113,12 @@ sim_cols <- c(
     "gene_sim",
     "transcript_id_sim",
     "n_samps_sim", 
-    "af_sim", # "maf_sim",
+    "af_sim", "maf_sim", 
     "effect_sim", 
     "flip", "swap", 
     "strand_sim"
 )
+
 filtered_dt[keep_mel != "TRUE", (mel_cols) := NA]
 filtered_dt[keep_sim != "TRUE", (sim_cols) := NA]
 
