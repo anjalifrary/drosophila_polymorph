@@ -1,4 +1,4 @@
-library(data.table())
+library(data.table)
 
 ###############################################################################################
 ### Heterozygosity & FIS
@@ -6,11 +6,11 @@ library(data.table())
 
 mel_snpdata <- readRDS("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/mel_site_RD.rds")
 sim_snpdata <- readRDS("/scratch/ejy4bu/drosophila/inbred/sampleLevel_filter/sim_site_RD.rds")
-shared <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.classed.MAF.rds")
+shared <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.0.05MAFfilter.classed.rds")
 
-shared_het <- merge(shared, mel_snpdata[, .(chr, pos, prop_het, fis)], by.x=c("chr_dm6", "pos_dm6"), by.y=c("chr", "pos"), all.x=T)
+shared_het <- merge(shared, mel_snpdata[, .(chr, pos, prop_het, fis)], by=c("chr", "pos"), all.x=T)
 setnames(shared_het, c("prop_het", "fis"), c("prop_het_mel", "fis_mel"))
-shared_het <- merge(shared_het, sim_snpdata[, .(chr, pos, prop_het, fis)], by.x=c("chr_dm6", "pos_dm6"), by.y=c("chr", "pos"), all.x=T)
+shared_het <- merge(shared_het, sim_snpdata[, .(chr, pos, prop_het, fis)], by=c("chr", "pos"), all.x=T)
 setnames(shared_het, c("prop_het", "fis"), c("prop_het_sim", "fis_sim"))
 
 shared_het[, .(
