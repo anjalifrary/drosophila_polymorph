@@ -73,20 +73,15 @@ seqClose(mel_gds)
 shared_dt_noMAFfilter <- copy(shared_dt)
 nrow(shared_dt_noMAFfilter)
 
-saveRDS(shared_dt_noMAFfilter, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.noMAFfilter.rds")
+# saveRDS(shared_dt_noMAFfilter, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.noMAFfilter.rds")
 
-shared_dt[!is.na(variant.id_mel) & (maf_mel < 0.05 | maf_mel > 0.95),
-    variant.id_mel := NA
-]
-shared_dt[
-    !is.na(variant.id_sim) & (maf_sim < 0.05 | maf_sim > 0.95),
-    variant.id_sim := NA
-]
+shared_dt[!is.na(variant.id_mel) & (maf_mel < 0.05 | maf_mel > 0.95), variant.id_mel := NA]
+shared_dt[!is.na(variant.id_sim) & (maf_sim < 0.05 | maf_sim > 0.95), variant.id_sim := NA]
 
 shared_dt <- shared_dt[!is.na(variant.id_sim) | !is.na(variant.id_mel), ]
 nrow(shared_dt)
 
-saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.rds")
+# saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.rds")
 
 ###############################################################################################
 ### 2. Extract GFF info: CDS regions; chr, start, end, strand, phase 
@@ -113,7 +108,9 @@ cds_gff[, sim_chr := chr]
 cds_gff[, chr := sub("^sim_", "", sim_chr)]
 
 sim_cds <- cds_gff[
-    shared_dt[!is.na(variant.id_sim) & af_sim >= 0.05 & af_sim <= 0.95], 
+    shared_dt[!is.na(variant.id_sim)
+    #  & af_sim >= 0.05 & af_sim <= 0.95
+     ], 
     on = .(
         sim_chr = chr_src,
         transcript_id = transcript_id_sim,
@@ -294,7 +291,9 @@ cds_gff[, .N, by = .(chr_dm6, strand)]
 # x prefix = cds_gff
 # i prefix = shared_dt
 mel_cds <- cds_gff[
-    shared_dt[!is.na(variant.id_mel) & af_mel >= 0.05 & af_mel <= 0.95], 
+    shared_dt[!is.na(variant.id_mel) 
+    # & af_mel >= 0.05 & af_mel <= 0.95
+    ], 
     on = .(
         chr_dm6 = chr,
         transcript_id_fbtr = transcript_id_mel,
@@ -580,7 +579,7 @@ shared_dt[!is.na(codon_id_dm6) & codon_id_dm6%in%opp_codons, `:=` (keep_mel = "o
 table(shared_dt$keep_sim, useNA="ifany")
 table(shared_dt$keep_mel, useNA="ifany")
 
-saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.annotatedSim.annotatedMel.rds")
+saveRDS(shared_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.01MAFfilter.annotatedSim.annotatedMel.rds")
 
 ###############################################################################################
 ### 8: Clean up dt
@@ -671,7 +670,7 @@ new_order <- c(
 
 new_order <- intersect(new_order, names(filtered_dt))
 filtered_dt <- filtered_dt[, ..new_order]
-saveRDS(filtered_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.05MAFfilter.annotatedSim.annotatedMel.cleaner.rds")
+saveRDS(filtered_dt, "/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.newAF.0.01MAFfilter.annotatedSim.annotatedMel.cleaner.rds")
 
 
 
