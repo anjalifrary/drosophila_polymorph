@@ -5,10 +5,10 @@
     options(width = 250)
 
 ### functions
-    source("/Users/alanbergland/Documents/GitHub/misc/snakes/scripts/functions.R")
+    # source("/Users/alanbergland/Documents/GitHub/misc/snakes/scripts/functions.R")
 
 ### convert
-    fn <- list.files("/Users/alanbergland/Documents/GitHub/misc/snakes/data", "gds", full.name=T)
+    # fn <- list.files("/Users/alanbergland/Documents/GitHub/misc/snakes/data", "gds", full.name=T)
 
 ### make snp.dts
     snp.dt <- foreach(gds.fn=fn)%do%{
