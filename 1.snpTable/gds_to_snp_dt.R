@@ -61,7 +61,8 @@ dt <- data.table(
     pos = seqGetData(gds_file, "position"),
     nAlleles = seqGetData(gds_file, "$num_allele"),
     id = seqGetData(gds_file, "variant.id"),
-    af = seqGetData(gds_file, "annotation/info/AF")
+    af = seqGetData(gds_file, "annotation/info/AF") 
+    # ,
     # maf = seqGetData(gds_file, "annotation/info/MAF"),
     # n_samps = seqGetData(gds_file, "annotation/info/NS")
 )

@@ -3,17 +3,34 @@
 library(SeqArray)
 library(data.table)
 
-mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
-genofile <- mel_gds
+# mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
+# genofile <- mel_gds
 
-# sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.gds")
-# genofile <- sim_gds
+sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.gds")
+genofile <- sim_gds
+
 
 snp.dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
 
+seqResetFilter(genofile)
+
+gds_dt <- data.table(
+    id = seqGetData(genofile, "variant.id"),
+    chr = seqGetData(genofile, "chromosome"),
+    pos = seqGetData(genofile, "position")
+)
+
+setkey(gds_dt, chr, pos)
+
+snp.dt[, id := gds_dt[
+    snp.dt,
+    on = .(chr, pos),
+    x.id
+]]
+
 snp.dt[, bin:=floor(variant.id/1000000)]
 snp.dt[, col:=effect]
-snp.dt[, id := variant.id]
+# snp.dt[, id := variant.id]
 snp.dt[, use := TRUE]
 
 seqResetFilter(genofile)
@@ -99,33 +116,33 @@ nlp_fun <- function(bin.i, lib_type) {
         ad <- seqGetData(genofile, "annotation/format/AD"  )
         dp <- seqGetData(genofile, "annotation/format/DP"  )
 
-        # ### sim only:
-        # ad_variant <- rep(seq_along(ad$length), ad$length)
-        # ad_full <- matrix(NA_integer_, nrow = nrow(dp), ncol = length(ad$length))
-        # ad_full[, ad_variant] <- ad$data
+        ### sim only:
+        ad_variant <- rep(seq_along(ad$length), ad$length)
+        ad_full <- matrix(NA_integer_, nrow = nrow(dp), ncol = length(ad$length))
+        ad_full[, ad_variant] <- ad$data
 
-        # dimnames(ad_full) <- list(
-        #     sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
-        #     variant = seqGetData(genofile, "variant.id")
-        # )
-        # dimnames(dp) <- list(
-        #     sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
-        #     variant = seqGetData(genofile, "variant.id")
-        # )
-        # tmp.ad <- as.data.table(reshape2::melt(ad_full))
-        # tmp.dp <- as.data.table(reshape2::melt(dp))
-        # ### end sim only
+        dimnames(ad_full) <- list(
+            sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
+            variant = seqGetData(genofile, "variant.id")
+        )
+        dimnames(dp) <- list(
+            sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
+            variant = seqGetData(genofile, "variant.id")
+        )
+        tmp.ad <- as.data.table(reshape2::melt(ad_full))
+        tmp.dp <- as.data.table(reshape2::melt(dp))
+        ### end sim only
 
-        ### mel only:
-        dimnames(ad)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
-        dimnames(ad)$variant <- seqGetData(genofile, "variant.id")
+        # ### mel only:
+        # dimnames(ad)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
+        # dimnames(ad)$variant <- seqGetData(genofile, "variant.id")
 
-        dimnames(dp)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
-        dimnames(dp)$variant <- seqGetData(genofile, "variant.id")
+        # dimnames(dp)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
+        # dimnames(dp)$variant <- seqGetData(genofile, "variant.id")
 
-        tmp.ad <-   as.data.table(reshape2::melt(ad))
-        tmp.dp <-   as.data.table(reshape2::melt(dp))
-        ### end mel only ^
+        # tmp.ad <-   as.data.table(reshape2::melt(ad))
+        # tmp.dp <-   as.data.table(reshape2::melt(dp))
+        # ### end mel only ^
 
         setkey(tmp.ad, sample, variant)
         setkey(tmp.dp, sample, variant)
@@ -172,19 +189,22 @@ bin_ids <- unique(
 )
 
 batch_size <- 100000
-nlp_results <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.rds")
-cat("Previously saved variants:", uniqueN(nlp_results$variant), "\n")
-start_bin_index <- match(27, bin_ids)
-if (is.na(start_bin_index)) {
-    stop("Bin 27 not found in bin_ids")
-}
+# partial_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.rds"
+# nlp_results <- readRDS(partial_file)
+nlp_results <- data.table()
+# cat("Previously saved variants:", uniqueN(nlp_results$variant), "\n")
+
+# start_bin_index <- match(27, bin_ids)
+# if (is.na(start_bin_index)) {
+#     stop("Bin 27 not found in bin_ids")
+# }
 
 # all_results <- list()
 # result_index <- 1
 
-# for (bin.i in bin_ids) {
-for (b in start_bin_index:length(bin_ids)) {
-    bin.i <- bin_ids[b]
+for (bin.i in bin_ids) {
+# for (b in start_bin_index:length(bin_ids)) {
+    # bin.i <- bin_ids[b]
 
     variant_ids <- unique(
         snp.dt.full[
@@ -213,7 +233,9 @@ for (b in start_bin_index:length(bin_ids)) {
             list(nlp_results, batch_result),
             fill = TRUE
         )
-        saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.rds")
+        # saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.rds")
+        saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_sim_partial.rds")
+
         cat("Saved results through bin:", bin.i, ", batch: ", i, "\n")
 
         # all_results[[result_index]] <- nlp_fun(bin.i, "pooled")
@@ -237,7 +259,8 @@ nrow(nlp)
 uniqueN(nlp$variant)
 
 # saveRDS(all_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.optimized.rds")
-saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.rds")
+# saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.rds")
+saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim_nlp_complete.rds")
 
 
 
