@@ -54,7 +54,7 @@ mean_allele_freq_fun <- function(freq, pop, whichMean) {
     tmp.dt.ag <- tmp.dt[,list(freq=mean(freq, na.rm=T)), list(pop)]
 
     if(whichMean=="global") return(mean(tmp.dt.ag$freq, na.rm=T))
-    if(whichMean=="polymorphic") return(mean(tmp.dt.ag[freq>0 & freq<1]$freq))
+    if(whichMean=="polymorphic") return(mean(tmp.dt.ag[freq>0 & freq<1]$freq, na.rm=TRUE))
     if(whichMean=="first") return(tmp.dt.ag$freq[1])
   }
 
@@ -233,7 +233,7 @@ for (bin.i in bin_ids) {
             list(nlp_results, batch_result),
             fill = TRUE
         )
-        saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.new.rds")
+        saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.new.NArm.rds")
         # saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_sim_partial.rds")
 
         cat("Saved results through bin:", bin.i, ", batch: ", i, "\n")
@@ -259,7 +259,7 @@ nrow(nlp)
 uniqueN(nlp$variant)
 
 # saveRDS(all_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.optimized.rds")
-saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.new.rds")
+saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.new.NArm.rds")
 # saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim_nlp_complete.rds")
 
 
