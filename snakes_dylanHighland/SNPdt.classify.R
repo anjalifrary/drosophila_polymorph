@@ -102,6 +102,13 @@ getAlleles <- function(genofile, id, ref, altList, tol=0) {
             if (alt2_present[i]) alt2[i]
         )
     })] 
+    allele.dt[, freq_present := lapply(seq_len(.N), function(i) {
+        c(
+            if (ref0_present[i]) ref0_freq[i],
+            if (alt1_present[i]) alt1_freq[i],
+            if (alt2_present[i]) alt2_freq[i]
+        )
+    })] 
 
     # biallelic is 2 alleles, is verifiable, and each allele is 1 character [ACGT] only
     allele.dt[, biallelicSNP := (
@@ -260,51 +267,93 @@ check.dt[
 
 ### CLASSIFY 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-is_snp <- nchar(ref) == 1 & nchar(alt) == 1
-    is_indel <- nchar(ref) != nchar(alt)
-
-isSNP <- function(ref, alt) {
-    ## TRUE if ref and every alt allele are single nucleotides (A/C/G/T).
-    ## Handles multiallelic alts ("A,T"); indels, MNPs, "*", "<DEL>", "." etc. return FALSE.
-
-        ref <- toupper(ref)
-        alt <- toupper(alt)
-        refOK <- grepl("^[ACGT]$", ref)
-        altOK <- grepl("^[ACGT](,[ACGT])*$", alt)
-        refOK & altOK
-    }
-
-
-dt <- data.table(
-    chr = seqGetData(gds_file, "chromosome"), 
-    pos = seqGetData(gds_file, "position"),
-    nAlleles = seqGetData(gds_file, "$num_allele"),
-    id = seqGetData(gds_file, "variant.id"),
-    af = seqGetData(gds_file, "annotation/info/AF") 
-    # ,
-    # maf = seqGetData(gds_file, "annotation/info/MAF"),
-    # n_samps = seqGetData(gds_file, "annotation/info/NS")
+cols <- c(
+    "chr", "pos", "species", 
+    "effect", 
+    "snp_pos_in_codon", 
+    "ref_codon", "alt_codon", 
+    "aa_pos", "ref_aa", "alt_aa",
+    "alleles_present", "freq_present", "allele", 
+    "gene", "transcript", "codon_id"
 )
 
+codon.long <- biallelicCandidates[
+    !is.na(codon_id),
+    c("transcriptCodonID", cols),
+    with = FALSE
+]
 
-seqClose(tigris)
-seqClose(steph)
-seqClose(pyrrhus)
-seqClose(mitch)
+codon.sites <- unique(codon.long[, .(codon_id, species, chr, pos, snp_pos_in_codon)])
+
+codon.sites_bySpp <- codon.long[,
+    .(transcriptCodonID, snp_pos_in_codon, species, chr, pos, effect, 
+    ref_codon, alt_codon, aa_pos, ref_aa, alt_aa, alleles_present, freq_present, 
+    gene, transcript, codon_id )
+]
+
+setorder(codon.sites_bySpp, transcriptCodonID, snp_pos_in_codon, species)
+
+### get rows with 1 polymorphic site per species 
+codon.sites_bySpp[, n_sites_perCodon_perSpecies := uniqueN(snp_pos_in_codon), by = .(transcriptCodonID, species)]
+
+candidateCodons <- codon.sites_bySpp[n_sites_perCodon_perSpecies == 1]
+candidateCodons[, n_species := uniqueN(species), by = .(transcriptCodonID, snp_pos_in_codon)]
+
+saveRDS(candidateCodons, "/scratch/ejy4bu/dylan_snakes/snakes/results/snakes.snpDT.candidateCodons.rds")
+
+
+sameSite <- candidateCodons[n_species>=2, ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# is_snp <- nchar(ref) == 1 & nchar(alt) == 1
+#     is_indel <- nchar(ref) != nchar(alt)
+
+# isSNP <- function(ref, alt) {
+#     ## TRUE if ref and every alt allele are single nucleotides (A/C/G/T).
+#     ## Handles multiallelic alts ("A,T"); indels, MNPs, "*", "<DEL>", "." etc. return FALSE.
+
+#         ref <- toupper(ref)
+#         alt <- toupper(alt)
+#         refOK <- grepl("^[ACGT]$", ref)
+#         altOK <- grepl("^[ACGT](,[ACGT])*$", alt)
+#         refOK & altOK
+#     }
+
+
+# dt <- data.table(
+#     chr = seqGetData(gds_file, "chromosome"), 
+#     pos = seqGetData(gds_file, "position"),
+#     nAlleles = seqGetData(gds_file, "$num_allele"),
+#     id = seqGetData(gds_file, "variant.id"),
+#     af = seqGetData(gds_file, "annotation/info/AF") 
+#     # ,
+#     # maf = seqGetData(gds_file, "annotation/info/MAF"),
+#     # n_samps = seqGetData(gds_file, "annotation/info/NS")
+# )
+
+
+# seqClose(tigris)
+# seqClose(steph)
+# seqClose(pyrrhus)
+# seqClose(mitch)
