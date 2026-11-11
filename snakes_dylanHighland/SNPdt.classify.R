@@ -1,5 +1,7 @@
 library(data.table)
 library(SeqArray)
+library(Biostrings)
+
 
 tigris <- "/scratch/ejy4bu/dylan_snakes/snakes/data/gds/crotalus_tigris.snps.NS_SYN.annotate.gds"
 steph <- "/scratch/ejy4bu/dylan_snakes/snakes/data/gds/crotalus_stephensi.snps.NS_SYN.annotate.gds"
@@ -178,7 +180,8 @@ reconstructCodons <- function(snp.dts, gff_file = "/scratch/ejy4bu/dylan_snakes/
 
 snp.dts <- rbindlist(lapply(names(gds.files), function(spp) {
     # gds.fn <- tigris
-    # spp <- species
+    # spp <- mitch
+    # genofile <- seqOpen(mitch)
     genofile <- seqOpen(gds.files[[spp]])
     seqResetFilter(genofile)
 
@@ -214,7 +217,7 @@ snp.dts <- rbindlist(lapply(names(gds.files), function(spp) {
         allele,
         alleles_present
     )]
-    eff.dt <- eff.check[allele_match == TRUE, !"alleles_present"]
+    eff.dt <- eff.check[allele_match == TRUE, !c("alleles_present")]
 
 
     # snp.dt <- merge(snp.dt, allele.map, by = "id")
@@ -229,8 +232,36 @@ snp.dts <- rbindlist(lapply(names(gds.files), function(spp) {
     # dt[, is_indel := (nchar(ref) != nchar(alt))]
 }), use.names=T, fill = T)
 
+### filter for biallelic only
+snp.dts <- snp.dts[biallelicSNP == T]
+
 ### reconstruct codon ids from strand, chr, pos [chr:start:end]
 snp.dts <- reconstructCodons(snp.dts)
+
+### update codons with accurate pair of codons
+snp.dts[, codons_present := lapply(seq_len(.N), function(i) {
+    if (is.na(ref_codon[i]) || is.na(snp_pos_in_codon[i])) {
+        return(character(0))
+    }
+
+    codon <- strsplit(toupper(ref_codon[i]), "")[[1]]
+    alleles <- toupper(unlist(alleles_present[[i]]))
+
+    vapply(alleles, function(a) {
+        observed_codon <- codon
+        observed_codon[snp_pos_in_codon[i]] <- a
+        paste0(observed_codon, collapse = "")
+    }, character(1))
+})]
+
+### update amino acids with accurate pair of amino acids
+snp.dts[, aa_present := lapply(codons_present, function(codons) {
+    if (length(codons) == 0) return(character(0))
+
+    as.character(Biostrings::translate(
+        DNAStringSet(codons)
+    ))
+})]
 
 ### transcript + AA pos codon id:
 snp.dts[, transcriptCodonID := fifelse(
@@ -238,30 +269,31 @@ snp.dts[, transcriptCodonID := fifelse(
     paste(transcript, aa_pos, sep = ":"),
     NA_character_
 )]
-biallelicCandidates <- snp.dts[biallelicSNP == T]
 
-### check codon ids 
-check.dt <- unique(
-    biallelicCandidates[
-        !gene %chin% c("g16607", "g16608", "g16618") &
-        !is.na(codon_id) &
-        !is.na(transcriptCodonID),
-        .(gene, transcript, codon_id, transcriptCodonID)
-    ]
-)
-# Genomic codon -> transcript codon
-check.dt[
-    ,
-    .(n_transcriptCodons = uniqueN(transcriptCodonID)),
-    by = .(gene, transcript, codon_id)
-][n_transcriptCodons > 1]
 
-# Transcript codon -> genomic codon
-check.dt[
-    ,
-    .(n_genomicCodons = uniqueN(codon_id)),
-    by = .(gene, transcript, transcriptCodonID)
-][n_genomicCodons > 1]
+
+# ### check codon ids 
+# check.dt <- unique(
+#     snp.dts[
+#         !gene %chin% c("g16607", "g16608", "g16618") &
+#         !is.na(codon_id) &
+#         !is.na(transcriptCodonID),
+#         .(gene, transcript, codon_id, transcriptCodonID)
+#     ]
+# )
+# # Genomic codon -> transcript codon
+# check.dt[
+#     ,
+#     .(n_transcriptCodons = uniqueN(transcriptCodonID)),
+#     by = .(gene, transcript, codon_id)
+# ][n_transcriptCodons > 1]
+
+# # Transcript codon -> genomic codon
+# check.dt[
+#     ,
+#     .(n_genomicCodons = uniqueN(codon_id)),
+#     by = .(gene, transcript, transcriptCodonID)
+# ][n_genomicCodons > 1]
 
 ###############################################################################################
 
@@ -271,13 +303,12 @@ cols <- c(
     "chr", "pos", "species", 
     "effect", 
     "snp_pos_in_codon", 
-    "ref_codon", "alt_codon", 
-    "aa_pos", "ref_aa", "alt_aa",
-    "alleles_present", "freq_present", "allele", 
+    "aa_pos", 
+    "alleles_present", "codons_present", "aa_present", "freq_present",
     "gene", "transcript", "codon_id"
 )
 
-codon.long <- biallelicCandidates[
+codon.long <- snp.dts[
     !is.na(codon_id),
     c("transcriptCodonID", cols),
     with = FALSE
@@ -287,7 +318,7 @@ codon.sites <- unique(codon.long[, .(codon_id, species, chr, pos, snp_pos_in_cod
 
 codon.sites_bySpp <- codon.long[,
     .(transcriptCodonID, snp_pos_in_codon, species, chr, pos, effect, 
-    ref_codon, alt_codon, aa_pos, ref_aa, alt_aa, alleles_present, freq_present, 
+    alleles_present, codons_present, aa_present, freq_present, 
     gene, transcript, codon_id )
 ]
 
@@ -298,62 +329,108 @@ codon.sites_bySpp[, n_sites_perCodon_perSpecies := uniqueN(snp_pos_in_codon), by
 
 candidateCodons <- codon.sites_bySpp[n_sites_perCodon_perSpecies == 1]
 candidateCodons[, n_species := uniqueN(species), by = .(transcriptCodonID, snp_pos_in_codon)]
+candidateCodons <- unique(candidateCodons, by = c("transcriptCodonID", "codon_id", "species", "chr", "pos", "snp_pos_in_codon", "n_species"))
 
-saveRDS(candidateCodons, "/scratch/ejy4bu/dylan_snakes/snakes/results/snakes.snpDT.candidateCodons.rds")
-
+saveRDS(candidateCodons, "/project/berglandlab/anjali/dylan_snakes/snakes/results/snakes.snpDT.candidateCodons.rds")
 
 sameSite <- candidateCodons[n_species>=2, ]
 
+get_pair <- function(x) {
+    sort(unique(toupper(unlist(x))))
+}
 
+sameSite_summary <- sameSite[
+    ,
+    {
+        codon_pairs <- lapply(codons_present, get_pair)
+        aa_pairs <- lapply(aa_present, get_pair)
+        names(codon_pairs) <- species
+        names(aa_pairs) <- species
 
+        # States present in every species
+        shared_codons <- Reduce(intersect, codon_pairs)
+        shared_aa <- Reduce(intersect, aa_pairs)
 
+        # All unique states across species
+        all_codons <- Reduce(union, codon_pairs)
+        all_aa <- Reduce(union, aa_pairs)
 
+        .(
+            n_species = uniqueN(species),
 
+            species = list(species),
 
+            codon_pairs = list(codon_pairs),
+            aa_pairs = list(aa_pairs),
 
+            total_codons = length(all_codons),
+            shared_codons = length(shared_codons),
+            Nshared_codons = length(all_codons) - length(shared_codons),
 
+            total_aa = length(all_aa),
+            shared_aa = length(shared_aa),
+            Nshared_aa = length(all_aa) - length(shared_aa),
 
+            same_codons = length(shared_codons) == length(all_codons),
+            same_aa = length(shared_aa) == length(all_aa)
+        )
+    },
+    by = .(transcriptCodonID, codon_id, chr, pos, snp_pos_in_codon)
+]
 
+sameSite_summary[same_aa == F, class := "different"]
+sameSite_summary[same_aa == T & same_codons == F, class := "convergent"]
+sameSite_summary[same_aa ==T & same_codons == T, class := "shared"]
 
+saveRDS(sameSite_summary, "/project/berglandlab/anjali/dylan_snakes/snakes/results/snakes.sameSiteCodons.classes.rds")
 
+candidateCodons <- merge(candidateCodons, sameSite_summary[, .(transcriptCodonID, chr, pos, same_codons, same_aa, class)], by=c("transcriptCodonID", "chr", "pos"), all.x=T)
 
+diffSite_candidates <- candidateCodons[!transcriptCodonID %chin% sameSite$transcriptCodonID]
+diffSite_candidates <- diffSite_candidates[, if (uniqueN(species) >= 2  && uniqueN(snp_pos_in_codon) >= 2) .SD, by = transcriptCodonID]
+diffSite_summary <- diffSite_candidates[
+    ,
+    {
+        codon_pairs <- lapply(codons_present, get_pair)
+        aa_pairs <- lapply(aa_present, get_pair)
 
+        names(codon_pairs) <- species
+        names(aa_pairs) <- species
 
+        all_codons <- Reduce(union, codon_pairs)
+        all_aa <- Reduce(union, aa_pairs)
 
+        shared_codons <- Reduce(intersect, codon_pairs)
+        shared_aa <- Reduce(intersect, aa_pairs)
 
+        .(
+            n_species = uniqueN(species),
+            species = list(species),
+            snp_positions = list(snp_pos_in_codon),
 
+            codon_pairs = list(codon_pairs),
+            aa_pairs = list(aa_pairs),
 
+            total_codons = length(all_codons),
+            shared_codons = length(shared_codons),
+            Nshared_codons = length(all_codons) - length(shared_codons),
 
+            total_aa = length(all_aa),
+            shared_aa = length(shared_aa),
+            Nshared_aa = length(all_aa) - length(shared_aa),
 
+            same_codons = all(vapply(
+                codon_pairs[-1],
+                function(x) setequal(x, codon_pairs[[1]]),
+                logical(1)
+            )),
 
-# is_snp <- nchar(ref) == 1 & nchar(alt) == 1
-#     is_indel <- nchar(ref) != nchar(alt)
-
-# isSNP <- function(ref, alt) {
-#     ## TRUE if ref and every alt allele are single nucleotides (A/C/G/T).
-#     ## Handles multiallelic alts ("A,T"); indels, MNPs, "*", "<DEL>", "." etc. return FALSE.
-
-#         ref <- toupper(ref)
-#         alt <- toupper(alt)
-#         refOK <- grepl("^[ACGT]$", ref)
-#         altOK <- grepl("^[ACGT](,[ACGT])*$", alt)
-#         refOK & altOK
-#     }
-
-
-# dt <- data.table(
-#     chr = seqGetData(gds_file, "chromosome"), 
-#     pos = seqGetData(gds_file, "position"),
-#     nAlleles = seqGetData(gds_file, "$num_allele"),
-#     id = seqGetData(gds_file, "variant.id"),
-#     af = seqGetData(gds_file, "annotation/info/AF") 
-#     # ,
-#     # maf = seqGetData(gds_file, "annotation/info/MAF"),
-#     # n_samps = seqGetData(gds_file, "annotation/info/NS")
-# )
-
-
-# seqClose(tigris)
-# seqClose(steph)
-# seqClose(pyrrhus)
-# seqClose(mitch)
+            same_aa = all(vapply(
+                aa_pairs[-1],
+                function(x) setequal(x, aa_pairs[[1]]),
+                logical(1)
+            ))
+        )
+    },
+    by = .(transcriptCodonID, codon_id, gene, transcript)
+]
