@@ -31,7 +31,7 @@ snp_vcf="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap
 
 echo "filtering via SnpGap"
 bcftools filter \
-    --SnpGap 10 \
+    --SnpGap 2 \
     --threads 10 \
     $in_vcf \
     -Oz \
