@@ -3,37 +3,86 @@
 library(SeqArray)
 library(data.table)
 
-mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
-genofile <- mel_gds
+# mel_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds")
+# genofile <- mel_gds
+# snp.dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
 
-# sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.gds")
-# genofile <- sim_gds
+sim_gds <- seqOpen("/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.gds")
+genofile <- sim_gds
 
-
-snp.dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds")
+snp.dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_allEffects.10_2026.rds")
 
 seqResetFilter(genofile)
 
+### sim only:
+seqResetFilter(genofile)
+
+# Extract GDS variant information
 gds_dt <- data.table(
     id = seqGetData(genofile, "variant.id"),
     chr = seqGetData(genofile, "chromosome"),
-    pos = seqGetData(genofile, "position")
+    pos = seqGetData(genofile, "position"),
+    allele = seqGetData(genofile, "allele")
 )
 
-setkey(gds_dt, chr, pos)
+# Keep only biallelic GDS records
+gds_dt[, n_alleles := lengths(strsplit(allele, ",", fixed = TRUE))]
 
-snp.dt[, id := gds_dt[
+gds_bi <- gds_dt[n_alleles == 2]
+
+# Separate alleles
+gds_bi[, c("allele1", "allele2") :=
+    tstrsplit(allele, ",", fixed = TRUE)
+]
+
+# Match REF, ALT
+match_forward <- gds_bi[
     snp.dt,
-    on = .(chr, pos),
+    on = .(chr, pos, allele1 = ref, allele2 = alt),
     x.id
-]]
+]
+
+# Match ALT, REF
+match_reverse <- gds_bi[
+    snp.dt,
+    on = .(chr, pos, allele1 = alt, allele2 = ref),
+    x.id
+]
+
+# Assign GDS variant IDs
+snp.dt[, id := fcoalesce(match_forward, match_reverse)]
+
+# Validate mapping
+stopifnot(
+    !anyNA(snp.dt$id),
+    !anyDuplicated(snp.dt$id)
+)
+
+cat("Successfully mapped:", nrow(snp.dt), "variants\n")
+### end sim only ^
+
+
+### mel only:
+# gds_dt <- data.table(
+#     id = seqGetData(genofile, "variant.id"),
+#     chr = seqGetData(genofile, "chromosome"),
+#     pos = seqGetData(genofile, "position")
+# )
+
+# setkey(gds_dt, chr, pos)
+
+# snp.dt[, id := gds_dt[
+#     snp.dt,
+#     on = .(chr, pos),
+#     x.id
+# ]]
+### end mel only ^
+
 
 snp.dt[, bin:=floor(variant.id/1000000)]
 snp.dt[, col:=effect]
 # snp.dt[, id := variant.id]
 snp.dt[, use := TRUE]
-
-seqResetFilter(genofile)
 
 sample_ids <- seqGetData(genofile, "sample.id")
 samps <- data.table(
@@ -116,33 +165,33 @@ nlp_fun <- function(bin.i, lib_type) {
         ad <- seqGetData(genofile, "annotation/format/AD"  )
         dp <- seqGetData(genofile, "annotation/format/DP"  )
 
-        ### sim only:
-        # ad_variant <- rep(seq_along(ad$length), ad$length)
-        # ad_full <- matrix(NA_integer_, nrow = nrow(dp), ncol = length(ad$length))
-        # ad_full[, ad_variant] <- ad$data
+        ## sim only:
+        ad_variant <- rep(seq_along(ad$length), ad$length)
+        ad_full <- matrix(NA_integer_, nrow = nrow(dp), ncol = length(ad$length))
+        ad_full[, ad_variant] <- ad$data
 
-        # dimnames(ad_full) <- list(
-        #     sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
-        #     variant = seqGetData(genofile, "variant.id")
-        # )
-        # dimnames(dp) <- list(
-        #     sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
-        #     variant = seqGetData(genofile, "variant.id")
-        # )
-        # tmp.ad <- as.data.table(reshape2::melt(ad_full))
-        # tmp.dp <- as.data.table(reshape2::melt(dp))
-        ### end sim only
+        dimnames(ad_full) <- list(
+            sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
+            variant = seqGetData(genofile, "variant.id")
+        )
+        dimnames(dp) <- list(
+            sample = stringi::stri_escape_unicode(seqGetData(genofile, "sample.id")),
+            variant = seqGetData(genofile, "variant.id")
+        )
+        tmp.ad <- as.data.table(reshape2::melt(ad_full))
+        tmp.dp <- as.data.table(reshape2::melt(dp))
+        ## end sim only
 
-        # ### mel only:
-        dimnames(ad)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
-        dimnames(ad)$variant <- seqGetData(genofile, "variant.id")
+        # # ### mel only:
+        # dimnames(ad)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
+        # dimnames(ad)$variant <- seqGetData(genofile, "variant.id")
 
-        dimnames(dp)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
-        dimnames(dp)$variant <- seqGetData(genofile, "variant.id")
+        # dimnames(dp)$sample <- stringi::stri_escape_unicode(seqGetData(genofile, "sample.id"))
+        # dimnames(dp)$variant <- seqGetData(genofile, "variant.id")
 
-        tmp.ad <-   as.data.table(reshape2::melt(ad))
-        tmp.dp <-   as.data.table(reshape2::melt(dp))
-        # ### end mel only ^
+        # tmp.ad <-   as.data.table(reshape2::melt(ad))
+        # tmp.dp <-   as.data.table(reshape2::melt(dp))
+        # # ### end mel only ^
 
         setkey(tmp.ad, sample, variant)
         setkey(tmp.dp, sample, variant)
@@ -150,13 +199,8 @@ nlp_fun <- function(bin.i, lib_type) {
         m <- merge(tmp.ad, tmp.dp)
         setnames(m, c("value.x", "value.y"), c("ad", "dp"))
         m[,freq:=ad/dp]
+        m[is.na(dp) | dp <= 0, freq := NA_real_]
         m <- merge(m, samps, by="sample")
-
-        ## this attempted optimization was not faster
-        # freq <- ad/dp
-        # m <- as.data.table(reshape2::melt(freq))
-        # setnames(m, "value", "freq")
-        # m <- merge(m, samps, by="sample")
 
         m <- merge(m, snp.dt, by.x="variant", by.y="id")
   
@@ -233,8 +277,8 @@ for (bin.i in bin_ids) {
             list(nlp_results, batch_result),
             fill = TRUE
         )
-        saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.new.NArm.rds")
-        # saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_sim_partial.rds")
+        # saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_mel_partial.new.NArm.rds")
+        saveRDS(nlp_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp_sim_partial.new.NArm.rds")
 
         cat("Saved results through bin:", bin.i, ", batch: ", i, "\n")
 
@@ -259,8 +303,8 @@ nrow(nlp)
 uniqueN(nlp$variant)
 
 # saveRDS(all_results, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.optimized.rds")
-saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.new.NArm.rds")
-# saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim_nlp_complete.rds")
+# saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.new.NArm.rds")
+saveRDS(nlp, "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim_nlp_complete.new.NArm.rds")
 
 
 
