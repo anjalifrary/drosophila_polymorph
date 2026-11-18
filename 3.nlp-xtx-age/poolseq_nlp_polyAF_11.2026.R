@@ -7,9 +7,9 @@ species <- "mel"    # mel or sim
 
 if (species == "mel") {
     gds_file <- "/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.gds"
-    snp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.rds"
-    temp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/nlp_mel_partial.16_11_2026.rds"
-    nlp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/mel_nlp.16_11_2026.rds"
+    snp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_allEffects.10_2026.rds"
+    temp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/nlp_mel_partial.18_11_2026.rds"
+    nlp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/mel_nlp.18_11_2026.rds"
 } else if (species == "sim"){
     gds_file <- "/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.merged.biallelic.dm6.sorted.m2.M2.gds"
     snp_file <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_allEffects.10_2026.rds"
@@ -18,11 +18,6 @@ if (species == "mel") {
 } else {
     stop("invalid species")
 }
-
-genofile <- seqOpen(gds_file)
-snp.dt <- readRDS(snp_file)
-seqResetFilter(genofile)
-
 
 
 ### Alan's functions
@@ -203,6 +198,30 @@ nlp_fun <- function(variant_ids, snp_dt_batch, lib_type = "pooled") {
 
 }
 
+### load files
+genofile <- seqOpen(gds_file)
+snp.dt <- readRDS(snp_file)
+seqResetFilter(genofile)
+
+
+### CHECK VAR IDS
+gds_ids <- seqGetData(genofile, "variant.id")
+
+eligible_ids <- unique(
+    snp.dt[
+        effect %in% c("missense_variant", "synonymous_variant"),
+        variant.id
+    ]
+)
+
+cat("Eligible SNP-table IDs:", length(eligible_ids), "\n")
+cat("Eligible IDs in GDS:", sum(eligible_ids %in% gds_ids), "\n")
+cat("Eligible IDs absent from GDS:", sum(!eligible_ids %in% gds_ids), "\n")
+
+stopifnot(all(eligible_ids %in% gds_ids))
+### END CHECK 
+
+
 snp.dt[, bin:=floor(variant.id/1000000)]
 snp.dt[, col:=effect]
 snp.dt[, use := TRUE]
@@ -225,7 +244,7 @@ bin_ids <- unique(
 
 batch_size <- 100000
 nlp_results <- data.table()
-nlp_results <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/nlp_mel_partial.16_11_2026.rds")
+# nlp_results <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/nlp_mel_partial.16_11_2026.rds")
 
 for (bin.i in bin_ids) {
 
@@ -240,8 +259,8 @@ for (bin.i in bin_ids) {
 
     for (i in seq_along(batches)) {
         batch_ids <- batches[[i]]
-        batch_ids <- setdiff(batch_ids, nlp_results$variant)
-        if (length(batch_ids) == 0) next
+        # batch_ids <- setdiff(batch_ids, nlp_results$variant)
+        # if (length(batch_ids) == 0) next
 
         cat("Bin:", bin.i, "/", length(bin_ids),
             "| Batch:", i, "/", length(batches),
