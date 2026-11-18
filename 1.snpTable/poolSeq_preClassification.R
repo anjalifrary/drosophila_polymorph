@@ -3,30 +3,19 @@ library(stringr)
 library(Biostrings)
 
 #######################################
-### dest sim:
-
-# lifted_vcf <- "/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.vcf.gz"
-
-
-# genome_fna <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-# cds_fasta <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_cds_genomic.fna"
-
-
-# sim_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.rds")
-# gds_file <- "/scratch/ejy4bu/drosophila/DEST_remake/gds_files/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.dm6.sorted.gds"
+### load files
 shared_dt <-readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.rds")
 
-out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/"
-
-# out_rds <- paste0(out_dir,  "dsim3.signor.all_quality_variants_codonMap.rds")
+# out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/"
 
 ###############################################################################################
-### 1. integrate AF:
+### 1. add AFs and NLP
 ###############################################################################################
+sim_nlp <-  readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim_nlp_complete.new.NArm.rds")
+mel_nlp <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel_nlp_complete.new.NArm.rds")
 
 # 1A: AF for D. simulans: 
 # sim_nlp <- load("-----")
-
 
 ########
 sim_gff <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.gff"

@@ -3,20 +3,10 @@ library(stringr)
 library(Biostrings)
 library(SeqArray)
 
-#######################################
-### sim signor
-# lifted_vcf <- "/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.vcf.gz"
-
-# genome_fna <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_genomic.cleanNames.fna"
-# cds_fasta <- "/project/berglandlab/anjali/drosophila_polymorphism/data_files/fastas/dsim/GCF_016746395.2_Prin_Dsim_3.1_cds_genomic.fna"
-
-# sim_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.snp_dt_SynMissense.rds")
-# gds_file <- "/scratch/ejy4bu/drosophila/inbred/gds_files/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.merged.biallelic.dm6.sorted.m2.M2.goodSamps.goodSites.gds"
+###############################################################################################
+### load files:
 
 shared_dt <-readRDS("/scratch/ejy4bu/drosophila/inbred/snpDT/dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.10_2026.rds")
-
-# out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/simMap/"
-# out_rds <- paste0(out_dir,  "dsim3.signor.all_quality_variants_codonMap.10_2026.rds")
 
 ###############################################################################################
 ### 1. recalculate AF:
