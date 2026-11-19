@@ -9,23 +9,34 @@ registerDoMC(16)
     # GTF annotation file - make sure I'm using the right one
     # GO gene sets
 
-# pool seq OLD
-# dir <- "/scratch/ejy4bu/drosophila/GO/gowinda/MAF5/new_6-29-26/"
 
-# inbred
-dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/"
-rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.classed.MAF.rds")
+dataset <- "poolseq"    # poolseq or inbred
 
-# poolseq NEW
-dir <- "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/"
-rds <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.shared.bothMelSim.classed.maf.nlp.xtx.geva.rds")
+if (dataset == "poolseq") {
+    dir <- "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/"
+    snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
+
+    maf_def <- "polyAF"
+    maf_mel <- snp_dt[, poly_af_mel]
+    maf_sim <- snp_dt[, poly_af_sim]
+
+} else if (dataset == "inbred") {
+    dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/"
+    snp_dt <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds")
+
+    maf_def <- "MAF"
+    maf_mel <- snp_dt[, maf_mel]
+    maf_sim <- snp_dt[, maf_sim]
+} else {
+    stop("invalid species")
+
+}
 
 ### get background and candidate files per MAF threshold
-
 tsp <- c("A", "B")
 conv <- c("F", "G", "O", "P", "X", "Y")
 
-masterCandidates <- rds[classification %in%c(tsp, conv)]
+masterCandidates <- snp_dt[classification %in%c(tsp, conv)]
 # saveRDS(masterCandidates, paste0(dir, "poolseq.masterCandidateFile.rds"))
 
 maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.49)
@@ -35,96 +46,64 @@ maf_inputs <- c(0.00, 0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.4
 foreach(maf = maf_inputs, .packages="data.table") %dopar% {
     maf_label = maf*100
     # ran for both poly and global !!!change the directory names below before write files!!!
-    maf_mel <- rds[, poly_af_mel]
-    maf_sim <- rds[, poly_af_sim]
-
-    bg_SpeciesSpecific <- rds[
-        ((!is.na(variant.id_mel) & maf_mel > maf) | 
-        (!is.na(variant.id_sim) & maf_sim > maf)) 
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+    
+    bg_SpeciesSpecific <- snp_dt[
+        ((!is.na(variant.id_mel) & maf_mel >= maf) | 
+        (!is.na(variant.id_sim) & maf_sim >= maf)) 
+        , .(chr, pos, maf_mel, maf_sim, classification)
     ]
 
-    bg_SharedOnly <- rds[
+    bg_SharedOnly <- snp_dt[
         (!is.na(classification) & 
-        (is.na(maf_mel) | maf_mel > maf) & 
-        (is.na(maf_sim) | maf_sim > maf))
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+        (is.na(maf_mel) | maf_mel >= maf) & 
+        (is.na(maf_sim) | maf_sim >= maf))
+        , .(chr, pos, maf_mel, maf_sim, classification)
     ]
     
     candidate_chrpos_AB <- bg_SpeciesSpecific[
         (classification%in%tsp )
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+        , .(chr, pos, maf_mel, maf_sim, classification)
     ]
     candidate_chrpos_FGOPXY <- bg_SpeciesSpecific[
         (classification%in%conv )
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+        , .(chr, pos, maf_mel, maf_sim, classification)
     ]
     candidate_chrpos_ABFGOPXY <- bg_SpeciesSpecific[
         classification%in%c(tsp,conv) 
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+        , .(chr, pos, maf_mel, maf_sim, classification)
     ]
     candidate_chrpos_XY <- bg_SpeciesSpecific[
         (classification%in%c("X", "Y"))
-        , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
+        , .(chr, pos, maf_mel, maf_sim, classification)
     ]
 
-    # candidate_chrpos_AB <- bg_SpeciesSpecific[
-    #     (classification%in%tsp & 
-    #     (is.na(maf_mel) | maf_mel > maf) & 
-    #     (is.na(maf_sim) | maf_sim > maf))
-    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    # ]
-    # candidate_chrpos_FGOPXY <- rds[
-    #     (classification%in%conv & 
-    #     (is.na(maf_mel) | maf_mel > maf) & 
-    #     (is.na(maf_sim) | maf_sim > maf))
-    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    # ]
-    # candidate_chrpos_ABFGOPXY <- rds[
-    #     (classification%in%c(tsp,conv) & 
-    #     (is.na(maf_mel) | maf_mel > maf) & 
-    #     (is.na(maf_sim) | maf_sim > maf))
-    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    # ]
-    # candidate_chrpos_XY <- rds[
-    #     (classification%in%c("X", "Y") & 
-    #     (is.na(maf_mel) | maf_mel > maf) & 
-    #     (is.na(maf_sim) | maf_sim > maf))
-    #     , .(chr_dm6, pos_dm6, maf_mel, maf_sim, classification)
-    # ]
-
-    cand_dir <- paste0(dir, "candidateFiles/MAF", maf_label, "filter_polyAF/")
-    bg_dir <- paste0(dir, "backgroundFiles/MAF", maf_label, "filter_polyAF/")
-    if (!dir.exists(cand_dir)) {
-        dir.create(cand_dir, recursive = TRUE)
-    }
-
-    if (!dir.exists(bg_dir)) {
-        dir.create(bg_dir, recursive = TRUE)
-    }
+    cand_dir <- paste0(dir, "candidateFiles/MAF", maf_label, "filter/")
+    bg_dir <- paste0(dir, "backgroundFiles/MAF", maf_label, "filter/")
+    if (!dir.exists(cand_dir)) {dir.create(cand_dir, recursive = TRUE)}
+    if (!dir.exists(bg_dir)) {dir.create(bg_dir, recursive = TRUE)}
     
-    fwrite(bg_SharedOnly[, .(chr_dm6, pos_dm6)], 
-        paste0(bg_dir, "/bg_sharedOnly_", maf_label, "_", "AF.txt"),
+    fwrite(bg_SharedOnly[, .(chr, pos)], 
+        paste0(bg_dir, "/bg_sharedOnly_", maf_label, "_", maf_def, ".txt"),
         sep="\t", col.names=FALSE)
     
-    fwrite(bg_SpeciesSpecific[, .(chr_dm6, pos_dm6)], 
-        paste0(bg_dir, "/bg_speciesSpecific_", maf_label, "_", "AF.txt"),
+    fwrite(bg_SpeciesSpecific[, .(chr, pos)], 
+        paste0(bg_dir, "/bg_speciesSpecific_", maf_label, "_", maf_def, ".txt"),
         sep="\t", col.names=FALSE)
 
-    fwrite(candidate_chrpos_AB[, .(chr_dm6, pos_dm6)],
-        paste0(cand_dir, "/candidate_chrpos_AB_", maf_label, "_", "AF.txt"),
+    fwrite(candidate_chrpos_AB[, .(chr, pos)],
+        paste0(cand_dir, "/candidate_chrpos_AB_", maf_label, "_", maf_def, ".txt"),
         sep="\t", col.names=FALSE)
 
-    fwrite(candidate_chrpos_ABFGOPXY[, .(chr_dm6, pos_dm6)],
-        paste0(cand_dir, "/candidate_chrpos_ABFGOPXY_", maf_label, "_", "AF.txt"),
+    fwrite(candidate_chrpos_ABFGOPXY[, .(chr, pos)],
+        paste0(cand_dir, "/candidate_chrpos_ABFGOPXY_", maf_label, "_", maf_def, ".txt"),
         sep="\t", col.names=FALSE)
 
-    fwrite(candidate_chrpos_FGOPXY[, .(chr_dm6, pos_dm6)],
-        paste0(cand_dir, "/candidate_chrpos_FGOPXY_", maf_label, "_", "AF.txt"),
+    fwrite(candidate_chrpos_FGOPXY[, .(chr, pos)],
+        paste0(cand_dir, "/candidate_chrpos_FGOPXY_", maf_label, "_", maf_def, ".txt"),
         sep="\t", col.names=FALSE)
 
-    fwrite(candidate_chrpos_XY[, .(chr_dm6, pos_dm6)],
-        paste0(cand_dir, "/candidate_chrpos_XY_", maf_label, "_", "AF.txt"),
+    fwrite(candidate_chrpos_XY[, .(chr, pos)],
+        paste0(cand_dir, "/candidate_chrpos_XY_", maf_label, "_", maf_def, ".txt"),
         sep="\t", col.names=FALSE)
 }
 
@@ -170,6 +149,25 @@ gowinda_go <- go_dt[, .(
 
 fwrite(gowinda_go, "/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_go.txt",
     sep = "\t", col.names = FALSE, quote = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################################################
+### OLD I THINK 
 
 
 
