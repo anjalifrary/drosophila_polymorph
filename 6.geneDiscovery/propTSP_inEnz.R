@@ -154,6 +154,66 @@ shared_dt[, .(
 # 1:      Other 145708   0.3045612
 # 2:        TSP   3001   0.3298900
 # 3: Convergent   1180   0.3186441
+# Summarize each dataset by classification
+# Summarize each dataset
+inbred_class_enzyme <- inbred_dt[, .(
+    N = .N,
+    prop_enzyme = mean(is_enzyme)
+), by = classification][order(classification)]
+
+poolseq_class_enzyme <- poolseq_dt[, .(
+    N = .N,
+    prop_enzyme = mean(is_enzyme)
+), by = classification][order(classification)]
+
+shared_class_enzyme <- shared_dt[, .(
+    N = .N,
+    prop_enzyme = mean(is_enzyme)
+), by = classification][order(classification)]
+
+
+# Plot function
+plot_class_enzyme <- function(dt, title) {
+    scale_factor <- max(dt$N) / max(dt$prop_enzyme)
+
+    ggplot(dt, aes(x = classification)) +
+        geom_col(aes(y = N), fill = "grey75", width = 0.7) +
+        geom_point(
+            aes(y = prop_enzyme * scale_factor),
+            color = "brown1",
+            size = 2
+        ) +
+        scale_y_continuous(
+            name = "Number of variants",
+            sec.axis = sec_axis(
+                ~ . / scale_factor,
+                name = "Proportion in enzyme genes",
+                labels = scales::percent
+            )
+        ) +
+        theme_classic() +
+        labs(
+            x = "Classification",
+            title = title
+        ) +
+        theme(
+            text = element_text(size = 12),
+            axis.text = element_text(size = 10),
+            plot.title = element_text(size = 14, hjust = 0.5)
+        )
+}
+
+
+# Generate the three separate plots
+inbred_class_plot <- plot_class_enzyme(inbred_class_enzyme, "Inbred")
+poolseq_class_plot <- plot_class_enzyme(poolseq_class_enzyme, "PoolSeq")
+shared_class_plot <- plot_class_enzyme(shared_class_enzyme, "Shared")
+
+
+inbred_class_plot
+poolseq_class_plot
+shared_class_plot
+
 
 
 ### old - incorrectly measured prop of genes with TSPs vs genes without TSPs
