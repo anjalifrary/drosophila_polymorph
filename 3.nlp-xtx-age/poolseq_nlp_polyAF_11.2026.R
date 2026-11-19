@@ -1,4 +1,4 @@
-### final script to make polyAF
+### final script to make polyAF - used to make nlp files on 11/16-18/2026
 
 library(SeqArray)
 library(data.table)
