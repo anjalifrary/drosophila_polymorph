@@ -639,7 +639,6 @@ sim_cols <- c(
     "aa_ref_sim", "aa_alt_sim",
     "gene_sim",
     "transcript_id_sim",
-    "af_sim", "maf_sim", 
     "effect_sim", 
     "flip", "swap", 
     "strand_sim", 
