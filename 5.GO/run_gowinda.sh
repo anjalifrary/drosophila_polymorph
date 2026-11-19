@@ -16,7 +16,7 @@ mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 ################################################################################
 ### CONFIGURE
 
-dataset="inbred"       # poolseq or inbred
+dataset="poolseq"       # poolseq or inbred
 MAF_threshold=5        # 0, 0.5, 1, 2, 5, 10, etc.
 # candidate_class="AB"   # AB, FGOPXY, ABFGOPXY, XY
 
