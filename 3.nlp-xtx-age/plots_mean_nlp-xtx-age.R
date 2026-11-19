@@ -1,6 +1,107 @@
 library(data.table)
 library(ggplot2)
 library(foreach)
+
+
+# load tables (including non-shared and shared variation, both TSP/conv and different)
+poolseq_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
+inbred_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds")
+
+load("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/xtx_c2.Rdata")
+xtx <- xc
+rm(xc)
+
+
+age <- fread("/project/berglandlab/anjali/drosophila_polymorphism/data_files/nlp/AlleleAges.VA.cm_GEVA.txt")
+age[,chr:=tstrsplit(id, "\\.")[[1]]]
+age[,pos:=position]
+
+cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
+tsp_classes <- c("A", "B")
+conv_classes <- c("F", "G", "O", "P", "X", "Y")
+
+pool_tsp <- poolseq_dt[classification%in%tsp_classes, .(chr, pos, classification, aa_ref_mel, aa_alt_mel, nLocales_poly_proj_round_mel, nLocales_poly_proj_round_sim, poly_af_mel, poly_af_sim)]
+inbred_tsp <- inbred_dt[classification%in%tsp_classes, .(chr, pos, classification, aa_ref_mel, aa_alt_mel, maf_mel, maf_sim, n_samps_mel, n_samps_sim)]
+tsp_overlap <- merge(pool_tsp, inbred_tsp, by = c("chr", "pos"), suffixes=c("_pool", "_inbred"))
+hist(tsp_overlap$poly_af_mel)
+hist(tsp_overlap$poly_af_sim)
+
+plot_concordance <- function(dt, x, y, label, log = FALSE) {
+
+  plot_dt <- dt[!is.na(get(x)) & !is.na(get(y))]
+
+  if (log) {
+    plot_dt[, x_plot := log10(get(x) + 1)]
+    plot_dt[, y_plot := log10(get(y) + 1)]
+    axis_lab <- paste0("log10(", label, " + 1)")
+  } else {
+    plot_dt[, x_plot := get(x)]
+    plot_dt[, y_plot := get(y)]
+    axis_lab <- label
+  }
+
+  rho <- cor(
+    plot_dt[[x]],
+    plot_dt[[y]],
+    method = "spearman"
+  )
+
+  ggplot(plot_dt, aes(x = x_plot, y = y_plot)) +
+    geom_point(alpha = 0.15, size = 0.7) +
+    geom_abline(
+      slope = 1,
+      intercept = 0,
+      linetype = "dashed"
+    ) +
+    coord_equal() +
+    labs(
+      x = paste("mel", axis_lab),
+      y = paste("sim", axis_lab),
+      title = label,
+      subtitle = paste0(
+        "Spearman rho = ", round(rho, 3),
+        " | n = ", nrow(plot_dt)
+      )
+    ) +
+    theme_classic()
+}
+
+# 1. NLP (PoolSeq)
+p_nlp <- plot_concordance(
+  tsp_overlap,
+  x = "nLocales_poly_proj_round_mel",
+  y = "nLocales_poly_proj_round_sim",
+  label = "NLP",
+  log = TRUE
+)
+
+# 2. poly_af (PoolSeq)
+p_polyaf <- plot_concordance(
+  tsp_overlap,
+  x = "poly_af_mel",
+  y = "poly_af_sim",
+  label = "poly_af"
+)
+
+# 3. n_samps (Inbred)
+p_nsamps <- plot_concordance(
+  tsp_overlap,
+  x = "n_samps_mel",
+  y = "n_samps_sim",
+  label = "n_samps"
+)
+
+p_nlp
+p_polyaf
+p_nsamps
+
+
+
+
+
+
+
+
 ### old 
 # voi <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/subset_qualVar_ofInterest_classed_geva.rds")
 # voi <- readRDS("/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/currentFiles/subset_qualVar_ofInterest_MAF5_06-18-2026.rds")
