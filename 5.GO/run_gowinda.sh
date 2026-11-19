@@ -40,8 +40,8 @@ BG_dir="${ROOT}/backgroundFiles"
 CANDIDATE_root="${ROOT}/candidateFiles"
 OUTPUT_root="${ROOT}/results"
 
-MAF_dir="MAF${MAF_threshold}filter_${maf_def}"
-CANDIDATE_id="${MAF_threshold}_AF"
+MAF_dir="MAF${MAF_threshold}filter"
+CANDIDATE_id="${MAF_threshold}_${maf_def}"
 RESULT_id="${MAF_threshold}_${maf_def}"
 
 ### required input files
