@@ -20,7 +20,7 @@ aa_pairs <- amino_acid_pairs()
 # removes Ser-Ser and Ser-Arg Arg-Ser are the same
 # aa_pairs <- amino_acid_pairs(keep_self = FALSE, keep_reverses = FALSE)
 
-results <- grantham_distance(x = aa_pairs$x, y = aa_pairs$y)
+grantham_lookup  <- grantham_distance(x = aa_pairs$x, y = aa_pairs$y)
 # results format
 #> # A tibble: 400 × 3
 #>    x     y         d
@@ -29,17 +29,293 @@ results <- grantham_distance(x = aa_pairs$x, y = aa_pairs$y)
 #>  2 Ser   Arg     110
 #>  3 Ser   Leu     145
 #>  4 Ser   Pro      74
-setnames(results, "d", "grantham_score")
+setnames(grantham_lookup , "d", "grantham_score")
+setDT(grantham_lookup)
+grantham_lookup[, pair := paste(x, y, sep = "_")]
+
+grantham_lookup <- grantham_lookup[, .(pair, grantham_score)]
 
 
-### load data 
-snps_0.01 <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.0.01MAFfilter.classed.rds")
-snps_0.05 <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.candidatesABFGOPXY.0.05MAFfilter.classed.rds")
+# Function to add Grantham scores to a SNP table
+add_grantham <- function(dt) {
+    dt <- copy(dt)
 
-snps_0.01 <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.0.01MAFfilter.classed.rds")
-snps_0.05 <- readRDS("/scratch/ejy4bu/drosophila/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.shared.bothMelSim.0.05MAFfilter.classed.rds")
+    # Mel substitution score
+    mel_pair <- paste(dt$aa_ref_mel, dt$aa_alt_mel,sep = "_")
 
-tsps <- snps_0.05[classification%in%c("A", "B")]
+    # Sim substitution score
+    sim_pair <- paste(dt$aa_ref_sim,dt$aa_alt_sim,sep = "_")
+
+    score_lookup <- setNames(grantham_lookup$grantham_score,grantham_lookup$pair)
+
+    dt[, grantham_score_mel := unname(score_lookup[mel_pair])]
+    dt[, grantham_score_sim := unname(score_lookup[sim_pair])]
+    # stopifnot(all(dt$grantham_score_mel == dt$grantham_score_sim, na.rm = TRUE))
+
+    dt[, grantham_score := grantham_score_mel]
+
+    # dt[, c("grantham_score_mel", "grantham_score_sim") := NULL]
+
+    dt
+}
+
+gene_level_analysis <- function(dt, dataset_name) {
+
+    gene_TSP <- dt[
+        !is.na(gene_id_fbgn_fromGFF),
+        .(
+            total_TSP = sum(classification %in% c("A", "B")),
+            A_snps = sum(classification == "A"),
+            B_snps = sum(classification == "B")
+        ),
+        by = gene_id_fbgn_fromGFF
+    ]
+
+    gene_grantham <- dt[
+        classification == "A" &
+        !is.na(grantham_score) &
+        grantham_score > 0 &
+        !is.na(gene_id_fbgn_fromGFF),
+        .(
+            n_A_scored = .N,
+            mean_grantham_A = mean(grantham_score),
+            max_grantham_A = max(grantham_score)
+        ),
+        by = gene_id_fbgn_fromGFF
+    ]
+
+    gene_metrics <- merge(
+        gene_TSP,
+        gene_grantham,
+        by = "gene_id_fbgn_fromGFF",
+        all.x = TRUE
+    )
+
+    gene_metrics[
+        is.na(n_A_scored),
+        n_A_scored := 0L
+    ]
+
+    stopifnot(all(dt$A_snps == dt$n_A_scored, na.rm = TRUE))
+    gene_metrics[, n_A_scored := NULL]
+
+    gene_metrics[, dataset := dataset_name]
+
+    setorder(gene_metrics, -total_TSP)
+
+    gene_metrics
+}
+
+
+# load tables (including non-shared and shared variation, both TSP/conv and different)
+poolseq_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
+inbred_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds")
+gene_col <- "gene_id_fbgn_fromGFF"
+
+cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
+tsp_classes <- c("A", "B")
+conv_classes <- c("F", "G", "O", "P", "X", "Y")
+
+poolseq_dt <- add_grantham(poolseq_dt)
+inbred_dt <- add_grantham(inbred_dt)
+
+pooled_tsps <- poolseq_dt[classification%in%tsp_classes,]
+inbred_tsps <- inbred_dt[classification%in%tsp_classes,]
+
+poolseq_gene_metrics <- gene_level_analysis(pooled_tsps, "PoolSeq")
+inbred_gene_metrics  <- gene_level_analysis(inbred_tsps, "Inbred")
+
+gene_metrics_all <- rbindlist(list(poolseq_gene_metrics, inbred_gene_metrics))
+
+enz <- fread("/scratch/ejy4bu/drosophila/Dmel_enzyme_data_fb_2026_03.tsv", skip=4)
+enz.ag <- enz[,list(enz=.N),gene_id]
+gene_metrics_all <- merge(gene_metrics_all, enz.ag, by.x="gene_id_fbgn_fromGFF", by.y="gene_id", all.x=T)
+
+make_grantham_plot_dt <- function(dt, dataset_name) {
+
+    rbindlist(list(
+        dt[classification == "A",
+           .(grantham_score, class_group = "Class A")],
+
+        dt[classification == "B",
+           .(grantham_score, class_group = "Class B")],
+
+        dt[classification %in% conv_classes,
+           .(grantham_score, class_group = "Convergent")],
+
+        dt[classification %in% c("B", conv_classes),
+           .(grantham_score, class_group = "TSP & Conv")],
+
+        dt[!is.na(classification),
+           .(grantham_score, class_group = "All classed")]
+    ))[, dataset := dataset_name]
+}
+
+grantham_plot <- rbindlist(list(
+    make_grantham_plot_dt(poolseq_dt, "PoolSeq"),
+    make_grantham_plot_dt(inbred_dt, "Inbred")
+))
+
+grantham_plot <- grantham_plot[
+    !is.na(grantham_score) & grantham_score > 0
+]
+
+grantham_plot[, class_group := factor(
+    class_group,
+    levels = c(
+        "Class A",
+        "Class B",
+        "Convergent",
+        "TSP & Conv",
+        "All classed"
+    )
+)]
+
+### boxplots
+ggplot(grantham_plot, aes(x = class_group, y = grantham_score)) +
+    geom_boxplot(outlier.alpha = 0.1) +
+    facet_wrap(~dataset) +
+    labs(
+        title = "Grantham Scores by Classification",
+        x = "Classification",
+        y = "Grantham score"
+    ) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Hists
+ggplot(grantham_plot, aes(x = grantham_score)) +
+    geom_histogram(bins = 50) +
+    facet_grid(dataset ~ class_group) +
+    labs(
+        title = "Distribution of Grantham Scores",
+        x = "Grantham score",
+        y = "Number of SNPs"
+    ) +
+    theme_classic()
+
+# summary stats
+grantham_summary <- grantham_plot[
+    ,
+    .(
+        mean_grantham = mean(grantham_score),
+        median_grantham = median(grantham_score),
+        sd_grantham = sd(grantham_score),
+        N = .N
+    ),
+    by = .(dataset, class_group)
+]
+
+grantham_summary
+
+# mean score
+ggplot(grantham_summary, aes(x = class_group, y = mean_grantham)) +
+    geom_col(fill = "steelblue") +
+    facet_wrap(~dataset) +
+    labs(
+        title = "Mean Grantham Score by Classification",
+        x = "Classification",
+        y = "Mean Grantham score"
+    ) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# median
+ggplot(grantham_summary, aes(x = class_group, y = median_grantham)) +
+    geom_col(fill = "steelblue") +
+    facet_wrap(~dataset) +
+    labs(
+        title = "Median Grantham Score by Classification",
+        x = "Classification",
+        y = "Median Grantham score"
+    ) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+### significance tests
+
+grantham_tests <- grantham_plot[
+    ,
+    {
+        A <- grantham_score[class_group == "Class A"]
+        Conv <- grantham_score[class_group == "Convergent"]
+        TSP_Conv <- grantham_score[class_group == "TSP & Conv"]
+        All <- grantham_score[class_group == "All classed"]
+
+        list(
+            mean_A = mean(A),
+            mean_Conv = mean(Conv),
+            mean_TSP_Conv = mean(TSP_Conv),
+            mean_All = mean(All),
+
+            difference_A_Conv = mean(A) - mean(Conv),
+            p_A_Conv = t.test(A, Conv)$p.value,
+
+            difference_TSP_Conv = mean(TSP_Conv) - mean(Conv),
+            p_TSP_Conv = t.test(TSP_Conv, Conv)$p.value,
+
+            difference_All_Conv = mean(All) - mean(Conv),
+            p_All_Conv = t.test(All, Conv)$p.value
+        )
+    },
+    by = dataset
+]
+
+grantham_tests
+### summary table
+
+grantham_summary_table <- rbindlist(list(
+    grantham_tests[, .(
+        dataset,
+        comparison = "Class A vs Convergent",
+        mean_group = mean_A,
+        mean_convergent = mean_Conv,
+        difference = difference_A_Conv,
+        p_value = p_A_Conv
+    )],
+
+    grantham_tests[, .(
+        dataset,
+        comparison = "TSP & Conv vs Convergent",
+        mean_group = mean_TSP_Conv,
+        mean_convergent = mean_Conv,
+        difference = difference_TSP_Conv,
+        p_value = p_TSP_Conv
+    )],
+
+    grantham_tests[, .(
+        dataset,
+        comparison = "All classed vs Convergent",
+        mean_group = mean_All,
+        mean_convergent = mean_Conv,
+        difference = difference_All_Conv,
+        p_value = p_All_Conv
+    )]
+))
+
+grantham_summary_table[, `:=`(
+    mean_group = round(mean_group, 2),
+    mean_convergent = round(mean_convergent, 2),
+    difference = round(difference, 2),
+    p_value = signif(p_value, 3)
+)]
+
+grantham_summary_table
+
+### plos difference in mean 
+
+ggplot(grantham_summary_table, aes(x = difference, y = comparison)) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    geom_point(size = 3) +
+    facet_wrap(~dataset) +
+    labs(
+        title = "Differences in Mean Grantham Scores",
+        x = "Difference in mean Grantham score (Group - Convergent)",
+        y = NULL
+    ) +
+    theme_classic()
+
+
 genes <- unique(tsps[, gene_id_fbgn_fromGFF])
 gene_snps <- tsps[
     ,
