@@ -13,28 +13,44 @@
 
 mkdir -p /scratch/ejy4bu/err_outs/gowinda/
 
-# INBRED:
-# BG_dir=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/backgroundFiles/
-# CANDIDATE_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/candidateFiles/
-# OUTPUT_root=/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/
+################################################################################
+### CONFIGURE
 
-# POOLSEQ
-BG_dir=/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/backgroundFiles/
-CANDIDATE_root=/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/candidateFiles/
-OUTPUT_root=/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/results/
+dataset="inbred"       # poolseq or inbred
+MAF_threshold=5        # 0, 0.5, 1, 2, 5, 10, etc.
+# candidate_class="AB"   # AB, FGOPXY, ABFGOPXY, XY
 
-# change for poly / global:
-MAF_dir=MAF0filter_globalAF
-CANDIDATE_id=0_AF
+if [[ "$dataset" == "poolseq" ]]; then
 
+    ROOT="/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda"
+    maf_def="polyAF"
+
+elif [[ "$dataset" == "inbred" ]]; then
+
+    ROOT="/scratch/ejy4bu/drosophila/inbred/GO/gowinda"
+    maf_def="MAF"
+
+else
+    echo "ERROR: Invalid dataset: $dataset"
+    exit 1
+fi
+
+
+BG_dir="${ROOT}/backgroundFiles"
+CANDIDATE_root="${ROOT}/candidateFiles"
+OUTPUT_root="${ROOT}/results"
+
+MAF_dir="MAF${MAF_threshold}filter_${maf_def}"
+CANDIDATE_id="${MAF_threshold}_AF"
+RESULT_id="${MAF_threshold}_${maf_def}"
+
+### required input files
 gtf_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/dmel-all-r6.67.gtf
 go_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/flybase_gaf_go.txt
 jar_file=/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/Gowinda-1.12.jar
 
-
 SUFFICES=("AB" "XY" "FGOPXY" "ABFGOPXY")
 BACKGROUNDS=("bg_speciesSpecific" "bg_sharedOnly")
-# BACKGROUNDS=("bg_melOnly")
 
 BG_INDEX=$((SLURM_ARRAY_TASK_ID / 4))
 SUFFIX_INDEX=$((SLURM_ARRAY_TASK_ID % 4))
@@ -52,8 +68,8 @@ background="${BG_dir}/${MAF_dir}/${BACKGROUND}_${CANDIDATE_id}.txt"
 candidate="${CANDIDATE_root}/${MAF_dir}/candidate_chrpos_${SUFFIX}_${CANDIDATE_id}.txt"
 
 # change for poly vs global
-output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_globalAF/gowinda_${SUFFIX}_${CANDIDATE_id}.txt"
-mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_globalAF"
+output="${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_${maf_def}/gowinda_${SUFFIX}_${RESULT_id}.txt"
+mkdir -p "${OUTPUT_root}/${MAF_dir}/${BACKGROUND}_${maf_def}"
 
 echo "bg=$background"
 echo "candidate file=$candidate"
