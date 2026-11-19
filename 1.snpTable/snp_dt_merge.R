@@ -3,46 +3,24 @@ library(data.table)
 library(foreach)
 library(doMC)
 
-######################################################################
+dataset <- "poolseq"    # poolseq or inbred
 
-# ### Pool seq files ###
+if (dataset == "poolseq") {
+    out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/"
+    out_rds <- paste0(out_dir, "dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.rds")
+    sim_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.10_2026.rds")
+    mel_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.10_2026.rds")
 
-out_dir <- "/scratch/ejy4bu/drosophila/DEST_remake/snpDT/shared/"
-out_rds <- paste0(out_dir, "dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.rds")
-sim_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/sim/dest.sim.all.SNAPE.001.50.20Nov2025_sim.snp_dt_SynMissense.rds")
-mel_snp_dt <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/mel/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.snp_dt_SynMissense.rds")
-
-
-
-# out_dir <- "/scratch/ejy4bu/drosophila/gds_analysis/snp_dt_analysis/"
-# out_csv <- paste0(out_dir, "all_quality_variants_merge_unfilt_500test.csv")
-# out_rds <- paste0(out_dir, "all_quality_variants_merge_unfilt.rds")
-# if(!file.exists(out_csv)) file.create(out_csv)
-# if(!file.exists(out_rds)) file.create(out_rds)
-
-# mel_snp_rds <- paste0(out_dir, "species_rdsFiles/mel_filtered_eff_snp_dt.rds")
-# mel_snp_dt <- readRDS(mel_snp_rds)
-# sim_snp_rds <- paste0(out_dir, "species_rdsFiles/sim_filtered_eff_snp_dt.rds")
-# sim_snp_dt <- readRDS(sim_snp_rds)
-
-#######################################################################
-
-### INBRED ###
-out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
-sim_snp_dt <- readRDS(paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.10_2026.rds"))
-mel_snp_dt <- readRDS(paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.10_2026.rds"))
-
-shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
-out_rds <- paste0(out_dir, "dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.10_2026.rds")
+} else if (dataset == "inbred") {
+    out_dir <- "/scratch/ejy4bu/drosophila/inbred/snpDT/"
+    out_rds <- paste0(out_dir, "dsim3.signor.DGRP2.source_BCM-HGSC.all_quality_variants_merge_unfilt.11_2026.rds")
+    sim_snp_dt <- readRDS(paste0(out_dir, "dsim3.signor.snp_dt_SynMissense.10_2026.rds"))
+    mel_snp_dt <- readRDS(paste0(out_dir, "DGRP2.source_BCM-HGSC.dm6.snp_dt_SynMissense.10_2026.rds"))
+} else {
+    stop("invalid species")
+}
 
 
-
-# ### test on chromosome 2L
-# # filter by 2L chromosome for a smaller subset to test merge on for csv readable
-# mel_snp_dt <- mel_snp_dt[chr == "2L"]
-# message(nrow(mel_snp_dt), " mel 2L variants")
-# sim_snp_dt <- sim_snp_dt[chr == "2L"]
-# message(nrow(sim_snp_dt), " sim 2L variants")
 
 # NOTE: this is a union merge... keep ALL variants. no filtering yet
 shared_table <- merge(mel_snp_dt, sim_snp_dt, by = c("chr", "pos"), suffixes = c("_mel", "_sim"), all=T)
@@ -140,10 +118,10 @@ setnames(
 
 cg_map <- unique(cg_map[, .(gene_mel, gene_id_fbgn)])
 
-message("saving rds to ", out_rds)
+# message("saving rds to ", out_rds)
 saveRDS(shared_table, out_rds)
 
-message("complete. ", nrow(shared_table), " variants written.")
+message("complete. ", nrow(shared_table), " variants written to ", out_rds)
 
 # subset_table <- shared_table[1:500, ]
 # fwrite(subset_table, out_csv)

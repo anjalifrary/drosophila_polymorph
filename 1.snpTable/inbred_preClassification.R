@@ -98,9 +98,7 @@ cds_gff[, sim_chr := chr]
 cds_gff[, chr := sub("^sim_", "", sim_chr)]
 
 sim_cds <- cds_gff[
-    shared_dt[!is.na(variant.id_sim)
-    #  & af_sim >= 0.05 & af_sim <= 0.95
-     ], 
+    shared_dt[!is.na(variant.id_sim)], 
     on = .(
         sim_chr = chr_src,
         transcript_id = transcript_id_sim,
@@ -273,7 +271,6 @@ mrna_map <- gff[
 ]
 cds_gff[mrna_map, on = "transcript_id", transcript_id_fbtr := i.transcript_id_fbtr]
 
-# cds_gff[, transcript_id_fbtr := str_extract(attributes, "FBtr[0-9]+")]
 cds_gff[, gene_name := str_extract(attributes, "(?<=;gene=)[^;]+")]
 cds_gff[, gene_id_fbgn := str_extract(attributes, "FBgn[0-9]+")]
 cds_gff[, .N, by = .(chr_dm6, strand)]
@@ -281,9 +278,7 @@ cds_gff[, .N, by = .(chr_dm6, strand)]
 # x prefix = cds_gff
 # i prefix = shared_dt
 mel_cds <- cds_gff[
-    shared_dt[!is.na(variant.id_mel) 
-    # & af_mel >= 0.05 & af_mel <= 0.95
-    ], 
+    shared_dt[!is.na(variant.id_mel)], 
     on = .(
         chr_dm6 = chr,
         transcript_id_fbtr = transcript_id_mel,
@@ -298,7 +293,6 @@ mel_cds <- cds_gff[
         alt_mel = i.alt_mel,
 
         af_mel = i.af_mel,
-        # maf_mel = i.maf_mel,
         effect_mel = i.effect_mel,
         codon_change_mel = i.codon_change_mel,
         aa_change_mel = i.aa_change_mel,
@@ -308,7 +302,6 @@ mel_cds <- cds_gff[
         ref_sim = i.ref_sim,
         alt_sim = i.alt_sim,
         af_sim = i.af_sim,
-        # maf_sim = i.maf_sim,
         effect_sim = i.effect_sim,
         codon_change_sim = i.codon_change_sim,
         aa_change_sim = i.aa_change_sim,
@@ -334,6 +327,7 @@ mel_cds[, pos_in_codon := ((nt_pos_mel - 1) %% 3) + 1]
 # confirm that this agrees with the snpEff uppercase annotation:
 mel_cds[, codon_start_nt := ((nt_pos_mel - 1) %/% 3) * 3 + 1]
 mel_cds[, codon_end_nt   := codon_start_nt + 2]
+
 mel_cds[, snp_pos_in_codon := regexpr("[A-Z]", sub("/.*", "", codon_change_mel))]
 sum(is.na(mel_cds$pos_in_codon) |
     is.na(mel_cds$snp_pos_in_codon) |
@@ -379,10 +373,9 @@ mel_cds[strand == "-", codon_from_genome := as.character( reverseComplement(DNAS
 
 nrow(mel_cds[codon_from_genome == codon_ref_annotation])
 nrow(mel_cds[codon_from_genome != codon_ref_annotation]) # should be 0
-sum(is.na(sim_cds$codon_from_genome)) # should be 0
-sum(is.na(sim_cds$codon_ref_annotation)) # should be 0
+sum(is.na(mel_cds$codon_from_genome)) # should be 0
+sum(is.na(mel_cds$codon_ref_annotation)) # should be 0
 table(mel_cds$codon_from_genome == mel_cds$codon_ref_annotation)
-
 
 # codon_genomic_start = genomic coord of 1st base on reference strand
 #              _end = 3rd base 
@@ -408,11 +401,6 @@ setnames(shared_dt, c("strand", "snp_pos_in_codon"), c("strand_mel", "snp_pos_in
 ###############################################################################################
 ### 3A: D. simulans: Annotate shared table for 1 snp per codon
 ###############################################################################################
-# this annotates all rows TRUE or FALSE depending on if they are in the sim dt 
-    # so FALSE includes rows that didn't pass multiple snp per codon filter AND 
-    #   those that have no sim annotation at that row
-# number of TRUE rows == number of rows in sim_1snp_perCodon
-
 shared_dt[, keep_sim := fifelse(
     is.na(variant.id_sim), "No_sim_variant",
     NA_character_
@@ -426,20 +414,9 @@ shared_dt[!is.na(variant.id_sim), keep_sim := fifelse(
 )]
 table(shared_dt$keep_sim, useNA="ifany")
 
-
-# shared_dt[, keep_mel := as.character(variant.id_mel %in% mel_1snp_perCodon$variant.id_mel)]
-
-# shared_dt[, keep_sim := fifelse(
-#     is.na(variant.id_sim),
-#     NA_character_,
-#     as.character(variant.id_sim %in% sim_1snp_perCodon$variant.id_sim)
-# )]
-
 ###############################################################################################
 ### 3B: D. melanogaster: Annotated shared table for 1 snp per codon
 ###############################################################################################
-
-
 shared_dt[, keep_mel := fifelse(
     is.na(variant.id_mel), "No_mel_variant",
     NA_character_

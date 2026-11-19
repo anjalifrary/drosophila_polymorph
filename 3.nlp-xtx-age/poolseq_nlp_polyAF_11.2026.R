@@ -244,7 +244,7 @@ bin_ids <- unique(
 
 batch_size <- 100000
 nlp_results <- data.table()
-# nlp_results <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/snpDT/nlp/nlp_mel_partial.16_11_2026.rds")
+nlp_results <- readRDS(temp_file)
 
 for (bin.i in bin_ids) {
 
@@ -259,8 +259,8 @@ for (bin.i in bin_ids) {
 
     for (i in seq_along(batches)) {
         batch_ids <- batches[[i]]
-        # batch_ids <- setdiff(batch_ids, nlp_results$variant)
-        # if (length(batch_ids) == 0) next
+        batch_ids <- setdiff(batch_ids, nlp_results$variant)
+        if (length(batch_ids) == 0) next
 
         cat("Bin:", bin.i, "/", length(bin_ids),
             "| Batch:", i, "/", length(batches),
