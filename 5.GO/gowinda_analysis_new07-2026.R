@@ -353,7 +353,7 @@ gene_persistence_matrix <- function(dt, go_id, class_name, bg_name, maf_def_name
 
 # to use:
 dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/"
-dir <- "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/results/"
+# dir <- "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/results/"
 files_list <- list.files(path = dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
 
 # long_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/gene_ontology/gowinda/gowinda_results_all_longFormat.rds")
@@ -763,3 +763,134 @@ rm(nlp)
 mel_busco <- mel_nlp[ , .( BUSCO = if ( all(is.na(busco)) ) { NA_character_ } else { unique(na.omit(busco))[1] } ), by = gene ]
 
 gene_info <- merge( gene_info, mel_busco, by.x = "FLYBASECG", by.y = "gene", all.x = TRUE )
+
+
+
+
+
+
+
+
+###################################################################
+### 11/18/2026:
+# look at overlap in GO terms b/w inbred & poolseq 
+# and overlap in genes found b/w inbred & poolseq
+
+library(data.table)
+
+poolseq_goResults <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/gowinda_results_all_longFormat.rds")
+inbred_goResults <- readRDS("/scratch/ejy4bu/drosophila/inbred/GO/gowinda/gowinda_results_all_longFormat.rds")
+
+poolseq_go <- unique(poolseq_goResults$GO.id)
+inbred_go  <- unique(inbred_goResults$GO.id)
+
+# GO terms in both
+shared_GO <- intersect(poolseq_go, inbred_go)
+
+# GO terms unique to each
+poolseq_only_GO <- setdiff(poolseq_go, inbred_go)
+inbred_only_GO  <- setdiff(inbred_go, poolseq_go)
+
+length(shared_GO)
+length(poolseq_only_GO)
+length(inbred_only_GO)
+
+### normalize between diff backgrounds, MAF level, class
+poolseq_goResults[, background := sub("_(MAF|polyAF)$", "", background)]
+inbred_goResults[, background := sub("_(MAF|polyAF)$", "", background)]
+
+# GO overlap within matching class, MAF, and background
+shared_GO <- merge(
+    unique(poolseq_goResults[, .(classes, MAF_value, background, GO.id)]),
+    unique(inbred_goResults[, .(classes, MAF_value, background, GO.id)]),
+    by = c("classes", "MAF_value", "background", "GO.id")
+)
+
+shared_GO
+
+### look at gene overlap
+
+### look at gene overlap overall
+
+poolseq_genes <- unique(unlist(poolseq_goResults$GeneListFound))
+inbred_genes  <- unique(unlist(inbred_goResults$GeneListFound))
+
+shared_genes <- intersect(poolseq_genes, inbred_genes)
+
+poolseq_only_genes <- setdiff(poolseq_genes, inbred_genes)
+inbred_only_genes  <- setdiff(inbred_genes, poolseq_genes)
+
+length(poolseq_genes)
+length(inbred_genes)
+length(shared_genes)
+length(poolseq_only_genes)
+length(inbred_only_genes)
+
+shared_genes
+
+### normalize by background, MAF, and class
+
+poolseq_goResults[, background := sub("_(MAF|polyAF)$", "", background)]
+inbred_goResults[, background := sub("_(MAF|polyAF)$", "", background)]
+gene_overlap_byGroup <- rbindlist(lapply(
+    seq_len(nrow(unique(poolseq_goResults[, .(classes, MAF_value, background)]))),
+    function(i) {
+
+        groups <- unique(poolseq_goResults[, .(classes, MAF_value, background)])
+        row <- groups[i]
+
+        poolseq_genes <- unique(unlist(poolseq_goResults[
+            classes == row$classes &
+            MAF_value == row$MAF_value &
+            background == row$background,
+            GeneListFound
+        ]))
+
+        inbred_genes <- unique(unlist(inbred_goResults[
+            classes == row$classes &
+            MAF_value == row$MAF_value &
+            background == row$background,
+            GeneListFound
+        ]))
+
+        shared <- intersect(poolseq_genes, inbred_genes)
+
+        data.table(
+            classes = row$classes,
+            MAF_value = row$MAF_value,
+            background = row$background,
+            n_poolseq = length(poolseq_genes),
+            n_inbred = length(inbred_genes),
+            n_shared = length(shared),
+            n_poolseq_only = length(setdiff(poolseq_genes, inbred_genes)),
+            n_inbred_only = length(setdiff(inbred_genes, poolseq_genes)),
+            shared_genes = paste(shared, collapse = ", ")
+        )
+    }
+))
+
+
+gene_overlap_byGroup
+
+### GO:0050830: defense response to Gram-positive bacterium: Reactions triggered in response to the presence of a Gram-positive bacterium that act to protect the cell or organism.
+
+
+poolseq_GO_genes <- unique(unlist(
+    poolseq_goResults[GO.id == "GO:0050830", GeneListFound]
+))
+inbred_all_genes <- unique(unlist(inbred_goResults$GeneListFound))
+
+GO_genes_in_inbred <- intersect(poolseq_GO_genes, inbred_all_genes)
+GO_genes_in_inbred <- sub("^fbgn", "FBgn", GO_genes_in_inbred)
+
+library(AnnotationDbi)
+library(org.Dm.eg.db)
+
+gene_info <- AnnotationDbi::select(
+    org.Dm.eg.db,
+    keys = GO_genes_in_inbred,
+    keytype = "FLYBASE",
+    columns = c("FLYBASE", "FLYBASECG", "SYMBOL", "GENENAME", "ENTREZID")
+)
+
+gene_info <- setnames(gene_info, "FLYBASE", "gene_id")
