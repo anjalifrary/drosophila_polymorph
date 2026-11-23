@@ -778,8 +778,21 @@ gene_info <- merge( gene_info, mel_busco, by.x = "FLYBASECG", by.y = "gene", all
 
 library(data.table)
 
-poolseq_goResults <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/gowinda_results_all_longFormat.rds")
-inbred_goResults <- readRDS("/scratch/ejy4bu/drosophila/inbred/GO/gowinda/gowinda_results_all_longFormat.rds")
+
+pool_dir <-"/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/results/"
+inbred_dir <- "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/results/"
+pool_files_list <- list.files(path = pool_dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
+inbred_files_list <- list.files(path = inbred_dir, pattern="gowinda_.*txt", recursive = TRUE, full.names = TRUE)
+
+poolseq_allResults <- build_long_gowinda(pool_files_list, threshold = Inf)
+inbred_allResults <- build_long_gowinda(inbred_files_list, threshold = Inf) 
+
+saveRDS(poolseq_allResults, "/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/gowinda_results_allNonSignificant_longFormat.rds")
+saveRDS(inbred_allResults, "/scratch/ejy4bu/drosophila/inbred/GO/gowinda/gowinda_results_allNonSignificant_longFormat.rds")
+
+### load significant results
+poolseq_sigResults <- readRDS("/scratch/ejy4bu/drosophila/DEST_remake/GO/gowinda/gowinda_results_all_longFormat.rds")
+inbred_sigResults <- readRDS("/scratch/ejy4bu/drosophila/inbred/GO/gowinda/gowinda_results_all_longFormat.rds")
 
 poolseq_go <- unique(poolseq_goResults$GO.id)
 inbred_go  <- unique(inbred_goResults$GO.id)
@@ -874,10 +887,11 @@ gene_overlap_byGroup
 
 ### GO:0050830: defense response to Gram-positive bacterium: Reactions triggered in response to the presence of a Gram-positive bacterium that act to protect the cell or organism.
 
+View(inbred_allResults[GO.id == "GO:0050830"])
+summary((inbred_allResults[GO.id == "GO:0050830", FDR]))
 
-poolseq_GO_genes <- unique(unlist(
-    poolseq_goResults[GO.id == "GO:0050830", GeneListFound]
-))
+poolseq_GO_genes <- unique(unlist(poolseq_goResults[GO.id == "GO:0050830", GeneListFound]))
+
 inbred_all_genes <- unique(unlist(inbred_goResults$GeneListFound))
 
 GO_genes_in_inbred <- intersect(poolseq_GO_genes, inbred_all_genes)
@@ -894,3 +908,19 @@ gene_info <- AnnotationDbi::select(
 )
 
 gene_info <- setnames(gene_info, "FLYBASE", "gene_id")
+gene_info
+
+### see what GO ids the defense genes (poolseq) show up in for inbred
+poolseq_GO_genes <- tolower(poolseq_GO_genes)
+poolseq_GO_genes_inbred_intersection <- tolower(unique(gene_info$gene_id))
+
+inbred_GO_matches <- copy(inbred_allResults)
+
+inbred_GO_matches[, GenesFromPoolseqGO := lapply( GeneListFound, function(x) intersect(tolower(unlist(x)), poolseq_GO_genes_inbred_intersection))]
+inbred_GO_matches <- inbred_GO_matches[lengths(GenesFromPoolseqGO) > 0]
+inbred_GO_matches[, N_PoolseqGO_genes := lengths(GenesFromPoolseqGO)]
+inbred_GO_matches[, GenesFromPoolseqGO := lapply(GenesFromPoolseqGO, function(x) sub("^fbgn", "FBgn", x))]
+
+nrow(inbred_GO_matches[FDR<0.05])
+View(inbred_GO_matches[FDR<0.05])
+View(inbred_GO_matches)
