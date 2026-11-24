@@ -116,6 +116,10 @@ cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
 tsp_classes <- c("A", "B")
 conv_classes <- c("F", "G", "O", "P", "X", "Y")
 
+NS_tsp <- c("A")
+NS_conv <- c("F", "O", "X")
+NS_shared <- c("A", "C", "E", "F", "H", "J", "K", "N", "O", "Q", "S", "T", "W", "X")
+
 poolseq_dt <- add_grantham(poolseq_dt)
 inbred_dt <- add_grantham(inbred_dt)
 
