@@ -289,8 +289,8 @@ grantham_summary_table <- rbindlist(list(
 ))
 
 grantham_summary_table[, `:=`(
-    mean_group1 = round(mean_group, 2),
-    mean_group2 = round(mean_convergent, 2),
+    mean_group1 = round(mean_group1, 2),
+    mean_group2 = round(mean_group2, 2),
     difference = round(difference, 2),
     p_value = signif(p_value, 3)
 )]
