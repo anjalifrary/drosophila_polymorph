@@ -19,19 +19,20 @@ get_euler_counts <- function(dt, dataset_name) {
   shared <- dt[!is.na(variant.id_mel) & !is.na(variant.id_sim)]
 
   # Classification groups
-  tsp <- shared[classification %in% tsp_classes]
-  conv <- shared[classification %in% conv_classes]
-
-  other <- shared[!classification %in% c(tsp_classes, conv_classes)]
+  shared[classification %in% tsp_classes, group := "TSP"]
+  shared[classification %in% conv_classes, group := "Convergent"]
+  shared[!is.na(classification) & !classification %in%c(tsp_classes, conv_classes), group := "Shared other"]
 
   data.table(
     dataset = dataset_name,
     mel = nrow(mel),
     sim = nrow(sim),
     shared = nrow(shared),
-    tsp = nrow(tsp),
-    convergent = nrow(conv),
-    other_shared = nrow(other)
+    TSP = nrow(shared[group == "TSP"]),
+    convergent = nrow(shared[group == "Convergent"]),
+    other_shared = nrow(shared[group == "Shared Other"]),
+    mel_only = nrow(mel) - nrow(shared), 
+    sim_only = nrow(sim) - nrow(shared)
   )
 }
 
@@ -44,6 +45,155 @@ euler_counts <- rbind(
 
 #######################################################################
 ### Make Diagrams
+
+## had to load this in local Rstudio 
+library(eulerr)
+library(data.table)
+
+euler_counts <- fread("~/UVA/Bergland/euler_counts.csv")
+
+make_euler <- function(dataset_name) {
+    d <- euler_counts[dataset == dataset_name]
+
+    eu <- euler(c(
+        "D. simulans" = d$sim_only,
+        "D. melanogaster" = d$mel_only,
+        "D. simulans&D. melanogaster" = d$shared
+    ))
+
+    if (dataset_name == "Inbred") {
+        g <- plot(
+            eu,
+            quantities = FALSE,
+            labels = FALSE,
+            fills = c("#9ad9db", "#f49892"),
+            edges = list(col = "grey20", lwd = 1),
+            main = "Inbred"
+        )
+        print(g)
+
+        # Species-only counts
+        grid::grid.text(prettyNum(d$sim_only, big.mark = ","),
+            x = 0.30, y = 0.06, gp = grid::gpar(fontsize = 12))
+        grid::grid.text(prettyNum(d$mel_only, big.mark = ","),
+            x = 0.70, y = 0.06, gp = grid::gpar(fontsize = 12))
+
+        # Intersection count
+        grid::grid.lines(x = c(0.572, 0.572), y = c(0.43, 0.25), gp = grid::gpar(col = "grey20", lwd = 1, lty = "dotted"))
+        grid::grid.text(prettyNum(d$shared, big.mark = ","), x = 0.572, y = 0.19, gp = grid::gpar(fontsize = 12))
+
+        # Species labels
+        grid::grid.text("D. simulans", x = 0.25, y = 0.12, gp = grid::gpar(fontsize = 12))
+        grid::grid.text("D. melanogaster", x = 0.75, y = 0.12, gp = grid::gpar(fontsize = 12))
+
+    } else if (dataset_name == "PoolSeq") {
+
+        g <- plot(
+            eu,
+            quantities = FALSE,
+            labels = FALSE,
+            fills = c("#9ad9db", "#f49892"),
+            edges = list(col = "grey20", lwd = 1),
+            main = "PoolSeq"
+        )
+        print(g)
+
+        # number labels 
+        grid::grid.text(
+            prettyNum(d$sim_only, big.mark = ","),
+            x = 0.25, y = 0.06,
+            gp = grid::gpar(fontsize = 12)
+        )
+
+        grid::grid.text(
+            prettyNum(d$mel_only, big.mark = ","),
+            x = 0.75, y = 0.06,
+            gp = grid::gpar(fontsize = 12)
+        )
+
+        # Interesection count + dotted line
+        grid::grid.lines(
+            x = c(0.445, 0.445),
+            y = c(0.43, 0.25),
+            gp = grid::gpar(
+                col = "grey20",
+                lwd = 1,
+                lty = "dotted"
+            )
+        )
+        grid::grid.text(
+            prettyNum(d$shared, big.mark = ","),
+            x = 0.445, y = 0.19,
+            gp = grid::gpar(fontsize = 12)
+        )
+        
+        # Species labels beneath circles
+        grid::grid.text(
+            "D. simulans",
+            x = 0.25, y = 0.12,
+            gp = grid::gpar(fontsize = 12)
+        )
+
+        grid::grid.text(
+            "D. melanogaster",
+            x = 0.75, y = 0.12,
+            gp = grid::gpar(fontsize = 12)
+        )
+    }
+}
+
+make_euler("PoolSeq")
+make_euler("Inbred")
+
+plot_composition <- function(dataset_name) {
+
+    ggplot(
+        shared_composition_long[dataset == dataset_name],
+        aes(x = percent, y = dataset, fill = class)
+    ) +
+        geom_col(width = 0.35) +
+        geom_text(
+            aes(label = ifelse(
+                percent >= 0.08,
+                paste0(round(percent * 100, 1), "%"),
+                ""
+            )),
+            position = position_stack(vjust = 0.5),
+            size = 2.5
+        ) +
+        scale_fill_manual(
+            values = c(
+                "TSP" = "#8fb3dc",
+                "Conv" = "#9ed6a6",
+                "Unclassified" = "#D9D9D9"
+            ),
+            labels = c("TSP candidates", "Convergent", "Unclassified")
+        ) +
+        scale_x_continuous(
+            labels = scales::percent,
+            expand = c(0, 0)
+        ) +
+        labs(
+            x = NULL,
+            y = NULL,
+            fill = NULL
+        ) +
+        theme_void() +
+        theme(
+            legend.position = "bottom",
+            legend.text = element_text(size = 8),
+            legend.key.size = unit(0.25, "cm"),
+            legend.spacing.x = unit(0.1, "cm"),
+            plot.margin = margin(0, 2, 0, 2)
+        )
+}
+
+plot_composition("PoolSeq")
+plot_composition("Inbred")
+
+
+
+
 library(ggplot2)
 library(ggforce)
 
