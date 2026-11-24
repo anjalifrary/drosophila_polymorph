@@ -116,9 +116,9 @@ cand_classes <- c("A", "B", "F", "G", "O", "P", "X", "Y")
 tsp_classes <- c("A", "B")
 conv_classes <- c("F", "G", "O", "P", "X", "Y")
 
-NS_tsp <- c("A")
-NS_conv <- c("F", "O", "X")
-NS_shared <- c("A", "C", "E", "F", "H", "J", "K", "N", "O", "Q", "S", "T", "W", "X")
+NS_tsp_classes <- c("A")
+NS_conv_classes <- c("F", "O", "X")
+NS_shared_classes <- c("A", "C", "E", "F", "H", "J", "K", "N", "O", "Q", "S", "T", "W", "X")
 
 poolseq_dt <- add_grantham(poolseq_dt)
 inbred_dt <- add_grantham(inbred_dt)
@@ -138,20 +138,17 @@ gene_metrics_all <- merge(gene_metrics_all, enz.ag, by.x="gene_id_fbgn_fromGFF",
 make_grantham_plot_dt <- function(dt, dataset_name) {
 
     rbindlist(list(
-        dt[classification == "A",
-           .(grantham_score, class_group = "Class A")],
+        dt[classification %in% NS_tsp_classes,
+           .(grantham_score, class_group = "NS TSP Candidates")],
 
-        dt[classification == "B",
-           .(grantham_score, class_group = "Class B")],
+        dt[classification %in% NS_conv_classes,
+           .(grantham_score, class_group = "NS Convergent Candidates")],
 
-        dt[classification %in% conv_classes,
-           .(grantham_score, class_group = "Convergent")],
+        # dt[classification %in% c(NS_tsp_classes, NS_conv_classes),
+        #    .(grantham_score, class_group = "NS TSP & Conv")],
 
-        dt[classification %in% c("B", conv_classes),
-           .(grantham_score, class_group = "TSP & Conv")],
-
-        dt[!is.na(classification),
-           .(grantham_score, class_group = "All classed")]
+        dt[classification %in% NS_shared_classes,
+           .(grantham_score, class_group = "NS Shared Variants")]
     ))[, dataset := dataset_name]
 }
 
@@ -167,11 +164,7 @@ grantham_plot <- grantham_plot[
 grantham_plot[, class_group := factor(
     class_group,
     levels = c(
-        "Class A",
-        "Class B",
-        "Convergent",
-        "TSP & Conv",
-        "All classed"
+        "NS TSP Candidates", "NS Convergent Candidates", "NS Shared Variants"
     )
 )]
 
@@ -185,7 +178,7 @@ ggplot(grantham_plot, aes(x = class_group, y = grantham_score)) +
         y = "Grantham score"
     ) +
     theme_classic() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 25, hjust = 1))
 
 # Hists
 ggplot(grantham_plot, aes(x = grantham_score)) +
@@ -241,25 +234,23 @@ ggplot(grantham_summary, aes(x = class_group, y = median_grantham)) +
 grantham_tests <- grantham_plot[
     ,
     {
-        A <- grantham_score[class_group == "Class A"]
-        Conv <- grantham_score[class_group == "Convergent"]
-        TSP_Conv <- grantham_score[class_group == "TSP & Conv"]
-        All <- grantham_score[class_group == "All classed"]
+        NS_TSPs<- grantham_score[class_group == "NS TSP Candidates"]
+        NS_Conv <- grantham_score[class_group == "NS Convergent Candidates"]
+        NS_Shared <- grantham_score[class_group == "NS Shared Variants"]
 
         list(
-            mean_A = mean(A),
-            mean_Conv = mean(Conv),
-            mean_TSP_Conv = mean(TSP_Conv),
-            mean_All = mean(All),
+            mean_NS_tsp = mean(NS_TSPs),
+            mean_NS_Conv = mean(NS_Conv),
+            mean_NS_Shared = mean(NS_Shared),
 
-            difference_A_Conv = mean(A) - mean(Conv),
-            p_A_Conv = t.test(A, Conv)$p.value,
+            difference_TSP_Conv = mean(NS_TSPs) - mean(NS_Conv),
+            p_TSP_Conv = t.test(NS_TSPs, NS_Conv)$p.value,
 
-            difference_TSP_Conv = mean(TSP_Conv) - mean(Conv),
-            p_TSP_Conv = t.test(TSP_Conv, Conv)$p.value,
+            difference_TSP_Shared = mean(NS_TSPs) - mean(NS_Shared),
+            p_TSP_Shared = t.test(NS_TSPs, NS_Shared)$p.value,
 
-            difference_All_Conv = mean(All) - mean(Conv),
-            p_All_Conv = t.test(All, Conv)$p.value
+            difference_Conv_Shared = mean(NS_Conv) - mean(NS_Shared),
+            p_Conv_Shared = t.test(NS_Conv, NS_Shared)$p.value
         )
     },
     by = dataset
@@ -271,35 +262,35 @@ grantham_tests
 grantham_summary_table <- rbindlist(list(
     grantham_tests[, .(
         dataset,
-        comparison = "Class A vs Convergent",
-        mean_group = mean_A,
-        mean_convergent = mean_Conv,
-        difference = difference_A_Conv,
-        p_value = p_A_Conv
-    )],
-
-    grantham_tests[, .(
-        dataset,
-        comparison = "TSP & Conv vs Convergent",
-        mean_group = mean_TSP_Conv,
-        mean_convergent = mean_Conv,
+        comparison = "NS TSPs vs NS Convergent",
+        mean_group1 = mean_NS_tsp,
+        mean_group2 = mean_NS_Conv,
         difference = difference_TSP_Conv,
         p_value = p_TSP_Conv
     )],
 
     grantham_tests[, .(
         dataset,
-        comparison = "All classed vs Convergent",
-        mean_group = mean_All,
-        mean_convergent = mean_Conv,
-        difference = difference_All_Conv,
-        p_value = p_All_Conv
+        comparison = "NS TSP vs NS Shared",
+        mean_group1 = mean_NS_tsp,
+        mean_group2 = mean_NS_Shared,
+        difference = difference_TSP_Shared,
+        p_value = p_TSP_Shared
+    )],
+
+    grantham_tests[, .(
+        dataset,
+        comparison = "NS Convergent vs NS Shared",
+        mean_group1 = mean_NS_Conv,
+        mean_group2 = mean_NS_Shared,
+        difference = difference_Conv_Shared,
+        p_value = p_Conv_Shared
     )]
 ))
 
 grantham_summary_table[, `:=`(
-    mean_group = round(mean_group, 2),
-    mean_convergent = round(mean_convergent, 2),
+    mean_group1 = round(mean_group, 2),
+    mean_group2 = round(mean_convergent, 2),
     difference = round(difference, 2),
     p_value = signif(p_value, 3)
 )]
