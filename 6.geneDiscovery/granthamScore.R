@@ -11,8 +11,8 @@ library(grantham)
 library(ggplot2)
 library(data.table)
 
-grantham_distance(x = "Ser", y = "Phe")
-grantham_distance(x = c("Ser", "Arg"), y = c("Phe", "Leu"))
+# grantham_distance(x = "Ser", y = "Phe")
+# grantham_distance(x = c("Ser", "Arg"), y = c("Phe", "Leu"))
 
 # generates 20x20 AA pairs
 aa_pairs <- amino_acid_pairs()
