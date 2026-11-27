@@ -3,20 +3,154 @@ library(stringr)
 library(AnnotationDbi)
 library(org.Dm.eg.db)
 
-poolseq_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
-inbred_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds")
+dataset <- "poolseq"
 
-safe_inbred_dt <- copy(inbred_dt)
-safe_poolseq_dt <- copy(poolseq_dt)
+if (dataset == "poolseq") {
+    shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
+    vcf <- "/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/testGeneID/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+    new_shared_dt <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.fbgn.rds"
 
-inbred_dt <- copy(safe_inbred_dt)
-poolseq_dt <- copy(safe_poolseq_dt)
+} else if (dataset == "inbred") {
+    shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds")
+    vcf <- "/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/testGeneID/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
+    new_shared_dt <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds"
+} else {
+    print(paste0("Invalid dataset: ", dataset))
+}
+
+safe_dt <- copy(shared_dt)
+
+### 1. get coordinates of shared_dt
+shared_coords <- unique(shared_dt[, .(
+    chr_key = sub("^chr", "", chr),
+    pos
+)])
+
+
+### 2. read vcf 
+vcf_dt <- fread(vcf, skip = "#CHROM", select = c(1, 2, 8))
+setnames(vcf_dt, c("CHROM", "POS", "INFO"))
+
+vcf_dt[, chr_key := sub("^chr", "", CHROM)]
+vcf_dt[, POS := as.integer(POS)]
+
+vcf_dt <- vcf_dt[shared_coords, on = .(chr_key, POS = pos), nomatch = 0]
+vcf_dt[, chr_key := NULL]
+
+### 3. Extract EFF from vcf
+vcf_dt <- vcf_dt[grepl("EFF=", INFO)]
+
+vcf_dt[, EFF := sub(".*EFF=", "", INFO)]
+vcf_dt[, EFF := sub(";.*", "", EFF)]
+
+### 4. Split EFF entries
+
+eff_list <- strsplit(vcf_dt$EFF, ",", fixed = TRUE)
+
+eff_dt <- data.table(
+    CHROM = rep(vcf_dt$CHROM, lengths(eff_list)),
+    POS = rep(vcf_dt$POS, lengths(eff_list)),
+    EFF_entry = unlist(eff_list, use.names = FALSE)
+)
+
+### 5. Extract FBgn IDs
+eff_dt[, effect := sub("\\(.*", "", EFF_entry)]
+
+eff_dt[, gene_id_fbgn := vapply(
+    strsplit(sub("^[^(]*\\(", "", EFF_entry), "|", fixed = TRUE),
+    function(x) if (length(x) >= 6) x[6] else NA_character_,
+    character(1)
+)]
+
+eff_dt <- eff_dt[grepl("^FBgn[0-9]+$", gene_id_fbgn)]
+eff_dt <- eff_dt[effect %in% c("synonymous_variant", "missense_variant")]
+
+### 6. Create chr-pos-fbgn id mapping
+fbgn_by_pos <- unique(eff_dt[, .(
+    chr = CHROM,
+    pos = as.integer(POS),
+    gene_id_fbgn
+)])
+
+fbgn_by_pos[, chr_key := sub("^chr", "", chr)]
+fbgn_by_pos[, n_fbgn := uniqueN(gene_id_fbgn), by = .(chr_key, pos)]
+fbgn_single <- unique(fbgn_by_pos[n_fbgn == 1, .(chr_key, pos, gene_id_fbgn)])
+
+
+### 3. Update shared dt with SnpEff annotated gene mel
+shared_dt[, geneID_fbgn := NA_character_]
+shared_dt[, chr_key := sub("^chr", "", chr)]
+shared_dt[fbgn_single, on = .(chr_key, pos), geneID_fbgn := i.gene_id_fbgn]
+
+shared_dt[, chr_key := NULL]
+fbgn_by_pos[, chr_key := NULL]
+
+shared_dt[!is.na(variant.id_mel), .(
+    total = .N,
+    mapped = sum(!is.na(geneID_fbgn)),
+    unmapped = sum(is.na(geneID_fbgn)),
+    mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 2)
+)]
+
+# missing <- shared_dt[!is.na(variant.id_mel) & is.na(geneID_fbgn)]
+
+missing_pos <- shared_dt[
+    !is.na(variant.id_mel) & is.na(geneID_fbgn),
+    .(chr, pos)
+]
+
+missing_transcripts <- eff_dt[
+    missing_pos,
+    on = .(CHROM = chr, POS = pos),
+    .(
+        CHROM,
+        POS,
+        transcript_id = vapply(
+            strsplit(sub("^[^(]*\\(", "", EFF_entry), "|", fixed = TRUE),
+            function(x) if (length(x) >= 5) x[5] else NA_character_,
+            character(1)
+        ),
+        gene_id_fbgn
+    )
+]
+
+stop("Stopping here for debugging")
+
+shared_dt[
+    is.na(geneID_fbgn) &
+    !is.na(gene_id_fbgn_fromGFF),
+    geneID_fbgn := gene_id_fbgn_fromGFF
+]
+shared_dt[!is.na(variant.id_mel), .(
+    total = .N,
+    mapped = sum(!is.na(geneID_fbgn)),
+    unmapped = sum(is.na(geneID_fbgn)),
+    mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 4)
+)]
+
+
+
+
+gene_map <- unique(shared_dt[
+    !is.na(gene_sim) & !is.na(geneID_fbgn),
+    .(gene_sim, geneID_fbgn)
+])
+gene_map[, .N, by = gene_sim][N > 1]
+gene_map[, .N, by = geneID_fbgn][N > 1]
+
+
+
+
+
+
+
+
+# shared_dt <- copy(safe_dt)
 
 # initialize fbgn shared gene ID column
-poolseq_dt[, geneID_shared := NA_character_]
-inbred_dt[, geneID_shared := NA_character_]
+shared_dt[, geneID_shared := NA_character_]
 
-# build map: gene_sim <-> gene_mel 
+# build map: gene_sim <-> gene_mel ? fix this
 gene_pairs <- unique(rbindlist(list(
     inbred_dt[, .(gene_mel, gene_sim)],
     poolseq_dt[, .(gene_mel, gene_sim)]
@@ -66,49 +200,49 @@ if (gene_sim_to_fbgn[n_fbgn > 1, .N] > 0) {
 gene_sim_to_fbgn <- gene_sim_to_fbgn[, .(gene_sim, gene_id_fbgn)]
 
 # Annotate gene_mel first
-inbred_dt[gene_mel_to_fbgn, on = "gene_mel", geneID_shared := i.gene_id_fbgn]
-poolseq_dt[gene_mel_to_fbgn, on = "gene_mel", geneID_shared := i.gene_id_fbgn]
+shared_dt[gene_mel_to_fbgn, on = "gene_mel", geneID_shared := i.gene_id_fbgn]
+# poolseq_dt[gene_mel_to_fbgn, on = "gene_mel", geneID_shared := i.gene_id_fbgn]
 
 # Annotate gene_sim only where gene_mel mapping was unavailable
 # Stop if the two annotation routes disagree
-if (inbred_dt[gene_sim_to_fbgn, on = "gene_sim",
+if (shared_dt[gene_sim_to_fbgn, on = "gene_sim",
     sum(!is.na(geneID_shared) & geneID_shared != i.gene_id_fbgn)
 ] > 0) {
-    stop("Conflicting FBgn annotations in inbred dataset")
+    stop("Conflicting FBgn annotations")
 }
 
-if (poolseq_dt[gene_sim_to_fbgn, on = "gene_sim",
-    sum(!is.na(geneID_shared) & geneID_shared != i.gene_id_fbgn)
-] > 0) {
-    stop("Conflicting FBgn annotations in PoolSeq dataset")
-}
+# if (poolseq_dt[gene_sim_to_fbgn, on = "gene_sim",
+#     sum(!is.na(geneID_shared) & geneID_shared != i.gene_id_fbgn)
+# ] > 0) {
+#     stop("Conflicting FBgn annotations in PoolSeq dataset")
+# }
 
-inbred_dt[gene_sim_to_fbgn, on = "gene_sim",
+shared_dt[gene_sim_to_fbgn, on = "gene_sim",
     geneID_shared := fifelse(is.na(geneID_shared), i.gene_id_fbgn, geneID_shared)]
-poolseq_dt[gene_sim_to_fbgn, on = "gene_sim",
-    geneID_shared := fifelse(is.na(geneID_shared), i.gene_id_fbgn, geneID_shared)]
+# poolseq_dt[gene_sim_to_fbgn, on = "gene_sim",
+#     geneID_shared := fifelse(is.na(geneID_shared), i.gene_id_fbgn, geneID_shared)]
 
 # Summarize mapping
-inbred_dt[, .(
+shared_dt[, .(
     total = .N,
     mapped = sum(!is.na(geneID_shared)),
     unmapped = sum(is.na(geneID_shared))
 )]
 
-poolseq_dt[, .(
-    total = .N,
-    mapped = sum(!is.na(geneID_shared)),
-    unmapped = sum(is.na(geneID_shared))
-)]
+# poolseq_dt[, .(
+#     total = .N,
+#     mapped = sum(!is.na(geneID_shared)),
+#     unmapped = sum(is.na(geneID_shared))
+# )]
 
 # Inspect remaining unmapped rows
-missing_inbred <- inbred_dt[is.na(geneID_shared)]
-missing_poolseq <- poolseq_dt[is.na(geneID_shared)]
+missing <- shared_dt[is.na(geneID_shared)]
+# missing_poolseq <- poolseq_dt[is.na(geneID_shared)]
 
-View(missing_inbred[, .(chr, pos, gene_mel, gene_sim, gene_id_fbgn_fromGFF, geneID_shared)])
-View(missing_poolseq[, .(chr, pos, gene_mel, gene_sim, gene_id_fbgn_fromGFF, geneID_shared)])
+View(missing[, .(chr, pos, gene_mel, gene_sim, gene_id_fbgn_fromGFF, geneID_shared)])
+# View(missing_poolseq[, .(chr, pos, gene_mel, gene_sim, gene_id_fbgn_fromGFF, geneID_shared)])
 
-missing_inbred[, .(
+missing[, .(
     total = .N,
     has_gene_mel = sum(!is.na(gene_mel)),
     has_gene_sim = sum(!is.na(gene_sim)),
@@ -117,14 +251,14 @@ missing_inbred[, .(
     no_gene_symbols = sum(is.na(gene_mel) & is.na(gene_sim))
 )]
 
-missing_poolseq[, .(
-    total = .N,
-    has_gene_mel = sum(!is.na(gene_mel)),
-    has_gene_sim = sum(!is.na(gene_sim)),
-    has_gff_fbgn = sum(!is.na(gene_id_fbgn_fromGFF)),
-    has_gene_mel_no_gff = sum(!is.na(gene_mel) & is.na(gene_id_fbgn_fromGFF)),
-    no_gene_symbols = sum(is.na(gene_mel) & is.na(gene_sim))
-)]
+# missing_poolseq[, .(
+#     total = .N,
+#     has_gene_mel = sum(!is.na(gene_mel)),
+#     has_gene_sim = sum(!is.na(gene_sim)),
+#     has_gff_fbgn = sum(!is.na(gene_id_fbgn_fromGFF)),
+#     has_gene_mel_no_gff = sum(!is.na(gene_mel) & is.na(gene_id_fbgn_fromGFF)),
+#     no_gene_symbols = sum(is.na(gene_mel) & is.na(gene_sim))
+# )]
 
 # there are many genes still missing annotations, so using gff to fill in those genes:
 
