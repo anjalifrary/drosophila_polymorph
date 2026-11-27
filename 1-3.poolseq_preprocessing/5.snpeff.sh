@@ -31,6 +31,7 @@ if [[ "$species" == "mel" ]]; then
         -jar ${SNPEFF}/snpEff.jar ann \
         -formatEff \
         -v BDGP6.86 \
+        -geneId \
         -stats ${outdir}/snpEff_summary.mel.html \
         $infile \
         | bgzip -@ 10 -c - > \
@@ -48,7 +49,8 @@ elif [[ "$species" == "sim" ]]; then
     java -Xmx32G \
         -jar ${SNPEFF}/snpEff.jar ann \
         -formatEff \
-        Dsim_v3.1 \
+        -v Dsim_v3.1 \
+        -geneId \
         -stats ${outdir}/snpEff_summary.html \
         $infile \
         | bgzip -@ 10 -c - > \
