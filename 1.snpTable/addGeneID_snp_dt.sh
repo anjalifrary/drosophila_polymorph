@@ -14,4 +14,4 @@
 cd 1.snpTable/
 export R_LIBS_USER="/sfs/gpfs/tardis/home/ejy4bu/R/goolf/4.5/"
 module load R/4.5.0
-Rscript addGeneID_snp_dt
+Rscript addGeneID_snp_dt.R
