@@ -3,7 +3,7 @@ library(stringr)
 library(AnnotationDbi)
 library(org.Dm.eg.db)
 
-dataset <- "poolseq"
+dataset <- "inbred"
 
 if (dataset == "poolseq") {
     shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
@@ -28,7 +28,9 @@ shared_coords <- unique(shared_dt[, .(
 
 
 ### 2. read vcf 
+print("Loading vcf")
 vcf_dt <- fread(vcf, skip = "#CHROM", select = c(1, 2, 8))
+print("Loaded vcf")
 setnames(vcf_dt, c("CHROM", "POS", "INFO"))
 
 vcf_dt[, chr_key := sub("^chr", "", CHROM)]
