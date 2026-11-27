@@ -18,12 +18,12 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-species="mel"       # mel or sim
+species="sim"       # mel or sim
 
 if [[ "$species" == "mel" ]]; then
     outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
     infile="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-    outfile="${outdir}/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+    outfile="${outdir}/testGeneID/dest.PoolSeq.SNAPE.001.50.03Dec2024_DACtest.norep.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
     echo "Annotating Dm6 vcf with SnpEff..."
 
@@ -41,7 +41,7 @@ if [[ "$species" == "mel" ]]; then
 elif [[ "$species" == "sim" ]]; then
     outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/sim/"
     infile="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-    outfile="${outdir}/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+    outfile="${outdir}/testGeneID/dest.sim.all.SNAPE.001.50.20Nov2025_sim.norep.NOREP.norm.snpGap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
 
     echo "Annotating Dsim3 vcf with SnpEff..."
 
