@@ -3,7 +3,7 @@ library(stringr)
 library(AnnotationDbi)
 library(org.Dm.eg.db)
 
-dataset <- "inbred"
+dataset <- "poolseq"
 
 if (dataset == "poolseq") {
     shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
