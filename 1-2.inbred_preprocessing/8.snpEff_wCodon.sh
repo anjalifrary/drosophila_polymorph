@@ -18,39 +18,48 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-### MEL DGRP2:
-# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
-# in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-# out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+species="mel"       # mel or sim
 
-# echo "Annotating Dm6 vcf with SnpEff..."
+if [[ "$species" == "mel" ]]; then
+    outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/testGeneID/"
+    in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+    out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
 
-# java -Xmx32G \
-#     -jar ${SNPEFF}/snpEff.jar ann \
-#     -formatEff \
-#     -v BDGP6.86 \
-#     -stats ${outdir}/snpEff_summary.html \
-#     $in_vcf \
-#     | bgzip -@ 10 -c - > \
-#     $out_vcf
+    echo "Annotating Dm6 vcf with SnpEff..."
 
-# ### SIM Signor:
-# outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
-# in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-# out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.vcf.gz"
+    java -Xmx32G \
+        -jar ${SNPEFF}/snpEff.jar ann \
+        -formatEff \
+        -geneId \
+        -v BDGP6.86 \
+        -stats ${outdir}/snpEff_summary.html \
+        $in_vcf \
+        | bgzip -@ 10 -c - > \
+        $out_vcf
 
-# echo "Annotating Dsim3 vcf with SnpEff..."
 
-# java -Xmx32G \
-#     -jar ${SNPEFF}/snpEff.jar ann \
-#     -formatEff \
-#     Dsim_v3.1 \
-#     -stats ${outdir}/snpEff_summary.html \
-#     $in_vcf \
-#     | bgzip -@ 10 -c - > \
-#     $out_vcf
+elif [[ "$species" == "sim" ]]; then
 
-#########################################
+    outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/testGeneID/"
+    in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
+    out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
+
+    echo "Annotating Dsim3 vcf with SnpEff..."
+
+    java -Xmx32G \
+        -jar ${SNPEFF}/snpEff.jar ann \
+        -formatEff \
+        -geneId \
+        -v Dsim_v3.1 \
+        -stats ${outdir}/snpEff_summary.html \
+        $in_vcf \
+        | bgzip -@ 10 -c - > \
+        $out_vcf
+
+else
+    echo "ERROR: Invalid species: $speies"
+    exit 1
+fi
 
 echo "Finished annotating"
 echo "Indexing..."
