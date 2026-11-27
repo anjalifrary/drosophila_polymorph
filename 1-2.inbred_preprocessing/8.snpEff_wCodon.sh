@@ -36,7 +36,8 @@ if [[ "$species" == "mel" ]]; then
         $in_vcf \
         | bgzip -@ 10 -c - > \
         $out_vcf
-
+    
+    echo "Finished annotating"
 
 elif [[ "$species" == "sim" ]]; then
 
@@ -55,13 +56,13 @@ elif [[ "$species" == "sim" ]]; then
         $in_vcf \
         | bgzip -@ 10 -c - > \
         $out_vcf
+    echo "Finished annotating"
 
 else
     echo "ERROR: Invalid species: $speies"
     exit 1
 fi
 
-echo "Finished annotating"
 echo "Indexing..."
 
 bcftools index $out_vcf

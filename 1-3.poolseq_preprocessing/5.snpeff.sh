@@ -63,8 +63,6 @@ else
     exit 1
 fi
 
-
-echo "Finished annotating"
 echo "Indexing..."
 
 bcftools index $outfile
