@@ -18,7 +18,7 @@ module load gcc/11.4.0
 
 SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 
-species="sim"       # mel or sim
+species="mel"       # mel or sim
 
 if [[ "$species" == "mel" ]]; then
     outdir="/scratch/ejy4bu/drosophila/DEST_remake/vcfs/filtering/mel/"
