@@ -25,7 +25,7 @@ if [[ "$species" == "mel" ]]; then
     in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
     out_vcf="${outdir}/testGeneID/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
 
-    echo "Annotating Dm6 vcf with SnpEff..."
+    echo "Annotating mel Dm6 vcf with SnpEff..."
 
     java -Xmx32G \
         -jar ${SNPEFF}/snpEff.jar ann \
@@ -44,7 +44,7 @@ elif [[ "$species" == "sim" ]]; then
     in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
     out_vcf="${outdir}/testGeneID/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
 
-    echo "Annotating Dsim3 vcf with SnpEff..."
+    echo "Annotating sim Dsim3 vcf with SnpEff..."
 
     java -Xmx32G \
         -jar ${SNPEFF}/snpEff.jar ann \
