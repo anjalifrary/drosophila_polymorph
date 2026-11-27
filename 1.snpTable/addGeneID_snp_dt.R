@@ -3,7 +3,7 @@ library(stringr)
 library(AnnotationDbi)
 library(org.Dm.eg.db)
 
-dataset <- "poolseq"
+dataset <- "inbred"
 
 if (dataset == "poolseq") {
     shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
@@ -13,7 +13,7 @@ if (dataset == "poolseq") {
 } else if (dataset == "inbred") {
     shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds")
     vcf <- "/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/testGeneID/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
-    new_shared_dt <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.rds"
+    new_shared_dt <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.fbgn.rds"
 } else {
     print(paste0("Invalid dataset: ", dataset))
 }
@@ -79,7 +79,7 @@ fbgn_by_pos[, n_fbgn := uniqueN(gene_id_fbgn), by = .(chr_key, pos)]
 fbgn_single <- unique(fbgn_by_pos[n_fbgn == 1, .(chr_key, pos, gene_id_fbgn)])
 
 
-### 3. Update shared dt with SnpEff annotated gene mel
+### 7. Update shared dt with SnpEff annotated gene mel
 shared_dt[, geneID_fbgn := NA_character_]
 shared_dt[, chr_key := sub("^chr", "", chr)]
 shared_dt[fbgn_single, on = .(chr_key, pos), geneID_fbgn := i.gene_id_fbgn]
@@ -94,12 +94,77 @@ shared_dt[!is.na(variant.id_mel), .(
     mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 2)
 )]
 
-# missing <- shared_dt[!is.na(variant.id_mel) & is.na(geneID_fbgn)]
-
-missing_pos <- shared_dt[
-    !is.na(variant.id_mel) & is.na(geneID_fbgn),
-    .(chr, pos)
+missing <- shared_dt[!is.na(variant.id_mel) & is.na(geneID_fbgn)]
+missing_pos <- missing[, .(chr, pos, transcript_id_mel)]
+missing_transcripts <- eff_dt[missing_pos, on = .(CHROM = chr, POS = pos), .(
+        CHROM, POS,
+        transcript_id_mel = i.transcript_id_mel,
+        transcript_id_vcf = vapply(
+            strsplit(sub("^[^(]*\\(", "", EFF_entry),
+            "|",
+            fixed = TRUE
+        ),
+        function(x) if (length(x) >= 9) x[9] else NA_character_,
+        character(1)
+    ),
+    gene_id_fbgn)
 ]
+missing_transcripts <- missing_transcripts[transcript_id_mel == transcript_id_vcf]
+missing_transcripts <- unique(
+    missing_transcripts[, .(
+        CHROM,
+        POS,
+        transcript_id_mel,
+        gene_id_fbgn
+    )]
+)
+
+head(missing_transcripts)
+
+shared_dt[missing_transcripts, on = .(
+        chr = CHROM,
+        pos = POS,
+        transcript_id_mel = transcript_id_mel
+    ), geneID_fbgn := i.gene_id_fbgn]
+
+shared_dt[
+    !is.na(variant.id_mel),
+    .(
+        total = .N,
+        mapped = sum(!is.na(geneID_fbgn)),
+        unmapped = sum(is.na(geneID_fbgn)),
+        mapping_rate = round(
+            100 * sum(!is.na(geneID_fbgn)) / .N,
+            2
+        )
+    )
+]
+
+head(shared_dt[!is.na(variant.id_mel) & !is.na(geneID_fbgn), .(chr, pos, transcript_id_mel, gene_mel, geneID_fbgn)])
+
+
+shared_dt[
+    is.na(geneID_fbgn) &
+    !is.na(gene_id_fbgn_fromGFF),
+    geneID_fbgn := gene_id_fbgn_fromGFF
+]
+shared_dt[!is.na(variant.id_mel), .(
+    total = .N,
+    mapped = sum(!is.na(geneID_fbgn)),
+    unmapped = sum(is.na(geneID_fbgn)),
+    mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 4)
+)]
+
+saveRDS(shared_dt, new_shared_dt)
+
+
+
+
+
+
+
+
+
 
 missing_transcripts <- eff_dt[
     missing_pos,
@@ -117,18 +182,6 @@ missing_transcripts <- eff_dt[
 ]
 
 stop("Stopping here for debugging")
-
-shared_dt[
-    is.na(geneID_fbgn) &
-    !is.na(gene_id_fbgn_fromGFF),
-    geneID_fbgn := gene_id_fbgn_fromGFF
-]
-shared_dt[!is.na(variant.id_mel), .(
-    total = .N,
-    mapped = sum(!is.na(geneID_fbgn)),
-    unmapped = sum(is.na(geneID_fbgn)),
-    mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 4)
-)]
 
 
 
