@@ -21,9 +21,9 @@ SNPEFF=/project/berglandlab/multispecies_endemism/snpEFF/v4.3t/snpEff/
 species="mel"       # mel or sim
 
 if [[ "$species" == "mel" ]]; then
-    outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/testGeneID/"
+    outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/"
     in_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-    out_vcf="${outdir}/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
+    out_vcf="${outdir}/testGeneID/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
 
     echo "Annotating Dm6 vcf with SnpEff..."
 
@@ -40,9 +40,9 @@ if [[ "$species" == "mel" ]]; then
 
 elif [[ "$species" == "sim" ]]; then
 
-    outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/testGeneID/"
+    outdir="/scratch/ejy4bu/drosophila/inbred/combined_vcf/dsim3.signor/"
     in_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.vcf.gz"
-    out_vcf="${outdir}/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
+    out_vcf="${outdir}/testGeneID/dsim3.signor.combined.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
 
     echo "Annotating Dsim3 vcf with SnpEff..."
 
