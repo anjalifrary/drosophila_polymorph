@@ -5,6 +5,18 @@ module load R/4.5.0
 R
 
 
+species="mel"       # mel or sim
+
+if [[ "$species" == "mel" ]]; then
+    
+elif [[ "$species" == "sim" ]]; then
+    
+else
+    echo "ERROR: Invalid species: $speies"
+    exit 1
+fi
+
+
 
 #!/usr/bin/env bash
 #SBATCH -J jobname         # Job name
