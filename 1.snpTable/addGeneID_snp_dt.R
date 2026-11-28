@@ -31,47 +31,30 @@ print(paste("Unique shared positions:", nrow(shared_coords)))
 
 
 ### 2. Query indexed VCF using temporary regions file
+### 2. Query VCF using targets file (streaming)
 
-print("Preparing shared coordinate file")
+print("Preparing targets file")
 
-coords_file <- tempfile(
-    pattern = "shared_coords_",
+targets_file <- tempfile(
+    pattern = "shared_targets_",
     tmpdir = dirname(new_shared_dt),
     fileext = ".txt"
 )
 
 fwrite(
     shared_coords,
-    coords_file,
+    targets_file,
     sep = "\t",
     col.names = FALSE
 )
 
-print("Streaming through VCF")
-
-awk_script <- '
-NR == FNR {
-    wanted[$1 ":" $2] = 1
-    next
-}
-{
-    chrom = $1
-    sub(/^chr/, "", chrom)
-    key = chrom ":" $2
-
-    if (key in wanted)
-        print
-}
-'
+print("Querying VCF using bcftools targets")
 
 cmd <- paste(
     "bcftools query",
+    "-T", shQuote(targets_file),
     "-f", shQuote("%CHROM\\t%POS\\t%INFO/EFF\\n"),
-    shQuote(vcf),
-    "| awk",
-    shQuote(awk_script),
-    shQuote(coords_file),
-    "-"
+    shQuote(vcf)
 )
 
 eff_raw <- tryCatch(
@@ -80,7 +63,7 @@ eff_raw <- tryCatch(
         sep = "\t",
         header = FALSE
     ),
-    finally = unlink(coords_file)
+    finally = unlink(targets_file)
 )
 
 if (nrow(eff_raw) == 0) {
@@ -93,6 +76,69 @@ eff_raw[, POS := as.integer(POS)]
 eff_raw[, CHROM := sub("^chr", "", CHROM)]
 
 print(paste("Retrieved matching VCF records:", nrow(eff_raw)))
+
+## this version is running at 23582517
+# print("Preparing shared coordinate file")
+
+# coords_file <- tempfile(
+#     pattern = "shared_coords_",
+#     tmpdir = dirname(new_shared_dt),
+#     fileext = ".txt"
+# )
+
+# fwrite(
+#     shared_coords,
+#     coords_file,
+#     sep = "\t",
+#     col.names = FALSE
+# )
+
+# print("Streaming through VCF")
+
+# awk_script <- '
+# NR == FNR {
+#     wanted[$1 ":" $2] = 1
+#     next
+# }
+# {
+#     chrom = $1
+#     sub(/^chr/, "", chrom)
+#     key = chrom ":" $2
+
+#     if (key in wanted)
+#         print
+# }
+# '
+
+# cmd <- paste(
+#     "bcftools query",
+#     "-f", shQuote("%CHROM\\t%POS\\t%INFO/EFF\\n"),
+#     shQuote(vcf),
+#     "| awk",
+#     shQuote(awk_script),
+#     shQuote(coords_file),
+#     "-"
+# )
+
+# eff_raw <- tryCatch(
+#     fread(
+#         cmd = cmd,
+#         sep = "\t",
+#         header = FALSE
+#     ),
+#     finally = unlink(coords_file)
+# )
+
+# if (nrow(eff_raw) == 0) {
+#     stop("No matching VCF records retrieved. Check contig names, coordinates, and VCF.")
+# }
+
+# setnames(eff_raw, c("CHROM", "POS", "EFF"))
+
+# eff_raw[, POS := as.integer(POS)]
+# eff_raw[, CHROM := sub("^chr", "", CHROM)]
+
+# print(paste("Retrieved matching VCF records:", nrow(eff_raw)))
 
 ### 4. Split EFF entries
 
