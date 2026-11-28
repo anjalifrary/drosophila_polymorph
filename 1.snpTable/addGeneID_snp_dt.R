@@ -30,64 +30,61 @@ setorder(shared_coords, CHROM, POS)
 print(paste("Unique shared positions:", nrow(shared_coords)))
 
 
-print("Getting coordinate query")
-# Format regions as CHROM, START, END (1-based inclusive)
-regions_text <- paste(
-    sprintf(
-        "%s\t%d\t%d",
-        shared_coords$CHROM,
-        shared_coords$POS,
-        shared_coords$POS
-    ),
-    collapse = "\n"
+### 2. Query indexed VCF using temporary regions file
+print("Preparing regions file")
+
+regions_file <- tempfile(
+    pattern = "shared_regions_",
+    tmpdir = dirname(new_shared_dt),
+    fileext = ".txt"
 )
+regions_dt <- shared_coords[, .(
+    CHROM,
+    START = POS,
+    END = POS
+)]
+
+fwrite(
+    regions_dt,
+    regions_file,
+    sep = "\t",
+    col.names = FALSE
+)
+
+rm(regions_dt)
+gc()
 
 print("Querying indexed VCF")
 
-# Bash process substitution supplies the region list without a regions file
-inner_cmd <- paste0(
-    "bcftools query ",
-    "-R <(printf '%s\\n' ",
-    shQuote(regions_text),
-    ") ",
-    "-f '%CHROM\\t%POS\\t%INFO/EFF\\n' ",
+cmd <- paste(
+    "bcftools query",
+    "-R", shQuote(regions_file),
+    "-f", shQuote("%CHROM\\t%POS\\t%INFO/EFF\\n"),
     shQuote(vcf)
 )
 
-cmd <- paste("bash -c", shQuote(inner_cmd))
+eff_raw <- tryCatch(
+    fread(
+        cmd = cmd,
+        sep = "\t",
+        header = FALSE
+    ),
+    finally = unlink(regions_file)
+)
 
-# Stream bcftools output directly into fread
-eff_raw <- fread(cmd = cmd, sep = "\t", header = FALSE)
 if (nrow(eff_raw) == 0) {
-    stop("No VCF records retrieved. Check contig names, coordinates, VCF index, and bcftools.")
+    stop("No VCF records retrieved. Check contig names, coordinates, index, and bcftools.")
 }
+
 setnames(eff_raw, c("CHROM", "POS", "EFF"))
 
-
 eff_raw[, POS := as.integer(POS)]
+eff_raw[, CHROM := sub("^chr", "", CHROM)]
 
 print(paste("Retrieved VCF records:", nrow(eff_raw)))
 
-
-# ### 2. read vcf 
-# print("Loading vcf")
-# vcf_dt <- fread(vcf, skip = "#CHROM", select = c(1, 2, 8))
-# print("Loaded vcf")
-# setnames(vcf_dt, c("CHROM", "POS", "INFO"))
-
-# vcf_dt[, chr_key := sub("^chr", "", CHROM)]
-# vcf_dt[, POS := as.integer(POS)]
-
-# vcf_dt <- vcf_dt[shared_coords, on = .(chr_key, POS = pos), nomatch = 0]
-# vcf_dt[, chr_key := NULL]
-
-# ### 3. Extract EFF from vcf
-# vcf_dt <- vcf_dt[grepl("EFF=", INFO)]
-
-# vcf_dt[, EFF := sub(".*EFF=", "", INFO)]
-# vcf_dt[, EFF := sub(";.*", "", EFF)]
-
 ### 4. Split EFF entries
+
 print("Splitting EFF annotations")
 eff_raw <- eff_raw[!is.na(EFF) & EFF != "."]
 
