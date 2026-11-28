@@ -1,9 +1,9 @@
 library(data.table)
-library(stringr)
-library(AnnotationDbi)
-library(org.Dm.eg.db)
+# library(stringr)
+# library(AnnotationDbi)
+# library(org.Dm.eg.db)
 
-dataset <- "inbred"
+dataset <- "poolseq"
 
 if (dataset == "poolseq") {
     shared_dt <- readRDS("/project/berglandlab/anjali/drosophila_polymorphism/classification/poolseq_dest/classed/dest.mel.sim.PoolSeq.SNAPE.001.50.SynMissense.11_2026.nlp.polyMAF5.shared.bothMelSim.classed.rds")
@@ -15,77 +15,139 @@ if (dataset == "poolseq") {
     vcf <- "/scratch/ejy4bu/drosophila/inbred/combined_vcf/DGRP2/testGeneID/DGRP2.source_BCM-HGSC.dm6.final.reheadered.primaryChr.norm.gatkfilt.snpgap10.snpsOnly.repeatmasked.wmdust.ann.eff.geneId.vcf.gz"
     new_shared_dt <- "/project/berglandlab/anjali/drosophila_polymorphism/classification/inbred/classed/dsim3.signor.DGRP2.source_BCM-HGSC.11_2026.shared.bothMelSim.0.05MAFfilter.classed.fbgn.rds"
 } else {
-    print(paste0("Invalid dataset: ", dataset))
+    stop(paste0("Invalid dataset: ", dataset))
 }
 
-safe_dt <- copy(shared_dt)
+# safe_dt <- copy(shared_dt)
 
 ### 1. get coordinates of shared_dt
+print("Get shared coordinates")
 shared_coords <- unique(shared_dt[, .(
-    chr_key = sub("^chr", "", chr),
-    pos
+    CHROM = sub("^chr", "", chr),
+    POS = as.integer(pos)
 )])
+setorder(shared_coords, CHROM, POS)
+print(paste("Unique shared positions:", nrow(shared_coords)))
 
 
-### 2. read vcf 
-print("Loading vcf")
-vcf_dt <- fread(vcf, skip = "#CHROM", select = c(1, 2, 8))
-print("Loaded vcf")
-setnames(vcf_dt, c("CHROM", "POS", "INFO"))
+print("Getting coordinate query")
+# Format regions as CHROM, START, END (1-based inclusive)
+regions_text <- paste(
+    sprintf(
+        "%s\t%d\t%d",
+        shared_coords$CHROM,
+        shared_coords$POS,
+        shared_coords$POS
+    ),
+    collapse = "\n"
+)
 
-vcf_dt[, chr_key := sub("^chr", "", CHROM)]
-vcf_dt[, POS := as.integer(POS)]
+print("Querying indexed VCF")
 
-vcf_dt <- vcf_dt[shared_coords, on = .(chr_key, POS = pos), nomatch = 0]
-vcf_dt[, chr_key := NULL]
+# Bash process substitution supplies the region list without a regions file
+inner_cmd <- paste0(
+    "bcftools query ",
+    "-R <(printf '%s\\n' ",
+    shQuote(regions_text),
+    ") ",
+    "-f '%CHROM\\t%POS\\t%INFO/EFF\\n' ",
+    shQuote(vcf)
+)
 
-### 3. Extract EFF from vcf
-vcf_dt <- vcf_dt[grepl("EFF=", INFO)]
+cmd <- paste("bash -c", shQuote(inner_cmd))
 
-vcf_dt[, EFF := sub(".*EFF=", "", INFO)]
-vcf_dt[, EFF := sub(";.*", "", EFF)]
+# Stream bcftools output directly into fread
+eff_raw <- fread(cmd = cmd, sep = "\t", header = FALSE)
+if (nrow(eff_raw) == 0) {
+    stop("No VCF records retrieved. Check contig names, coordinates, VCF index, and bcftools.")
+}
+setnames(eff_raw, c("CHROM", "POS", "EFF"))
+
+
+eff_raw[, POS := as.integer(POS)]
+
+print(paste("Retrieved VCF records:", nrow(eff_raw)))
+
+
+# ### 2. read vcf 
+# print("Loading vcf")
+# vcf_dt <- fread(vcf, skip = "#CHROM", select = c(1, 2, 8))
+# print("Loaded vcf")
+# setnames(vcf_dt, c("CHROM", "POS", "INFO"))
+
+# vcf_dt[, chr_key := sub("^chr", "", CHROM)]
+# vcf_dt[, POS := as.integer(POS)]
+
+# vcf_dt <- vcf_dt[shared_coords, on = .(chr_key, POS = pos), nomatch = 0]
+# vcf_dt[, chr_key := NULL]
+
+# ### 3. Extract EFF from vcf
+# vcf_dt <- vcf_dt[grepl("EFF=", INFO)]
+
+# vcf_dt[, EFF := sub(".*EFF=", "", INFO)]
+# vcf_dt[, EFF := sub(";.*", "", EFF)]
 
 ### 4. Split EFF entries
+print("Splitting EFF annotations")
+eff_raw <- eff_raw[!is.na(EFF) & EFF != "."]
 
-eff_list <- strsplit(vcf_dt$EFF, ",", fixed = TRUE)
+eff_list <- strsplit(eff_raw$EFF, ",", fixed = TRUE)
 
 eff_dt <- data.table(
-    CHROM = rep(vcf_dt$CHROM, lengths(eff_list)),
-    POS = rep(vcf_dt$POS, lengths(eff_list)),
+    CHROM = rep(eff_raw$CHROM, lengths(eff_list)),
+    POS = rep(eff_raw$POS, lengths(eff_list)),
     EFF_entry = unlist(eff_list, use.names = FALSE)
 )
 
+rm(eff_raw, eff_list)
+gc()
+
 ### 5. Extract FBgn IDs
+print("Extracting FBgn and transcript IDs")
+
 eff_dt[, effect := sub("\\(.*", "", EFF_entry)]
 
+eff_fields <- strsplit(sub("^[^(]*\\(", "", eff_dt$EFF_entry), "|", fixed = TRUE)
+
 eff_dt[, gene_id_fbgn := vapply(
-    strsplit(sub("^[^(]*\\(", "", EFF_entry), "|", fixed = TRUE),
+    eff_fields,
     function(x) if (length(x) >= 6) x[6] else NA_character_,
     character(1)
 )]
+eff_dt[, transcript_id_vcf := vapply(
+    eff_fields,
+    function(x) if (length(x) >= 9) x[9] else NA_character_,
+    character(1)
+)]
+
+rm(eff_fields)
+gc()
+
 
 eff_dt <- eff_dt[grepl("^FBgn[0-9]+$", gene_id_fbgn)]
 eff_dt <- eff_dt[effect %in% c("synonymous_variant", "missense_variant")]
+print(paste("Filtered annotation entries:", nrow(eff_dt)))
 
 ### 6. Create chr-pos-fbgn id mapping
-fbgn_by_pos <- unique(eff_dt[, .(
-    chr = CHROM,
-    pos = as.integer(POS),
-    gene_id_fbgn
-)])
+print("Creating chr-pos-FBgn mapping")
 
-fbgn_by_pos[, chr_key := sub("^chr", "", chr)]
-fbgn_by_pos[, n_fbgn := uniqueN(gene_id_fbgn), by = .(chr_key, pos)]
-fbgn_single <- unique(fbgn_by_pos[n_fbgn == 1, .(chr_key, pos, gene_id_fbgn)])
+fbgn_by_pos <- unique(eff_dt[, .(CHROM, POS, gene_id_fbgn)])
+
+fbgn_by_pos[, n_fbgn := uniqueN(gene_id_fbgn), by = .(CHROM, POS)]
+fbgn_single <- unique(fbgn_by_pos[n_fbgn == 1, .(CHROM, POS, gene_id_fbgn)])
 
 
 ### 7. Update shared dt with SnpEff annotated gene mel
-shared_dt[, geneID_fbgn := NA_character_]
+print("Adding unique position FBgn mappings")
+
+fbgn_single[, chr_key := sub("^chr", "", CHROM)]
 shared_dt[, chr_key := sub("^chr", "", chr)]
-shared_dt[fbgn_single, on = .(chr_key, pos), geneID_fbgn := i.gene_id_fbgn]
+
+shared_dt[, geneID_fbgn := NA_character_]
+shared_dt[fbgn_single, on = .(chr_key, pos = POS), geneID_fbgn := i.gene_id_fbgn]
 
 shared_dt[, chr_key := NULL]
-fbgn_by_pos[, chr_key := NULL]
+fbgn_single[, chr_key := NULL]
 
 shared_dt[!is.na(variant.id_mel), .(
     total = .N,
@@ -94,53 +156,57 @@ shared_dt[!is.na(variant.id_mel), .(
     mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 2)
 )]
 
+### 8. resolve ambiguous positions that weren't mapped
+print("Resolving ambiguous positions using transcript IDs")
+eff_dt[, chr_key := sub("^chr", "", CHROM)]
+
 missing <- shared_dt[!is.na(variant.id_mel) & is.na(geneID_fbgn)]
-missing_pos <- missing[, .(chr, pos, transcript_id_mel)]
-missing_transcripts <- eff_dt[missing_pos, on = .(CHROM = chr, POS = pos), .(
-        CHROM, POS,
+missing_pos <- missing[, .(chr_key=sub("^chr", "", chr), POS = as.integer(pos), transcript_id_mel)]
+missing_transcripts <- eff_dt[missing_pos, on = .(chr_key, POS), .(
+        chr_key, POS,
         transcript_id_mel = i.transcript_id_mel,
-        transcript_id_vcf = vapply(
-            strsplit(sub("^[^(]*\\(", "", EFF_entry),
-            "|",
-            fixed = TRUE
-        ),
-        function(x) if (length(x) >= 9) x[9] else NA_character_,
-        character(1)
-    ),
-    gene_id_fbgn)
+        transcript_id_vcf, gene_id_fbgn)
 ]
 missing_transcripts <- missing_transcripts[transcript_id_mel == transcript_id_vcf]
 missing_transcripts <- unique(
     missing_transcripts[, .(
-        CHROM,
+        chr_key,
         POS,
         transcript_id_mel,
         gene_id_fbgn
     )]
 )
 
-head(missing_transcripts)
+print("Transcript-resolved mappings:")
+print(head(missing_transcripts))
+shared_dt[, chr_key := sub("^chr", "", chr)]
 
-shared_dt[missing_transcripts, on = .(
-        chr = CHROM,
-        pos = POS,
-        transcript_id_mel = transcript_id_mel
+shared_dt[missing_transcripts, on = .(chr_key, pos = POS, transcript_id_mel = transcript_id_mel
     ), geneID_fbgn := i.gene_id_fbgn]
 
-shared_dt[
-    !is.na(variant.id_mel),
+
+shared_dt[, chr_key := NULL]
+eff_dt[, chr_key := NULL]
+
+
+print("Mapping statistics after transcript resolution")
+shared_dt[!is.na(variant.id_mel),
     .(
         total = .N,
         mapped = sum(!is.na(geneID_fbgn)),
         unmapped = sum(is.na(geneID_fbgn)),
-        mapping_rate = round(
-            100 * sum(!is.na(geneID_fbgn)) / .N,
-            2
-        )
+        mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 2)
     )
 ]
 
-head(shared_dt[!is.na(variant.id_mel) & !is.na(geneID_fbgn), .(chr, pos, transcript_id_mel, gene_mel, geneID_fbgn)])
+print(head(shared_dt[!is.na(variant.id_mel) & !is.na(geneID_fbgn), .(chr, pos, transcript_id_mel, gene_mel, geneID_fbgn)]))
+
+saveRDS(shared_dt, new_shared_dt)
+print(paste("Saved to:", new_shared_dt))
+
+stop("Stopping here for debugging")
+
+
 
 
 shared_dt[
@@ -155,7 +221,6 @@ shared_dt[!is.na(variant.id_mel), .(
     mapping_rate = round(100 * sum(!is.na(geneID_fbgn)) / .N, 4)
 )]
 
-saveRDS(shared_dt, new_shared_dt)
 
 
 
@@ -181,7 +246,6 @@ missing_transcripts <- eff_dt[
     )
 ]
 
-stop("Stopping here for debugging")
 
 
 
