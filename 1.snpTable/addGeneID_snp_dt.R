@@ -31,36 +31,47 @@ print(paste("Unique shared positions:", nrow(shared_coords)))
 
 
 ### 2. Query indexed VCF using temporary regions file
-print("Preparing regions file")
 
-regions_file <- tempfile(
-    pattern = "shared_regions_",
+print("Preparing shared coordinate file")
+
+coords_file <- tempfile(
+    pattern = "shared_coords_",
     tmpdir = dirname(new_shared_dt),
     fileext = ".txt"
 )
-regions_dt <- shared_coords[, .(
-    CHROM,
-    START = POS,
-    END = POS
-)]
 
 fwrite(
-    regions_dt,
-    regions_file,
+    shared_coords,
+    coords_file,
     sep = "\t",
     col.names = FALSE
 )
 
-rm(regions_dt)
-gc()
+print("Streaming through VCF")
 
-print("Querying indexed VCF")
+awk_script <- '
+NR == FNR {
+    wanted[$1 ":" $2] = 1
+    next
+}
+{
+    chrom = $1
+    sub(/^chr/, "", chrom)
+    key = chrom ":" $2
+
+    if (key in wanted)
+        print
+}
+'
 
 cmd <- paste(
     "bcftools query",
-    "-R", shQuote(regions_file),
     "-f", shQuote("%CHROM\\t%POS\\t%INFO/EFF\\n"),
-    shQuote(vcf)
+    shQuote(vcf),
+    "| awk",
+    shQuote(awk_script),
+    shQuote(coords_file),
+    "-"
 )
 
 eff_raw <- tryCatch(
@@ -69,11 +80,11 @@ eff_raw <- tryCatch(
         sep = "\t",
         header = FALSE
     ),
-    finally = unlink(regions_file)
+    finally = unlink(coords_file)
 )
 
 if (nrow(eff_raw) == 0) {
-    stop("No VCF records retrieved. Check contig names, coordinates, index, and bcftools.")
+    stop("No matching VCF records retrieved. Check contig names, coordinates, and VCF.")
 }
 
 setnames(eff_raw, c("CHROM", "POS", "EFF"))
@@ -81,7 +92,7 @@ setnames(eff_raw, c("CHROM", "POS", "EFF"))
 eff_raw[, POS := as.integer(POS)]
 eff_raw[, CHROM := sub("^chr", "", CHROM)]
 
-print(paste("Retrieved VCF records:", nrow(eff_raw)))
+print(paste("Retrieved matching VCF records:", nrow(eff_raw)))
 
 ### 4. Split EFF entries
 
